@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { CFG } from '../config.js';
 import { getTexture } from '../render/assets.js';
+import { makePedestal } from '../world/propMeshes.js';
 import * as sfx from '../audio/sfx.js';
 
 export class Pickup {
@@ -18,12 +19,9 @@ export class Pickup {
     this.group = new THREE.Group();
 
     if (opts.pedestal) {
-      const ped = new THREE.Mesh(
-        new THREE.PlaneGeometry(1.4, 1.4),
-        new THREE.MeshBasicMaterial({ map: getTexture('props/loot_pedestal'), transparent: true, alphaTest: 0.35, toneMapped: false })
-      );
-      ped.position.set(x, 0.7, z);
-      ped.userData.billboard = true;
+      // solid plinth: the item on top is still a sprite, but the stand should not be
+      const ped = makePedestal();
+      ped.position.set(x, 0, z);
       this.pedestal = ped;
       this.group.add(ped);
     }
@@ -75,7 +73,8 @@ export class Pickup {
   dispose() {
     this.group.traverse(o => {
       if (o.geometry) o.geometry.dispose();
-      if (o.material) o.material.dispose();
+      // the plinth shares cached materials/textures with the level, so leave those alone
+      if (o.material && !(o.material.userData && o.material.userData.shared)) o.material.dispose();
     });
   }
 }

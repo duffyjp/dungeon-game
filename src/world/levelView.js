@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { CFG } from '../config.js';
 import { getTexture, getMirroredTexture } from '../render/assets.js';
+import { makeProp, makePillar, makeStaircase, makeTorch } from './propMeshes.js';
 import { isOpen } from '../util/grid.js';
 
 export function cellToWorld(level, x, y) {
@@ -135,36 +136,55 @@ export function buildLevelView(level, biome) {
       continue;
     }
     if (p.kind === 'pillar') {
-      // collision is the wall instance; the sprite is the carved detail on top of it
-      const mesh = makeBillboard('props/pillar', [CFG.cell, CFG.wallH], wx, wz, CFG.wallH / 2);
-      group.add(mesh);
-      propMeshes.push(mesh);
+      // collision is the wall instance; the column is the carved detail on top of it
+      const col = makePillar(biome);
+      col.position.set(wx, 0, wz);
+      group.add(col);
+      propMeshes.push(col);
       continue;
     }
-    // door_oak ships in the texture set; everything else is a prop sprite
+    // Solid objects are real geometry now, so strafing past a crate shows its sides.
+    // Anything makeProp declines (still-organic shapes) falls back to a billboard.
+    const solid = makeProp(p.kind, biome, p);
+    if (solid) {
+      solid.position.x += wx;
+      solid.position.z += wz;
+      group.add(solid);
+      propMeshes.push(solid);
+      continue;
+    }
     const key = p.kind === 'door_oak' ? 'textures/door_oak' : `props/${p.kind}`;
     const mesh = makeBillboard(key, propSize(p.kind), wx, wz);
     group.add(mesh);
     propMeshes.push(mesh);
   }
 
-  // ---- torches: emissive quads; only the nearest few get a real PointLight (§16)
+  // ---- torches: real bracket geometry; only the nearest few get a PointLight (§16)
   const torchMeshes = [];
   for (const t of level.torches) {
-    const mesh = makeBillboard('props/torch_sconce', [1.1, 1.5], (t.x + 0.5) * CFG.cell, (t.y + 0.5) * CFG.cell, 1.35);
-    mesh.userData.world = { x: (t.x + 0.5) * CFG.cell, z: (t.y + 0.5) * CFG.cell };
-    group.add(mesh);
-    torchMeshes.push(mesh);
+    const tx = (t.x + 0.5) * CFG.cell, tz = (t.y + 0.5) * CFG.cell;
+    const sconce = makeTorch(biome);
+    sconce.position.set(tx, 1.15, tz);
+    // snapped to a quarter turn so sconces look wall-mounted rather than randomly spun
+    sconce.rotation.y = ((t.x * 7 + t.y * 13) % 4) * Math.PI / 2;
+    sconce.userData.world = { x: tx, z: tz };
+    group.add(sconce);
+    torchMeshes.push(sconce);
   }
 
-  // ---- staircase
+  // ---- staircase: descending steps facing the way the player approaches
   const st = cellToWorld(level, level.stair.x, level.stair.y);
-  const stair = makeBillboard('props/staircase_down', [2.4, 3.0], st.x, st.z, CFG.wallH / 2);
+  const stair = makeStaircase(biome);
+  stair.position.set(st.x, 0, st.z);
+  const entryW = cellToWorld(level, level.entry.x, level.entry.y);
+  stair.rotation.y = Math.atan2(entryW.x - st.x, entryW.z - st.z);
   stair.userData.world = st;
   group.add(stair);
 
-  const glow = new THREE.PointLight(biome.accent, 2.2, 9, 2);
-  glow.position.set(st.x, 0.6, st.z);
+  const glow = new THREE.PointLight(biome.accent, 2.4, 9, 2);
+  // low, at the mouth of the shaft: light coming up out of the opening is what tells the
+  // player this is a way down and not a decoration
+  glow.position.set(st.x, 0.22, st.z - 0.3);
   group.add(glow);
 
   return {
@@ -179,7 +199,13 @@ export function buildLevelView(level, biome) {
         if (o.geometry) o.geometry.dispose();
         if (o.material) {
           const mats = Array.isArray(o.material) ? o.material : [o.material];
-          for (const mm of mats) { if (mm.map) mm.map.dispose(); mm.dispose(); }
+          for (const mm of mats) {
+            // Prop materials and their textures are cached and reused across levels, so
+            // tearing down one level must not free what the next level is about to draw.
+            if (mm.userData && mm.userData.shared) continue;
+            if (mm.map) mm.map.dispose();
+            mm.dispose();
+          }
         }
       });
     }

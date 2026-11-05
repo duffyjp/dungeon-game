@@ -53,10 +53,14 @@ Art QA, which renders a report you can look at instead of reading numbers:
 ```
 npm run qa:seams      # seamcheck.png — every tile at 50% offset vs. the engine's mirrored pass
 npm run qa:keys       # keycheck.png  — every sprite after the real keying pipeline, with numbers
+npm run qa:props      # propcheck.png — every solid prop, front view and turned 40 degrees
+npm run qa:props:one -- "?only=staircase"   # one prop, framed from standing eye height
 npm run shot -- index.html play.png 1280 720 "?demo=1&seed=alpha&depth=9&preview=orc&tier=4"
 ```
 
 Each starts its own Vite server, so they work whether or not `npm run dev` is running.
+The game page preloads 88 textures, so `SHOT_BUDGET=150000 npm run shot -- index.html ...`
+raises the headless time budget when a screenshot comes back empty.
 
 `test:game` needs a Chromium browser installed; it uses a throwaway profile, so it will
 not disturb an open browser window. Individual suites: `test:levels`, `test:loot`,
@@ -68,9 +72,11 @@ Useful URL parameters:
 |---|---|
 | `?demo=1&seed=777` | jump straight into a run with a fixed level |
 | `?demo=1&depth=7&preview=mage&tier=3` | stand one enemy in front of the camera for art review |
+| `?demo=1&depth=4&at=stair` | stand next to the staircase looking at it, for landmark review |
 | `?selftest=1` | run the integration checks and print pass/fail |
 | `?selftest=1&assets=1` | same, but after decoding every generated image |
 | `/seamcheck.html` | texture tiling review sheet (raw vs. the engine's mirrored pass) |
+| `/propcheck.html` | solid-prop review sheet, built from the same code the game uses |
 
 ## Adding music
 
@@ -103,12 +109,30 @@ attempts; the two rejected seeds are recorded in its manifest entry.
   things crashes chokidar on Windows with `EBUSY` and takes the whole dev server down —
   the art pipeline writes PNGs while the server runs, and some editors save by writing a
   `.tmp` file next to the source. They are excluded, so source edits still hot-reload.
-  Because the image registry is built from a glob at server start, adding or replacing a
-  PNG means restarting the server; a page reload is enough for code changes.
+  Because the image registry is built from a glob at server start, **adding** a new PNG
+  means restarting the server. Replacing a PNG under the same name — which is what the
+  art pipeline does — only needs a page reload.
 - **Stale-code trap:** if a dev server was started before a fix landed and the fix is not
   reaching the browser, restart the server. `npm run test:game` always starts its own
   server, so a passing test can coexist with a stale tab — that is exactly what happened
   once with the strafe fix.
+- **Props are real geometry; creatures are still billboards.** `world/propMeshes.js`
+  builds crates, barrels, bones, chains, arches, doors, pillars, the staircase, torch
+  sconces and loot plinths as low-poly meshes with lit `MeshStandardMaterial`, because
+  the headlamp and torch lights have to shape them. Sprites stay deliberately *unlit*
+  (`MeshBasicMaterial`) since the generated art has lighting baked in — do not "fix" that
+  by lighting the sprites. Prop materials and their texture clones are cached across
+  levels and marked `userData.shared`, so level teardown must not dispose them.
+- **Prompts must be affirmative.** The image graph samples at CFG 1 with its negative
+  branch wired to `ConditioningZeroOut`, so a negative prompt is thrown away — and a
+  `no X` clause typed into the positive prompt is just a description of X, which the
+  model then paints. Observed: "no dots" → a lattice of dots, "no blue, no cyan" → blue
+  chips. Name the palette and the arrangement instead ("evenly distributed all-over
+  detail", "clean unbroken background"). Details in spec §13.2.
+- **Solid props never spawn on the entry cell, the staircase cell, or the ring of cells
+  around the staircase** (`placeDecor` in `world/levelGen.js`). While props were
+  transparent cutouts the overlap was invisible; as geometry it put a door physically on
+  top of the way down.
 - **Node is not on PATH** on this machine. Use the full path
   (`C:\Program Files\nodejs\npm.cmd`), and prepend `C:\Program Files\nodejs` to `$env:PATH`
   for scripts that shell out to `node`.

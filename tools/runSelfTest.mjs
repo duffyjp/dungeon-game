@@ -57,7 +57,10 @@ const flags = [
   '--no-default-browser-check', '--window-size=1100,900', '--virtual-time-budget=25000'
 ];
 if (shot) flags.push(`--screenshot=${shot}`);
-flags.push('http://localhost:5181/?selftest=1');
+// Extra query fragments (e.g. "&at=stair") are appended so debug placements and other
+// URL switches can be exercised through the same reporting path as the checks.
+const extra = process.argv.slice(2).filter(a => a.startsWith('&')).join('');
+flags.push(`http://localhost:5181/?selftest=1${extra}`);
 
 const child = spawn(browser, flags, { stdio: 'ignore', detached: false, windowsHide: true });
 

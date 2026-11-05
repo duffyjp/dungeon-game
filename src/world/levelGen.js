@@ -107,9 +107,18 @@ function placePillars(level, rng, rooms) {
 }
 
 function placeDecor(level, rng, props) {
+  // Keep the descent and the spawn clear. With billboard props this was invisible —
+  // cutouts are transparent, so a door parked on the staircase just looked like scenery
+  // until the props became solid geometry and physically stood on top of the way down.
+  const cellKey = (x, y) => y * level.w + x;
+  const blocked = new Set([cellKey(level.entry.x, level.entry.y), cellKey(level.stair.x, level.stair.y)]);
+  for (const d of DIRS) blocked.add(cellKey(level.stair.x + d.x, level.stair.y + d.y));
+
   const cells = [];
   for (let y = 1; y < level.h - 1; y++) {
-    for (let x = 1; x < level.w - 1; x++) if (isOpen(level, x, y)) cells.push({ x, y });
+    for (let x = 1; x < level.w - 1; x++) {
+      if (isOpen(level, x, y) && !blocked.has(cellKey(x, y))) cells.push({ x, y });
+    }
   }
   const picked = rng.shuffle(cells).slice(0, Math.min(26, cells.length));
   for (const c of picked) {

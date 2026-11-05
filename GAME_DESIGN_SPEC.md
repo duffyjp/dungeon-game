@@ -408,7 +408,7 @@ All SFX pitch-jitter ±8 % and voice-limit 6 simultaneous. Positional via `Panne
 
 ### 13.2 Known capability limits of this graph (do not work around with other models)
 
-- **Negative prompts have no effect.** CFG is 1 and the negative branch is `ConditioningZeroOut`, so anything unwanted must be excluded by wording the positive prompt (and every prompt ends with `no text, no watermark`). Do not pass a `negative_prompt` and assume it worked.
+- **Negated clauses inside the prompt make the thing appear.** This graph samples at CFG 1 with the negative branch wired to `ConditioningZeroOut`, so a `negative_prompt` is discarded entirely, and any `no X` phrase typed into the *positive* prompt is simply a description of X that the model then paints. Observed directly: "no dots" produced a lattice of dots, "no teal, no turquoise" produced teal, "no blue, no cyan" produced blue chips, and "no pictograms" is the likeliest cause of the pictograms on the first-pass `pillar`, `door_oak` and `cobweb`. **Write prompts affirmatively**: name the palette, name the arrangement ("evenly distributed all-over detail", "clean unbroken background"), and never name a thing you do not want. Do not pass a `negative_prompt` and assume it worked.
 - **No inpainting, no outpainting, no img2img inside this graph.** Regenerate with a new seed instead of editing. `refine_image` (img2img) exists as a separate MCP tool but runs a *different* workflow, so it is only for optional polish on already-approved assets, with `denoise ≤ 0.35`, and never as a substitute for a good prompt.
 - **No upscaler models are installed on the server** (`upscale_models` is empty). `upscale_image` is therefore unavailable; do not depend on it. Get detail by prompting and, if needed, generating at 1024 and downscaling to the display size in-engine.
 - **ControlNet and IP-Adapter availability is unverified** on this server. Style consistency comes from a shared prompt suffix and shared seeds, not from conditioning tools. If a future request needs pose/depth control, report the missing models rather than swapping generators.
@@ -416,17 +416,21 @@ All SFX pitch-jitter ±8 % and voice-limit 6 simultaneous. Positional via `Panne
 
 ### 13.3 Shared prompt parts
 
-**STYLE** = `photorealistic AAA game asset, PBR material detail, crisp studio key light with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range`
+**STYLE** (current, painted key — batch 3 onward) = `hand-painted stylized game asset, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette, bold readable shapes that stay legible at distance, slight visible brushwork, centered composition`
 
-**BG-SPRITE** = `isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection`
+`_photoreal_v1` STYLE (batch 1-2, superseded; originals kept in `assets/images/_photoreal_v1/`) = `photorealistic AAA game asset, PBR material detail, crisp studio key light with cool rim light, subtle film grain, sharp focus, high dynamic range`
 
-**BG-TILE** = `seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams`
+**BG-SPRITE** = `isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, full body in frame`
+The magenta line is load-bearing: the runtime keyer samples the image border and cuts on chroma. Phrase "subject contains no pink/magenta" by *naming the subject's palette affirmatively* instead of forbidding hues.
 
-**NEG-WORDS** = `no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts`
+**BG-TILE** = `seamless tileable texture, flat top-down lighting, uniform scale, evenly distributed all-over detail, medium-frequency detail, soft brush-blended edges`
+Say "evenly distributed" rather than "no large motifs", and "soft edges" rather than "no outlines" — see §13.2.
 
-Prompt template for entities: `A <subject description>, full body, facing camera, <family/variant detail>, standing pose, ${STYLE}, ${BG-SPRITE}, ${NEG-WORDS}`
+There is no NEG-WORDS suffix. It was removed: those clauses live in the positive prompt and were producing artefacts (see §13.2).
 
-Prompt template for tiles: `${STYLE}, ${BG-TILE}, ${NEG-WORDS}, <material description>`
+Prompt template for entities: `A <subject description>, full body, facing camera, <family/variant detail>, standing pose, ${STYLE}, <family palette named affirmatively>, ${BG-SPRITE}`
+
+Prompt template for tiles: `${STYLE}, <material description>, <palette named affirmatively>, ${BG-TILE}`
 
 ### 13.4 Output handling
 

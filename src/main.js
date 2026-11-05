@@ -62,7 +62,10 @@ export class Game {
       this.scene.add(l);
       this.lightPool.push(l);
     }
-    this.headlamp = new THREE.SpotLight(0xfff0dd, 26, 20, Math.PI / 5, 0.55, 1.4);
+    // Wider, softer cone than the photoreal pass used. Flat painted walls no longer hide
+    // the cone's edge behind grit, so a tight penumbra reads as a hard disc of light
+    // pasted onto the wall instead of light falling off.
+    this.headlamp = new THREE.SpotLight(0xfff0dd, 22, 24, Math.PI / 3.4, 0.9, 1.25);
     this.headlamp.position.set(0, 0, 0);
     this.camera.add(this.headlamp);
     this.headlamp.target.position.set(0, -0.15, -1);
@@ -181,6 +184,29 @@ export class Game {
     this.player.place(level);
     this.input.setYaw(this.player.yaw);
     this.player.invuln = CFG.respawnInvuln;
+
+    // ?at=stair stands the player on the tile beside the staircase, looking at its mouth.
+    // The stair is the one prop whose whole job is legibility from that angle, so it
+    // should be one URL away instead of a walk through the level. Standing *on* the stair
+    // would put the camera inside the geometry and start the descend timer.
+    if (params.get('at') === 'stair') {
+      const sc = level.stair, en = level.entry;
+      let best = null, bestD = Infinity;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const cx = sc.x + dx, cy = sc.y + dy;
+        if (cx < 0 || cy < 0 || cx >= level.w || cy >= level.h) continue;
+        if (level.open[cy * level.w + cx] !== 1) continue;
+        const d = Math.abs(cx - en.x) + Math.abs(cy - en.y);   // the approach side
+        if (d < bestD) { bestD = d; best = { x: cx, y: cy }; }
+      }
+      if (best) {
+        const stand = cellToWorld(level, best.x, best.y);
+        const stW = cellToWorld(level, sc.x, sc.y);
+        this.player.x = stand.x; this.player.z = stand.z;
+        this.player.yaw = Math.atan2(stW.x - stand.x, stW.z - stand.z);
+        this.input.setYaw(this.player.yaw);
+      }
+    }
 
     this.enemies = spawnLevelEnemies(this, level, this.rng, depth);
     this.pickups = spawnLevelLoot(this, level, this.rng, depth);

@@ -33,13 +33,17 @@ const target = join(process.cwd(), out);
 rmSync(target, { force: true });                 // a stale file must not read as success
 const profile = mkdtempSync(join(tmpdir(), 'strata-shot-'));
 
+// Virtual-time budget: the game page preloads 88 textures, and 60 s of simulated time is
+// not always enough for that plus a level build, which shows up as an intermittent
+// "no screenshot produced". SHOT_BUDGET= lets a caller raise it per page.
+const budget = Number(process.env.SHOT_BUDGET || 60000);
 const child = spawn(browser, [
   `--user-data-dir=${profile}`, '--headless', '--disable-gpu', '--no-first-run',
-  '--no-default-browser-check', `--window-size=${w},${h}`, '--virtual-time-budget=60000',
+  '--no-default-browser-check', `--window-size=${w},${h}`, `--virtual-time-budget=${budget}`,
   `--screenshot=${target}`, `http://localhost:${PORT}/${page}${query}`
 ], { stdio: 'ignore', windowsHide: true });
 
-const deadline = Date.now() + 150000;
+const deadline = Date.now() + Math.max(150000, budget * 3);
 while (Date.now() < deadline && !existsSync(target)) {
   await new Promise(r => setTimeout(r, 500));
 }

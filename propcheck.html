@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PROP CHECK</title>
+<style>
+  body { margin: 0; background: #0b0d10; color: #cfd6e0; font: 13px/1.5 system-ui, sans-serif; overflow: hidden; }
+  #stage { position: relative; }
+  canvas { display: block; }
+  #log { position: fixed; right: 8px; top: 8px; width: 230px; padding: 8px; white-space: pre-wrap;
+         background: rgba(0,0,0,.55); border: 1px solid #2a2f38; }
+  #log b { color: #ffd9a0; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage"></div>
+  <div id="log">building…</div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { loadTexture, getMirroredTexture } from './src/render/assets.js';
+import { makeProp, makePillar, makeStaircase, makeTorch, makePedestal } from './src/world/propMeshes.js';
+
+const log = document.getElementById('log');
+function say(msg) { log.innerHTML += msg + '<br>'; console.log('PROPCHK| ' + msg.replace(/<[^>]+>/g, '')); }
+
+const biome = {
+  id: 'crypt', wall: 'wall_crypt', floor: 'floor_crypt', ceiling: 'ceiling_crypt',
+  fog: '#0b0d10', fogDensity: 0.055, ambient: '#1b2230', ambientIntensity: 0.10,
+  torchColor: '#ffb35c', accent: '#7fa8ff', torchRange: 9
+};
+
+// Real art must be in place before the material cache is built, or this sheet would
+// photograph the noise placeholders instead of what the game would show.
+const needed = ['textures/door_oak', 'textures/pillar', 'textures/wall_crypt', 'textures/floor_crypt'];
+for (const k of needed) await loadTexture(k, { keyed: false });
+say('textures loaded: <b>' + needed.length + '</b>');
+
+const VW = window.innerWidth, VH = window.innerHeight;
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(VW, VH);
+renderer.setPixelRatio(1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+document.getElementById('stage').appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(biome.fog, biome.fogDensity);
+scene.background = new THREE.Color(biome.fog);
+
+const camera = new THREE.PerspectiveCamera(58, VW / VH, 0.05, 80);
+camera.position.set(0, 1.75, 13.5);
+camera.lookAt(0, 1.0, -1);
+
+// Same lighting family as the game, only pushed brighter than a corridor would be: this
+// sheet exists to judge shapes, so it must not hide them the way gameplay lighting does.
+scene.add(new THREE.AmbientLight(biome.ambient, 0.22));
+const headlamp = new THREE.SpotLight(0xfff0dd, 34, 34, Math.PI / 3.6, 0.6, 1.2);
+headlamp.position.set(0, 2.4, 13);
+headlamp.target.position.set(0, 0.8, -3);
+scene.add(headlamp, headlamp.target);
+const fill = new THREE.SpotLight(0xbfd4ff, 14, 34, Math.PI / 3.2, 0.7, 1.1);
+fill.position.set(-9, 5.5, 6);
+fill.target.position.set(0, 0.8, -3);
+scene.add(fill, fill.target);
+const torch = new THREE.PointLight(biome.torchColor, 14, 16, 2);
+torch.position.set(-5, 2.1, -1);
+scene.add(torch);
+
+// room
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(46, 26),
+  new THREE.MeshStandardMaterial({ map: getMirroredTexture('textures/floor_crypt'), roughness: 0.92 })
+);
+floor.rotation.x = -Math.PI / 2;
+scene.add(floor);
+const back = new THREE.Mesh(
+  new THREE.PlaneGeometry(46, 6),
+  new THREE.MeshStandardMaterial({ map: getMirroredTexture('textures/wall_crypt'), roughness: 0.88 })
+);
+back.position.set(0, 3, -9);
+scene.add(back);
+
+function label(text, x, y, z) {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 64;
+  const g = c.getContext('2d');
+  g.fillStyle = 'rgba(0,0,0,0)';
+  g.clearRect(0, 0, 256, 64);
+  g.font = '600 30px system-ui, sans-serif';
+  g.fillStyle = '#ffe9c4';
+  g.textAlign = 'center';
+  g.fillText(text, 128, 40);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false }));
+  s.scale.set(2.2, 0.55, 1);
+  s.position.set(x, y, z);
+  scene.add(s);
+}
+
+// front row faces the viewer, back row is turned 40 degrees: the side views are the
+// whole reason to have geometry, so the sheet has to show them
+// ?only=staircase frames a single prop from standing eye height, the way it is actually
+// seen in play — useful for the landmarks where legibility matters more than detail.
+const only = new URLSearchParams(location.search).get('only');
+
+const items = [
+  ['crate', () => makeProp('crate', biome, { x: 1, y: 1 }), 0],
+  ['barrel', () => makeProp('barrel', biome, { x: 2, y: 1 }), 0],
+  ['bones', () => makeProp('bones', biome, { x: 3, y: 1 }), 0],
+  ['chain', () => makeProp('chain_hanging', biome, { x: 4, y: 1 }), 0],
+  ['arch', () => makeProp('stone_arch', biome, { x: 5, y: 1 }), 0],
+  ['door', () => makeProp('door_oak', biome, { x: 6, y: 1 }), 0],
+  ['pillar', () => makePillar(biome), 0],
+  ['staircase', () => makeStaircase(biome), 0],
+  ['torch', () => makeTorch(biome), 1.15],     // mounted at the height levelView uses
+  ['pedestal', () => makePedestal(), 0]
+];
+
+let built = 0, tris = 0;
+const tall = new Set(['chain', 'staircase', 'arch', 'door', 'pillar']);
+const shown = only ? items.filter(([name]) => name === only) : items;
+if (only && shown.length === 0) say('no such prop: <b>' + only + '</b>');
+shown.forEach(([name, make, yOff], i) => {
+  const g = make();
+  if (!g) { say('MISSING builder: ' + name); return; }
+  const row = i < 5 ? 0 : 1;
+  const col = i % 5;
+  const x = only ? 0 : (col - 2) * 3.3;
+  const z = only ? -1.7 : (row === 0 ? -0.5 : -5.0);
+  g.position.set(x, yOff, z);
+  g.rotation.y = only ? 0 : (row === 1 ? 0.7 : 0);
+  scene.add(g);
+  g.traverse(o => { if (o.geometry) tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; });
+  label(name, x, only ? 2.3 : (tall.has(name) ? 3.5 : 1.7), z + 0.6);
+  built++;
+});
+
+if (only) {
+  // standing at the threshold and looking down, which is the only angle at which a
+  // floor opening reads as a floor opening
+  camera.position.set(0, 1.62, -0.45);
+  camera.lookAt(0, 0.05, -2.05);
+  headlamp.position.set(0, 1.72, -0.5);
+  headlamp.target.position.set(0, 0.1, -2.4);
+  torch.color.set(biome.accent);
+  torch.intensity = 3.5;
+  torch.position.set(0, 0.25, -2.1);      // light coming up out of the shaft
+}
+
+say('props built: <b>' + built + '</b> &middot; triangles: <b>' + Math.round(tris) + '</b>');
+renderer.render(scene, camera);
+window.__propcheckDone = true;
+</script>
+</body>
+</html>
