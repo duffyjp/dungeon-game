@@ -1,0 +1,1326 @@
+[
+  {
+    "path": "assets/images/textures/wall_crypt.png",
+    "slug": "wall_crypt",
+    "prompt": "damp grey limestone block wall, mortar worn, chisel marks, pale lichen, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41000,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-wall_crypt",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-wall_crypt_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:32:01Z"
+  },
+  {
+    "path": "assets/images/textures/wall_foundry.png",
+    "slug": "wall_foundry",
+    "prompt": "blackened iron plate wall, rivets, ember soot, heat-blued seams, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41001,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-wall_foundry",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-wall_foundry_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:33:00Z"
+  },
+  {
+    "path": "assets/images/textures/wall_cavern.png",
+    "slug": "wall_cavern",
+    "prompt": "wet basalt cave wall, mineral veins, dripping moss, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41002,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-wall_cavern",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-wall_cavern_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:33:38Z"
+  },
+  {
+    "path": "assets/images/textures/wall_vault.png",
+    "slug": "wall_vault",
+    "prompt": "polished obsidian block wall, antique gold inlay, violet sheen, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41003,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-wall_vault",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-wall_vault_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:34:17Z"
+  },
+  {
+    "path": "assets/images/textures/floor_crypt.png",
+    "slug": "floor_crypt",
+    "prompt": "cracked flagstone floor, grit, shallow puddle reflections, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41004,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-floor_crypt",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-floor_crypt_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:35:05Z"
+  },
+  {
+    "path": "assets/images/textures/floor_foundry.png",
+    "slug": "floor_foundry",
+    "prompt": "iron grate floor over glowing embers, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41005,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-floor_foundry",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-floor_foundry_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:35:56Z"
+  },
+  {
+    "path": "assets/images/textures/floor_cavern.png",
+    "slug": "floor_cavern",
+    "prompt": "wet cave stone, pebbles, glossy water film, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41006,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-floor_cavern",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-floor_cavern_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:36:54Z"
+  },
+  {
+    "path": "assets/images/textures/floor_vault.png",
+    "slug": "floor_vault",
+    "prompt": "dark marble tile floor with gold filigree borders, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41007,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-floor_vault",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-floor_vault_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:37:40Z"
+  },
+  {
+    "path": "assets/images/textures/ceiling_crypt.png",
+    "slug": "ceiling_crypt",
+    "prompt": "low stone vault ceiling, soot stains, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41008,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-ceiling_crypt",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-ceiling_crypt_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:38:31Z"
+  },
+  {
+    "path": "assets/images/textures/ceiling_cavern.png",
+    "slug": "ceiling_cavern",
+    "prompt": "rough cave ceiling, stalactite nubs, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41009,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-ceiling_cavern",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-ceiling_cavern_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:39:44Z"
+  },
+  {
+    "path": "assets/images/textures/pillar.png",
+    "slug": "pillar",
+    "prompt": "fluted stone pillar segment, water-stained, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41010,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-pillar",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-pillar_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:40:41Z"
+  },
+  {
+    "path": "assets/images/textures/door_oak.png",
+    "slug": "door_oak",
+    "prompt": "nailed oak door set in stone frame, iron banding, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41011,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-door_oak",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-door_oak_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:41:17Z"
+  },
+  {
+    "path": "assets/images/textures/rubble.png",
+    "slug": "rubble",
+    "prompt": "broken masonry rubble pile against wall, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41012,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-rubble",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-rubble_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:41:54Z"
+  },
+  {
+    "path": "assets/images/textures/cobweb.png",
+    "slug": "cobweb",
+    "prompt": "aged cobweb draping a corner, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41013,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-cobweb",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-cobweb_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:42:31Z"
+  },
+  {
+    "path": "assets/images/textures/blood_splatter.png",
+    "slug": "blood_splatter",
+    "prompt": "dark dried blood splatter on stone, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41014,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-blood_splatter",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-blood_splatter_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:43:08Z"
+  },
+  {
+    "path": "assets/images/textures/scorch.png",
+    "slug": "scorch",
+    "prompt": "radial scorch mark on stone, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41015,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-tex-scorch",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-scorch_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:43:46Z"
+  },
+  {
+    "path": "assets/images/enemies/t1/slime.png",
+    "slug": "t1/slime",
+    "prompt": "translucent green gelatinous slime cube-creature, glossy, internal bubbles, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41016,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-slime",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-slime_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:44:27Z"
+  },
+  {
+    "path": "assets/images/enemies/t2/acid_slime.png",
+    "slug": "t2/acid_slime",
+    "prompt": "yellow-green corrosive slime, dripping, faint steam, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41017,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-acid_slime",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-acid_slime_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:45:10Z"
+  },
+  {
+    "path": "assets/images/enemies/t3/caustic_ooze.png",
+    "slug": "t3/caustic_ooze",
+    "prompt": "black-purple viscous ooze with glowing core, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41018,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-caustic_ooze",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-caustic_ooze_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:45:50Z"
+  },
+  {
+    "path": "assets/images/enemies/t4/void_slime.png",
+    "slug": "t4/void_slime",
+    "prompt": "ink-black slime with starfield interior, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41019,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-void_slime",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-void_slime_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:46:25Z"
+  },
+  {
+    "path": "assets/images/enemies/t1/orc_grunt.png",
+    "slug": "t1/orc_grunt",
+    "prompt": "heavy-set orc warrior, scarred green-grey skin, ragged leather, rusty cleaver, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41020,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-orc_grunt",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-orc_grunt_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:47:09Z"
+  },
+  {
+    "path": "assets/images/enemies/t2/orc_brute.png",
+    "slug": "t2/orc_brute",
+    "prompt": "massive orc in scavenged iron plate, spiked pauldron, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41021,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-orc_brute",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-orc_brute_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:47:44Z"
+  },
+  {
+    "path": "assets/images/enemies/t3/orc_warlord.png",
+    "slug": "t3/orc_warlord",
+    "prompt": "battle-scarred orc warlord, blackened plate, tusked helm, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41022,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-orc_warlord",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-orc_warlord_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:48:22Z"
+  },
+  {
+    "path": "assets/images/enemies/t4/iron_reaver.png",
+    "slug": "t4/iron_reaver",
+    "prompt": "orc champion in full seamless iron armour, no face visible, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41023,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-iron_reaver",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-iron_reaver_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:49:11Z"
+  },
+  {
+    "path": "assets/images/enemies/t1/goblin_archer.png",
+    "slug": "t1/goblin_archer",
+    "prompt": "wiry goblin archer, leather jerkin, crude bow, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41024,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-goblin_archer",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-goblin_archer_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:49:49Z"
+  },
+  {
+    "path": "assets/images/enemies/t2/bone_archer.png",
+    "slug": "t2/bone_archer",
+    "prompt": "skeletal archer, tattered cloak, horn bow, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41025,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-bone_archer",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-bone_archer_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:50:31Z"
+  },
+  {
+    "path": "assets/images/enemies/t3/venom_archer.png",
+    "slug": "t3/venom_archer",
+    "prompt": "hooded archer with bone-and-fang bow, venom flask, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41026,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-venom_archer",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-venom_archer_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:51:08Z"
+  },
+  {
+    "path": "assets/images/enemies/t4/hollow_ranger.png",
+    "slug": "t4/hollow_ranger",
+    "prompt": "armoured hollow archer, empty visor, long composite bow, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41027,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-hollow_ranger",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-hollow_ranger_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:51:41Z"
+  },
+  {
+    "path": "assets/images/enemies/t1/hedge_mage.png",
+    "slug": "t1/hedge_mage",
+    "prompt": "road-mage in patched robes, wooden staff, dim glow, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41028,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-hedge_mage",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-hedge_mage_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:52:12Z"
+  },
+  {
+    "path": "assets/images/enemies/t2/storm_mage.png",
+    "slug": "t2/storm_mage",
+    "prompt": "storm-cloaked mage, ozone sparks around hands, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41029,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-storm_mage",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-storm_mage_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:52:43Z"
+  },
+  {
+    "path": "assets/images/enemies/t3/void_archmage.png",
+    "slug": "t3/void_archmage",
+    "prompt": "tall archmage, floating grimoire, violet light, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41030,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-void_archmage",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-void_archmage_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:53:15Z"
+  },
+  {
+    "path": "assets/images/enemies/t4/doomspeaker.png",
+    "slug": "t4/doomspeaker",
+    "prompt": "masked doomspeaker wreathed in dark flame, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41031,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-doomspeaker",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-doomspeaker_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:53:47Z"
+  },
+  {
+    "path": "assets/images/enemies/t1/wisp.png",
+    "slug": "t1/wisp",
+    "prompt": "translucent pale ghost wisp, faint humanoid face, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41032,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-wisp",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-wisp_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:54:18Z"
+  },
+  {
+    "path": "assets/images/enemies/t2/wraith.png",
+    "slug": "t2/wraith",
+    "prompt": "tattered spectral figure, hollow eyes, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41033,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-wraith",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-wraith_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:54:50Z"
+  },
+  {
+    "path": "assets/images/enemies/t3/dread_spectre.png",
+    "slug": "t3/dread_spectre",
+    "prompt": "towering spectre trailing mist, cracked mask, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41034,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-dread_spectre",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-dread_spectre_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:55:21Z"
+  },
+  {
+    "path": "assets/images/enemies/t4/hungering_shade.png",
+    "slug": "t4/hungering_shade",
+    "prompt": "near-black shade with pale grasping hands, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41035,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-hungering_shade",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-hungering_shade_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:55:52Z"
+  },
+  {
+    "path": "assets/images/enemies/t1/cellar_spider.png",
+    "slug": "t1/cellar_spider",
+    "prompt": "cellar spider, wet carapace, leg detail, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41036,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-cellar_spider",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-cellar_spider_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:56:26Z"
+  },
+  {
+    "path": "assets/images/enemies/t2/grave_spider.png",
+    "slug": "t2/grave_spider",
+    "prompt": "bloated grave spider, pale hairs, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41037,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-grave_spider",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-grave_spider_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:56:59Z"
+  },
+  {
+    "path": "assets/images/enemies/t3/bone_spider.png",
+    "slug": "t3/bone_spider",
+    "prompt": "skeletal spider, bone legs, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 41038,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-en-bone_spider",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-bone_spider_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T04:57:30Z"
+  },
+  {
+    "path": "assets/images/props/staircase_down.png",
+    "slug": "staircase_down",
+    "prompt": "stone staircase descending into darkness, warm light from below, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42000,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-props-staircase_down",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-staircase_down_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:01:30Z"
+  },
+  {
+    "path": "assets/images/props/loot_pedestal.png",
+    "slug": "loot_pedestal",
+    "prompt": "carved stone pedestal with coin resting on it, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42001,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-props-loot_pedestal",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-loot_pedestal_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:02:07Z"
+  },
+  {
+    "path": "assets/images/props/torch_sconce.png",
+    "slug": "torch_sconce",
+    "prompt": "iron wall sconce with lit torch, ember glow, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42002,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-props-torch_sconce",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-torch_sconce_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:02:44Z"
+  },
+  {
+    "path": "assets/images/props/crate.png",
+    "slug": "crate",
+    "prompt": "weathered wooden dungeon crate with iron corners, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42003,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-props-crate",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-crate_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:03:21Z"
+  },
+  {
+    "path": "assets/images/props/barrel.png",
+    "slug": "barrel",
+    "prompt": "rotting barrel with iron bands, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42004,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-props-barrel",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-barrel_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:03:58Z"
+  },
+  {
+    "path": "assets/images/props/bones.png",
+    "slug": "bones",
+    "prompt": "scattered human bones and skull pile, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42005,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-props-bones",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-bones_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:04:35Z"
+  },
+  {
+    "path": "assets/images/props/chain_hanging.png",
+    "slug": "chain_hanging",
+    "prompt": "heavy rusted chain hanging from ceiling, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42006,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-props-chain_hanging",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-chain_hanging_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:05:12Z"
+  },
+  {
+    "path": "assets/images/props/stone_arch.png",
+    "slug": "stone_arch",
+    "prompt": "ornate broken stone archway, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42007,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-props-stone_arch",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-stone_arch_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:05:49Z"
+  },
+  {
+    "path": "assets/images/items/sword_worn.png",
+    "slug": "sword_worn",
+    "prompt": "notched short sword, pitted blade, leather grip, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42008,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-sword_worn",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_worn_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:06:26Z"
+  },
+  {
+    "path": "assets/images/items/sword_short.png",
+    "slug": "sword_short",
+    "prompt": "clean steel short sword, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42009,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-sword_short",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_short_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:07:03Z"
+  },
+  {
+    "path": "assets/images/items/sword_long.png",
+    "slug": "sword_long",
+    "prompt": "longsword with cross guard, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42010,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-sword_long",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_long_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:07:40Z"
+  },
+  {
+    "path": "assets/images/items/axe_battle.png",
+    "slug": "axe_battle",
+    "prompt": "broad battle axe, hammered head, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42011,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-axe_battle",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-axe_battle_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:08:17Z"
+  },
+  {
+    "path": "assets/images/items/sword_great.png",
+    "slug": "sword_great",
+    "prompt": "two-handed greatsword, etched fuller, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42012,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-sword_great",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_great_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:08:54Z"
+  },
+  {
+    "path": "assets/images/items/bow_hunting.png",
+    "slug": "bow_hunting",
+    "prompt": "simple wooden hunting bow, strung, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42013,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-bow_hunting",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-bow_hunting_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:09:31Z"
+  },
+  {
+    "path": "assets/images/items/bow_war.png",
+    "slug": "bow_war",
+    "prompt": "war bow with sinew reinforcement, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42014,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-bow_war",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-bow_war_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:10:08Z"
+  },
+  {
+    "path": "assets/images/items/bow_long.png",
+    "slug": "bow_long",
+    "prompt": "tall longbow with horn tips, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42015,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-bow_long",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-bow_long_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:10:45Z"
+  },
+  {
+    "path": "assets/images/items/armor_padded.png",
+    "slug": "armor_padded",
+    "prompt": "padded gambeson torso, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42016,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-armor_padded",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_padded_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:11:22Z"
+  },
+  {
+    "path": "assets/images/items/armor_studded.png",
+    "slug": "armor_studded",
+    "prompt": "studded leather cuirass, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42017,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-armor_studded",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_studded_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:11:59Z"
+  },
+  {
+    "path": "assets/images/items/armor_chain.png",
+    "slug": "armor_chain",
+    "prompt": "chainmail shirt, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42018,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-armor_chain",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_chain_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:12:36Z"
+  },
+  {
+    "path": "assets/images/items/armor_plate.png",
+    "slug": "armor_plate",
+    "prompt": "plated cuirass with gorget, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42019,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-armor_plate",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_plate_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:13:13Z"
+  },
+  {
+    "path": "assets/images/items/armor_warded.png",
+    "slug": "armor_warded",
+    "prompt": "ornate rune-etched cuirass, faint violet glow, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42020,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-armor_warded",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_warded_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:13:50Z"
+  },
+  {
+    "path": "assets/images/items/potion_health.png",
+    "slug": "potion_health",
+    "prompt": "glass flask of glowing red draught, corked, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42021,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-potion_health",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-potion_health_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:14:27Z"
+  },
+  {
+    "path": "assets/images/items/item_extra_life.png",
+    "slug": "item_extra_life",
+    "prompt": "small porcelain skull charm with gold seam, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42022,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-item_extra_life",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-item_extra_life_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:15:04Z"
+  },
+  {
+    "path": "assets/images/items/item_repair_kit.png",
+    "slug": "item_repair_kit",
+    "prompt": "leather roll of armour tools and rivets, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42023,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-item_repair_kit",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-item_repair_kit_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:15:41Z"
+  },
+  {
+    "path": "assets/images/items/coin.png",
+    "slug": "coin",
+    "prompt": "antique gold coin, worn, no lettering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42024,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-coin",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-coin_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:16:18Z"
+  },
+  {
+    "path": "assets/images/items/arrow.png",
+    "slug": "arrow",
+    "prompt": "steel-pointed arrow with fletching, lying flat, viewed from directly above, product cutout sprite, photorealistic metal and feather material detail, centered composition, sharp focus, background is a single flat solid magenta colour rgb(255,0,255) filling every pixel edge to edge like a graphics-program fill, completely uniform with no lighting, no gradient, no vignette, no floor, no ground plane, no horizon, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 43125,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-items-arrow",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-arrow_00003_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      42025,
+      43025
+    ],
+    "generatedAt": "2026-11-05T06:01:29.132Z",
+    "note": "regenerated twice: studio-style prompts produced a gradient backdrop and cast shadow that survived chroma keying (keycheck.html measured 10.4% then 5.7% magenta left); the flat \"colour fill\" wording fixed it"
+  },
+  {
+    "path": "assets/images/vfx/slash_arc.png",
+    "slug": "slash_arc",
+    "prompt": "crescent motion-blur slash trail, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42026,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-vfx-slash_arc",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-slash_arc_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:17:32Z"
+  },
+  {
+    "path": "assets/images/vfx/hit_spark.png",
+    "slug": "hit_spark",
+    "prompt": "bright orange impact spark burst, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42027,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-vfx-hit_spark",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-hit_spark_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:18:09Z"
+  },
+  {
+    "path": "assets/images/vfx/fireball.png",
+    "slug": "fireball",
+    "prompt": "orange fireball with smoke tail, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42028,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-vfx-fireball",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-fireball_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:18:46Z"
+  },
+  {
+    "path": "assets/images/vfx/magic_orb.png",
+    "slug": "magic_orb",
+    "prompt": "violet arcane orb with arcs, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42029,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-vfx-magic_orb",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-magic_orb_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:19:23Z"
+  },
+  {
+    "path": "assets/images/vfx/ghost_trail.png",
+    "slug": "ghost_trail",
+    "prompt": "pale dissipating mist trail, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42030,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-vfx-ghost_trail",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-ghost_trail_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:20:00Z"
+  },
+  {
+    "path": "assets/images/vfx/slime_splat.png",
+    "slug": "slime_splat",
+    "prompt": "green slime splash, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42031,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-vfx-slime_splat",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-slime_splat_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:20:37Z"
+  },
+  {
+    "path": "assets/images/vfx/portal_glow.png",
+    "slug": "portal_glow",
+    "prompt": "radial warm light bloom ring, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42032,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-vfx-portal_glow",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-portal_glow_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:21:14Z"
+  },
+  {
+    "path": "assets/images/vfx/contact_shadow.png",
+    "slug": "contact_shadow",
+    "prompt": "soft elliptical black contact shadow, feathered edges, solid white background, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, on flat solid white background, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42033,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-vfx-contact_shadow",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-contact_shadow_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:21:51Z"
+  },
+  {
+    "path": "assets/images/ui/bar_frame_health.png",
+    "slug": "bar_frame_health",
+    "prompt": "ornate dark metal horizontal bar frame, empty centre, symmetrical, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42034,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-bar_frame_health",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-bar_frame_health_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:22:28Z"
+  },
+  {
+    "path": "assets/images/ui/bar_frame_armor.png",
+    "slug": "bar_frame_armor",
+    "prompt": "dark metal horizontal bar frame with riveted steel motif, empty centre, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42035,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-bar_frame_armor",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-bar_frame_armor_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:23:05Z"
+  },
+  {
+    "path": "assets/images/ui/icon_skull_life.png",
+    "slug": "icon_skull_life",
+    "prompt": "carved bone skull icon, front-facing, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42036,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-icon_skull_life",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-icon_skull_life_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:23:42Z"
+  },
+  {
+    "path": "assets/images/ui/icon_shield_broken.png",
+    "slug": "icon_shield_broken",
+    "prompt": "cracked shield icon, front-facing, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42037,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-icon_shield_broken",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-icon_shield_broken_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:24:19Z"
+  },
+  {
+    "path": "assets/images/ui/crosshair.png",
+    "slug": "crosshair",
+    "prompt": "minimal metal ring crosshair with 4 ticks, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42038,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-crosshair",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-crosshair_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:24:56Z"
+  },
+  {
+    "path": "assets/images/ui/frame_panel.png",
+    "slug": "frame_panel",
+    "prompt": "dark parchment-and-iron UI panel frame, empty centre, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42039,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-frame_panel",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-frame_panel_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:25:33Z"
+  },
+  {
+    "path": "assets/images/ui/frame_banner.png",
+    "slug": "frame_banner",
+    "prompt": "gothic horizontal banner frame for level titles, empty centre, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42040,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-frame_banner",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-frame_banner_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:26:10Z"
+  },
+  {
+    "path": "assets/images/ui/rarity_0.png",
+    "slug": "rarity_0",
+    "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour grey, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42041,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-rarity_0",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_0_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:26:47Z"
+  },
+  {
+    "path": "assets/images/ui/rarity_1.png",
+    "slug": "rarity_1",
+    "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour bone-white, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42042,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-rarity_1",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_1_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:27:24Z"
+  },
+  {
+    "path": "assets/images/ui/rarity_2.png",
+    "slug": "rarity_2",
+    "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour blue, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42043,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-rarity_2",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_2_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:28:01Z"
+  },
+  {
+    "path": "assets/images/ui/rarity_3.png",
+    "slug": "rarity_3",
+    "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour green, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42044,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-rarity_3",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_3_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:28:38Z"
+  },
+  {
+    "path": "assets/images/ui/rarity_4.png",
+    "slug": "rarity_4",
+    "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour purple, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42045,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-rarity_4",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_4_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:29:15Z"
+  },
+  {
+    "path": "assets/images/ui/rarity_5.png",
+    "slug": "rarity_5",
+    "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour gold, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42046,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-rarity_5",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_5_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:29:52Z"
+  },
+  {
+    "path": "assets/images/ui/minimap_frame.png",
+    "slug": "minimap_frame",
+    "prompt": "circular brass compass frame, empty centre, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42047,
+    "steps": 8,
+    "size": [
+      512,
+      512
+    ],
+    "prefix": "strata-ui-minimap_frame",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-minimap_frame_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:30:29Z"
+  },
+  {
+    "path": "assets/images/ui/menu_bg.png",
+    "slug": "menu_bg",
+    "prompt": "cavern corridor fading to black, single torch, heavy vignette, no creatures, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "seed": 42048,
+    "steps": 8,
+    "size": [
+      1024,
+      1024
+    ],
+    "prefix": "strata-ui-menu_bg",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-menu_bg_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [],
+    "generatedAt": "2026-11-05T05:31:06Z"
+  }
+]

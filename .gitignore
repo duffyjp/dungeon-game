@@ -1,0 +1,5 @@
+node_modules/
+dist/
+
+# QA output is regenerable: npm run qa:seams / qa:keys / shot
+/*.png

@@ -1,0 +1,78 @@
+{
+  "items": [
+    {
+      "id": "sword_worn", "name": "Worn Short Sword", "slot": "weapon", "family": "sword",
+      "sprite": "items/sword_worn", "base": 14, "tierRank": 0,
+      "attack": { "kind": "melee", "range": 1.9, "arc": 110, "cooldown": 0.70, "crit": 0.12, "critMult": 1.75 },
+      "sfx": "swing_whoosh"
+    },
+    {
+      "id": "sword_short", "name": "Short Sword", "slot": "weapon", "family": "sword",
+      "sprite": "items/sword_short", "base": 14, "tierRank": 1,
+      "attack": { "kind": "melee", "range": 1.9, "arc": 110, "cooldown": 0.70, "crit": 0.12, "critMult": 1.75 },
+      "sfx": "swing_whoosh"
+    },
+    {
+      "id": "sword_long", "name": "Longsword", "slot": "weapon", "family": "sword",
+      "sprite": "items/sword_long", "base": 18, "tierRank": 2,
+      "attack": { "kind": "melee", "range": 2.0, "arc": 110, "cooldown": 0.75, "crit": 0.12, "critMult": 1.75 },
+      "sfx": "swing_whoosh"
+    },
+    {
+      "id": "axe_battle", "name": "Battle Axe", "slot": "weapon", "family": "axe",
+      "sprite": "items/axe_battle", "base": 26, "tierRank": 3,
+      "attack": { "kind": "melee", "range": 2.1, "arc": 130, "cooldown": 0.95, "crit": 0.10, "critMult": 1.9 },
+      "sfx": "swing_whoosh"
+    },
+    {
+      "id": "sword_great", "name": "Greatsword", "slot": "weapon", "family": "sword",
+      "sprite": "items/sword_great", "base": 32, "tierRank": 4,
+      "attack": { "kind": "melee", "range": 2.4, "arc": 120, "cooldown": 1.15, "crit": 0.12, "critMult": 1.75, "cleave": 2 },
+      "sfx": "swing_whoosh"
+    },
+    {
+      "id": "bow_hunting", "name": "Hunting Bow", "slot": "weapon", "family": "bow",
+      "sprite": "items/bow_hunting", "base": 12, "tierRank": 1,
+      "attack": { "kind": "ranged", "range": 18, "speed": 24, "cooldown": 0.90, "draw": 0.35, "falloff": 0.70, "crit": 0.15, "critMult": 1.75 },
+      "sfx": "bow_release"
+    },
+    {
+      "id": "bow_war", "name": "War Bow", "slot": "weapon", "family": "bow",
+      "sprite": "items/bow_war", "base": 17, "tierRank": 2,
+      "attack": { "kind": "ranged", "range": 22, "speed": 26, "cooldown": 0.88, "draw": 0.32, "falloff": 0.72, "crit": 0.15, "critMult": 1.75 },
+      "sfx": "bow_release"
+    },
+    {
+      "id": "bow_long", "name": "Longbow", "slot": "weapon", "family": "bow",
+      "sprite": "items/bow_long", "base": 23, "tierRank": 3,
+      "attack": { "kind": "ranged", "range": 26, "speed": 28, "cooldown": 1.05, "draw": 0.42, "falloff": 0.75, "crit": 0.18, "critMult": 1.8 },
+      "sfx": "bow_release"
+    },
+    {
+      "id": "armor_padded", "name": "Padded Jack", "slot": "armor", "family": "armor",
+      "sprite": "items/armor_padded", "base": 40, "tierRank": 1, "mitigation": 0.09
+    },
+    {
+      "id": "armor_studded", "name": "Studded Leather", "slot": "armor", "family": "armor",
+      "sprite": "items/armor_studded", "base": 70, "tierRank": 2, "mitigation": 0.18
+    },
+    {
+      "id": "armor_chain", "name": "Chainmail", "slot": "armor", "family": "armor",
+      "sprite": "items/armor_chain", "base": 105, "tierRank": 3, "mitigation": 0.27
+    },
+    {
+      "id": "armor_plate", "name": "Plated Cuirass", "slot": "armor", "family": "armor",
+      "sprite": "items/armor_plate", "base": 150, "tierRank": 4, "mitigation": 0.36
+    },
+    {
+      "id": "armor_warded", "name": "Warded Plate", "slot": "armor", "family": "armor",
+      "sprite": "items/armor_warded", "base": 210, "tierRank": 5, "mitigation": 0.45
+    },
+    { "id": "potion_health", "name": "Health Draught", "slot": "instant", "sprite": "items/potion_health", "heal": [25, 45], "sfx": "heal" },
+    { "id": "extra_life", "name": "Porcelain Skull Charm", "slot": "instant", "sprite": "items/item_extra_life", "lives": 1, "sfx": "extra_life" },
+    { "id": "repair_kit", "name": "Repair Kit", "slot": "instant", "sprite": "items/item_repair_kit", "repair": 0.40, "sfx": "equip_upgrade" },
+    { "id": "coin", "name": "Coin", "slot": "score", "sprite": "items/coin", "value": [1, 3], "sfx": "salvage" }
+  ],
+  "startingWeapon": "sword_worn",
+  "startingArmor": null
+}

@@ -1,0 +1,20 @@
+{
+  "bands": [
+    { "band": 0, "depths": [1, 3],  "size": 21, "braid": 0.15, "rooms": [3, 5], "biome": "crypt" },
+    { "band": 1, "depths": [4, 6],  "size": 25, "braid": 0.20, "rooms": [4, 6], "biome": "foundry" },
+    { "band": 2, "depths": [7, 9],  "size": 29, "braid": 0.25, "rooms": [5, 6], "biome": "cavern" },
+    { "band": 3, "depths": [10, 99], "size": 33, "braid": 0.30, "rooms": [5, 7], "biome": "vault" }
+  ],
+  "minibossEvery": 3,
+  "miniboss": { "hpMult": 4, "radiusMult": 1.4, "dropTierBonus": 2, "burst": true },
+  "spawn": {
+    "base": 7,
+    "perDepth": 1.6,
+    "max": 34,
+    "distMin": 8,
+    "distMax": 40,
+    "separation": 4,
+    "stairGuard": 2
+  },
+  "lootAlcoves": [2, 4]
+}

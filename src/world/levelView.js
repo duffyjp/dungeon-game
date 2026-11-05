@@ -1,0 +1,223 @@
+// Level view: turns the generated tile grid into three.js geometry (spec §3, §9.4).
+// Floor + ceiling are one plane each; walls are a single InstancedMesh limited to
+// wall tiles that actually face walkable space, which keeps draw calls inside budget.
+
+import * as THREE from 'three';
+import { CFG } from '../config.js';
+import { getTexture, getMirroredTexture } from '../render/assets.js';
+import { isOpen } from '../util/grid.js';
+
+export function cellToWorld(level, x, y) {
+  return { x: (x + 0.5) * CFG.cell, z: (y + 0.5) * CFG.cell };
+}
+export function worldToCell(wx, wz) {
+  return { x: Math.floor(wx / CFG.cell), y: Math.floor(wz / CFG.cell) };
+}
+export function isWallWorld(level, wx, wz) {
+  const c = worldToCell(wx, wz);
+  return !isOpen(level, c.x, c.y);
+}
+
+// Surface materials use the mirrored composite so tile boundaries cannot show a seam.
+// Repeat is halved because the composite already contains 2x2 copies of the source.
+function tileTex(key, repeat) {
+  const t = getMirroredTexture(key);
+  t.repeat.set(repeat[0] / 2, repeat[1] / 2);
+  return t;
+}
+
+// Radial feather used as alphaMap on floor decals, so a square generated patch fades
+// into the floor instead of reading as a pasted tile.
+let decalMask = null;
+function getDecalMask() {
+  if (decalMask) return decalMask;
+  const s = 128;
+  const c = document.createElement('canvas');
+  c.width = c.height = s;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(s / 2, s / 2, s * 0.14, s / 2, s / 2, s * 0.5);
+  grad.addColorStop(0, '#ffffff');
+  grad.addColorStop(0.6, '#a8a8a8');
+  grad.addColorStop(1, '#000000');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, s, s);
+  decalMask = new THREE.CanvasTexture(c);
+  return decalMask;
+}
+
+function cloneTex(tex, repeat) {
+  const t = tex.clone();
+  t.needsUpdate = true;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  if (repeat) t.repeat.set(repeat[0], repeat[1]);
+  return t;
+}   // kept for one-off materials that must not share the mirrored cache
+
+export function buildLevelView(level, biome) {
+  const group = new THREE.Group();
+  const wUnits = level.w * CFG.cell;
+  const hUnits = level.h * CFG.cell;
+
+  // ---- floor
+  const floorTex = tileTex(`textures/${biome.floor}`, [level.w, level.h]);
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(wUnits, hUnits),
+    new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.92, metalness: 0.04 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(wUnits / 2, 0, hUnits / 2);
+  floor.receiveShadow = true;
+  group.add(floor);
+
+  // ---- ceiling
+  const ceilKey = biome.ceiling ? `textures/${biome.ceiling}` : `textures/${biome.wall}`;
+  const ceilTex = tileTex(ceilKey, [level.w, level.h]);
+  const ceil = new THREE.Mesh(
+    new THREE.PlaneGeometry(wUnits, hUnits),
+    new THREE.MeshStandardMaterial({ map: ceilTex, roughness: 0.98, metalness: 0 })
+  );
+  ceil.rotation.x = Math.PI / 2;
+  ceil.position.set(wUnits / 2, CFG.wallH, hUnits / 2);
+  group.add(ceil);
+
+  // ---- walls (instanced)
+  const instances = [];
+  for (let y = 0; y < level.h; y++) {
+    for (let x = 0; x < level.w; x++) {
+      if (isOpen(level, x, y)) continue;
+      // skip wall blocks with no walkable neighbour: never visible from inside
+      let visible = false;
+      for (let dy = -1; dy <= 1 && !visible; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx, ny = y + dy;
+          if (nx >= 0 && ny >= 0 && nx < level.w && ny < level.h && isOpen(level, nx, ny)) { visible = true; break; }
+        }
+      }
+      if (visible) instances.push({ x, y });
+    }
+  }
+  const wallTex = tileTex(`textures/${biome.wall}`, [1, CFG.wallH / CFG.cell]);
+  const wallMesh = new THREE.InstancedMesh(
+    new THREE.BoxGeometry(CFG.cell, CFG.wallH, CFG.cell),
+    new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.88, metalness: 0.08 }),
+    instances.length
+  );
+  const m = new THREE.Matrix4();
+  instances.forEach((c, i) => {
+    m.makeTranslation((c.x + 0.5) * CFG.cell, CFG.wallH / 2, (c.y + 0.5) * CFG.cell);
+    wallMesh.setMatrixAt(i, m);
+  });
+  wallMesh.instanceMatrix.needsUpdate = true;
+  wallMesh.castShadow = false;      // dungeon lighting is faked; real shadow maps here cost too much
+  wallMesh.receiveShadow = false;
+  group.add(wallMesh);
+
+  // ---- decorative props
+  const propMeshes = [];
+  for (const p of level.props) {
+    const wx = (p.x + 0.5) * CFG.cell, wz = (p.y + 0.5) * CFG.cell;
+    if (p.decal) {
+      // Floor decals lie flat and never billboard. Generated decals have no alpha and
+      // hard square edges, so a radial alpha mask feathers them into the floor.
+      const decal = new THREE.Mesh(
+        new THREE.PlaneGeometry(CFG.cell * 1.3, CFG.cell * 1.3),
+        new THREE.MeshBasicMaterial({
+          map: getTexture(`textures/${p.kind}`),
+          alphaMap: getDecalMask(),
+          transparent: true, opacity: 0.72, depthWrite: false, toneMapped: false
+        })
+      );
+      decal.rotation.x = -Math.PI / 2;
+      decal.rotation.z = Math.random() * Math.PI * 2;
+      decal.position.set(wx, 0.02, wz);
+      group.add(decal);
+      continue;
+    }
+    if (p.kind === 'pillar') {
+      // collision is the wall instance; the sprite is the carved detail on top of it
+      const mesh = makeBillboard('props/pillar', [CFG.cell, CFG.wallH], wx, wz, CFG.wallH / 2);
+      group.add(mesh);
+      propMeshes.push(mesh);
+      continue;
+    }
+    // door_oak ships in the texture set; everything else is a prop sprite
+    const key = p.kind === 'door_oak' ? 'textures/door_oak' : `props/${p.kind}`;
+    const mesh = makeBillboard(key, propSize(p.kind), wx, wz);
+    group.add(mesh);
+    propMeshes.push(mesh);
+  }
+
+  // ---- torches: emissive quads; only the nearest few get a real PointLight (§16)
+  const torchMeshes = [];
+  for (const t of level.torches) {
+    const mesh = makeBillboard('props/torch_sconce', [1.1, 1.5], (t.x + 0.5) * CFG.cell, (t.y + 0.5) * CFG.cell, 1.35);
+    mesh.userData.world = { x: (t.x + 0.5) * CFG.cell, z: (t.y + 0.5) * CFG.cell };
+    group.add(mesh);
+    torchMeshes.push(mesh);
+  }
+
+  // ---- staircase
+  const st = cellToWorld(level, level.stair.x, level.stair.y);
+  const stair = makeBillboard('props/staircase_down', [2.4, 3.0], st.x, st.z, CFG.wallH / 2);
+  stair.userData.world = st;
+  group.add(stair);
+
+  const glow = new THREE.PointLight(biome.accent, 2.2, 9, 2);
+  glow.position.set(st.x, 0.6, st.z);
+  group.add(glow);
+
+  return {
+    group,
+    wallMesh,
+    torches: torchMeshes,
+    propMeshes,
+    stairMesh: stair,
+    stairWorld: st,
+    dispose() {
+      group.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) {
+          const mats = Array.isArray(o.material) ? o.material : [o.material];
+          for (const mm of mats) { if (mm.map) mm.map.dispose(); mm.dispose(); }
+        }
+      });
+    }
+  };
+}
+
+function propSize(kind) {
+  switch (kind) {
+    case 'crate': return [1.2, 1.2];
+    case 'barrel': return [1.0, 1.3];
+    case 'bones': return [1.3, 0.6];
+    case 'cobweb': return [1.8, 1.8];
+    case 'chain_hanging': return [0.7, 3.0];
+    case 'door_oak': return [1.8, 2.8];
+    case 'stone_arch': return [2.6, 3.2];
+    default: return [1.4, 0.8];
+  }
+}
+
+export function makeBillboard(assetKey, size, wx, wz, centerY) {
+  const [sw, sh] = size;
+  const mat = new THREE.MeshBasicMaterial({
+    map: getTexture(assetKey),
+    transparent: true,
+    alphaTest: 0.35,
+    side: THREE.DoubleSide,
+    toneMapped: false
+  });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), mat);
+  mesh.position.set(wx, centerY ?? sh / 2, wz);
+  mesh.userData.billboard = true;
+  mesh.userData.assetKey = assetKey;
+  return mesh;
+}
+
+export function billboardTowards(mesh, camera) {
+  // upright (Y-only) billboarding so standing sprites never tilt (spec §3)
+  const dx = camera.position.x - mesh.position.x;
+  const dz = camera.position.z - mesh.position.z;
+  mesh.rotation.y = Math.atan2(dx, dz);
+}

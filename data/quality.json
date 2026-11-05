@@ -1,0 +1,25 @@
+{
+  "tiers": [
+    { "name": "Worn",       "mult": 0.75, "color": "#9aa0a6", "frame": "ui/rarity_0" },
+    { "name": "Standard",   "mult": 1.00, "color": "#e6e8ea", "frame": "ui/rarity_1" },
+    { "name": "Fine",       "mult": 1.25, "color": "#5fb3f6", "frame": "ui/rarity_2" },
+    { "name": "Refined",    "mult": 1.50, "color": "#4fd18b", "frame": "ui/rarity_3" },
+    { "name": "Masterwork", "mult": 1.85, "color": "#c084fc", "frame": "ui/rarity_4" },
+    { "name": "Relic",      "mult": 2.25, "color": "#f5a524", "frame": "ui/rarity_5" }
+  ],
+  "jitter": [0.88, 1.12],
+  "tierWeights": {
+    "1-2":  [30, 45, 20, 5, 0, 0],
+    "3-5":  [10, 35, 35, 18, 2, 0],
+    "6-9":  [3, 15, 35, 35, 11, 1],
+    "10+":  [0, 5, 20, 35, 30, 10]
+  },
+  "prefixes": {
+    "0": ["Worn", "Notched", "Rusted"],
+    "1": ["", "Plain", "Serviceable"],
+    "2": ["Fine", "Balanced", "Polished"],
+    "3": ["Refined", "Tempered", "Inlaid"],
+    "4": ["Masterwork", "Runed", "Deepforged"],
+    "5": ["Relic of the Deep", "Ancient", "Bound to the Stair"]
+  }
+}

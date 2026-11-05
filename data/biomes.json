@@ -1,0 +1,27 @@
+{
+  "crypt": {
+    "name": "The Crypt",
+    "wall": "wall_crypt", "floor": "floor_crypt", "ceiling": "ceiling_crypt",
+    "fog": "#0b0d10", "fogDensity": 0.055, "ambient": "#1b2230", "ambientIntensity": 0.10,
+    "torchColor": "#ffb35c", "accent": "#7fa8ff", "torchRange": 9
+  },
+  "foundry": {
+    "name": "The Foundry",
+    "wall": "wall_foundry", "floor": "floor_foundry", "ceiling": null,
+    "fog": "#140b07", "fogDensity": 0.05, "ambient": "#2a1a12", "ambientIntensity": 0.10,
+    "torchColor": "#ff8a3d", "accent": "#ff6a2a", "torchRange": 10
+  },
+  "cavern": {
+    "name": "The Caverns",
+    "wall": "wall_cavern", "floor": "floor_cavern", "ceiling": "ceiling_cavern",
+    "fog": "#08100c", "fogDensity": 0.06, "ambient": "#16261f", "ambientIntensity": 0.10,
+    "torchColor": "#ffc46a", "accent": "#57e08a", "torchRange": 8
+  },
+  "vault": {
+    "name": "The Vault",
+    "wall": "wall_vault", "floor": "floor_vault", "ceiling": null,
+    "fog": "#0a0710", "fogDensity": 0.05, "ambient": "#241c33", "ambientIntensity": 0.12,
+    "torchColor": "#ffd9a0", "accent": "#b48cff", "torchRange": 11
+  },
+  "order": ["crypt", "foundry", "cavern", "vault"]
+}

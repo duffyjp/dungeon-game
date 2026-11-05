@@ -1,0 +1,131 @@
+<!doctype html>
+<!-- Sprite keying QA. For every chroma-keyed asset, run the engine's real keying
+     pipeline (src/render/chromaKey.js) and measure the result:
+
+       msedge --headless --disable-gpu --user-data-dir=%TEMP%\k --no-first-run \
+              --window-size=1100,1000 --virtual-time-budget=60000 \
+              --screenshot=keycheck.png "http://localhost:5177/keycheck.html"
+
+     Good keys: high `cut`, near-zero `magenta left`, no `thin` (a thin halo means the
+     threshold is too tight), and not `eaten` (the subject itself being keyed away). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Key check</title>
+  <style>
+    body { background: #0b0d10; color: #e6e8ea; font: 12px/1.5 ui-monospace, monospace; padding: 14px; }
+    h1 { font-size: 14px; letter-spacing: .1em; margin: 0 0 10px; font-family: system-ui; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 3px 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    th { color: #f5a524; }
+    td.bad { color: #ff6b6b; }
+    td.ok { color: #7ed9a6; }
+    .thumbs { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+    .thumbs canvas { width: 96px; height: 96px; background: #222; border: 1px solid #333; }
+    .lbl { font-size: 10px; color: #9aa0a6; }
+  </style>
+</head>
+<body>
+  <h1>CHROMA KEY QA — engine pipeline applied to every keyed asset</h1>
+  <table id="t"><thead><tr><th>asset</th><th>backdrop</th><th>cut</th><th>magenta left</th><th>subject eaten</th><th>verdict</th></tr></thead><tbody></tbody></table>
+  <div class="lbl">cut = fraction of pixels made transparent · magenta left = opaque pixels still strongly chroma · eaten = transparent pixels that were mid-chroma (subject damage)</div>
+  <div class="thumbs" id="thumbs"></div>
+  <script type="module">
+    import { chromaKeyCanvas, sampleBackdrop } from '/src/render/chromaKey.js';
+    // Use the engine's own registry so the QA covers exactly what the game loads.
+    import { assetKeys, assetUrl } from '/src/render/assets.js';
+
+    const keyed = assetKeys()
+      .filter(k => /^(enemies|items|props|vfx)\//.test(k))
+      .map(k => [k, assetUrl(k)]);
+
+    const rows = [];
+    const thumbs = document.getElementById('thumbs');
+
+    function analyse(canvas) {
+      const d = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+      let cut = 0, magentaLeft = 0, eaten = 0, n = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        n++;
+        const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
+        const strongChroma = r > 140 && b > 140 && g < r * 0.55;
+        if (a < 16) { cut++; if (strongChroma) eaten++; }
+        else if (strongChroma) magentaLeft++;
+      }
+      return { cut: cut / n, magentaLeft: magentaLeft / n, eaten: eaten / n };
+    }
+
+    const tb = document.querySelector('#t tbody');
+
+    function addRow(r) {
+      const tr = document.createElement('tr');
+      const bad = (r.verdict || '') !== 'ok';
+      tr.innerHTML = `<td>${r.key}</td><td>${r.bg || '-'}</td>` +
+        `<td>${r.cut ? (r.cut * 100).toFixed(1) + '%' : '-'}</td>` +
+        `<td class="${(r.magentaLeft || 0) > 0.02 ? 'bad' : 'ok'}">${r.magentaLeft ? (r.magentaLeft * 100).toFixed(2) + '%' : '0%'}</td>` +
+        `<td>${r.eaten ? (r.eaten * 100).toFixed(1) + '%' : '-'}</td>` +
+        `<td class="${bad ? 'bad' : 'ok'}">${r.err || r.verdict}</td>`;
+      tb.appendChild(tr);
+      return tr;
+    }
+
+    for (const [key, url] of keyed) {
+      const img = await new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = url; });
+      if (!img) { const rec = { key, err: 'load failed', verdict: 'LOAD FAILED' }; rows.push(rec); rec.el = addRow(rec); continue; }
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const g = c.getContext('2d');
+      g.drawImage(img, 0, 0);
+      const before = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+      const bg = sampleBackdrop(before.data, c.width, c.height);
+      chromaKeyCanvas(c);
+      const m = analyse(c);
+      const verdict = m.magentaLeft > 0.02 ? 'MAGENTA REMAINS'
+        : m.cut < 0.06 ? 'NOTHING KEYED'
+        : m.eaten > 0.25 ? 'SUBJECT DAMAGED' : 'ok';
+      const rec = { key, bg: `#${[bg.r, bg.g, bg.b].map(v => Math.round(v).toString(16).padStart(2, '0')).join('')}`, ...m, verdict };
+      rows.push(rec);
+      rec.el = addRow(rec);
+      if (verdict !== 'ok') console.log(`KEYCHECK| BAD ${key} magentaLeft=${(m.magentaLeft * 100).toFixed(2)}% cut=${(m.cut * 100).toFixed(1)}%`);
+      document.title = `KEYCHECK ${rows.filter(r => r.verdict === 'ok').length}/${rows.length} ok`;
+      const tc = document.createElement('canvas');
+      tc.width = tc.height = 96;
+      tc.getContext('2d').drawImage(c, 0, 0, 96, 96);
+      thumbs.appendChild(tc);
+      const lbl = document.createElement('span');
+      lbl.className = 'lbl';
+      lbl.textContent = key.split('/').pop() + '  ';
+      thumbs.appendChild(lbl);
+    }
+
+    const okCount = rows.filter(r => r.verdict === 'ok').length;
+    console.log(`KEYCHECK| SUMMARY ${okCount}/${rows.length} ok`);
+    // Report to the harness (tools/keyCheck.mjs) over HTTP — far more reliable than
+    // scraping a headless browser's console on Windows.
+    try {
+      await fetch('/__keycheck', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          total: rows.length,
+          ok: okCount,
+          bad: rows.filter(r => r.verdict !== 'ok')
+            .map(r => ({ key: r.key, verdict: r.verdict, magentaLeft: +(r.magentaLeft * 100).toFixed(2), eaten: +(r.eaten * 100).toFixed(2) }))
+        })
+      });
+    } catch { /* opened by hand in a browser: no harness listening */ }
+    // Re-sort so the bad rows sit at the top of the table.
+    rows.sort((a, b) => (b.magentaLeft || 0) - (a.magentaLeft || 0));
+    for (const r of rows) tb.appendChild(r.el);
+    document.title = `KEYCHECK ${okCount}/${rows.length} ok`;
+    // Summary goes at the TOP so a short screenshot still shows the verdict.
+    const note = document.createElement('p');
+    note.style.cssText = `font-weight:700;color:${okCount === rows.length ? '#7ed9a6' : '#ff6b6b'}`;
+    note.textContent = okCount === rows.length
+      ? `ALL ${rows.length} KEYED ASSETS OK`
+      : `${rows.length - okCount} / ${rows.length} KEYED BADLY: ` +
+        rows.filter(r => r.verdict !== 'ok').map(r => `${r.key} (${(r.magentaLeft * 100).toFixed(1)}%)`).join(', ');
+    document.body.prepend(note);
+  </script>
+</body>
+</html>

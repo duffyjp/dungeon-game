@@ -1,0 +1,105 @@
+<!doctype html>
+<!-- Seam review harness (spec §13.6). Opens as /seamcheck.html on the dev server and
+     draws every tiling texture at a 50% offset, which is where a bad seam shows up
+     as a visible line through the middle of the image. Screenshot it headlessly:
+
+       msedge --headless --disable-gpu --window-size=1600,1200 \
+              --virtual-time-budget=20000 --screenshot=seamcheck.png \
+              "http://localhost:5177/seamcheck.html"
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Seam check</title>
+  <style>
+    body { background: #0b0d10; color: #e6e8ea; font: 12px/1.4 system-ui, sans-serif; padding: 16px; }
+    h1 { font-size: 15px; letter-spacing: .12em; margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(2, 780px); gap: 14px; }
+    .cell { border: 1px solid rgba(255,255,255,.12); }
+    .cell canvas { display: block; width: 378px; height: 378px; }
+    .pair { display: flex; gap: 4px; padding: 4px; }
+    .sub { font-size: 10px; color: #9aa0a6; letter-spacing: .08em; padding: 2px 4px; }
+    .cell .cap { padding: 5px 8px; display: flex; justify-content: space-between; }
+    .cell .cap b { color: #f5a524; }
+    .note { color: #9aa0a6; margin: 0 0 14px; }
+  </style>
+</head>
+<body>
+  <h1>TILING SEAM CHECK — each tile shown at 50% offset (seams appear as a cross through the centre)</h1>
+  <p class="note">Right side of each pair: same tile with a 45-degree rotation check removed — judge the centre cross and the four quadrant corners.</p>
+  <div class="grid" id="grid"></div>
+  <script type="module">
+    const TILES = [
+      'wall_crypt', 'wall_foundry', 'wall_cavern', 'wall_vault',
+      'floor_crypt', 'floor_foundry', 'floor_cavern', 'floor_vault',
+      'ceiling_crypt', 'ceiling_cavern', 'pillar', 'door_oak'
+    ];
+    const grid = document.getElementById('grid');
+
+    function offsetTest(img, size = 378) {
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const g = c.getContext('2d');
+      const s = img.naturalWidth, half = size / 2;
+      // quarter-by-quarter wrap so the 4 corners of the source meet in the middle
+      g.drawImage(img, 0, 0, s / 2, s / 2, half, half, half, half);
+      g.drawImage(img, s / 2, 0, s / 2, s / 2, 0, half, half, half);
+      g.drawImage(img, 0, s / 2, s / 2, s / 2, half, 0, half, half);
+      g.drawImage(img, s / 2, s / 2, s / 2, s / 2, 0, 0, half, half);
+      return c;
+    }
+
+    // Mirrored 2x2 composite: what the engine actually builds (src/render/assets.js
+    // getMirroredTexture). Wrap boundaries meet a mirrored copy, so no seam is possible.
+    function mirrored(img, size = 378) {
+      const s = img.naturalWidth, q = size / 4;
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const g = c.getContext('2d');
+      for (let ty = 0; ty < 4; ty++) {
+        for (let tx = 0; tx < 4; tx++) {
+          g.save();
+          g.translate(tx * q, ty * q);
+          // each cell of the composite is the FULL source, mirrored on alternating cells
+          const fx = tx % 2, fy = ty % 2;
+          g.scale(fx ? -1 : 1, fy ? -1 : 1);
+          g.drawImage(img, 0, 0, s, s, fx ? -q : 0, fy ? -q : 0, q, q);
+          g.restore();
+        }
+      }
+      return c;
+    }
+
+    let pending = TILES.length;
+    for (const slug of TILES) {
+      const url = `/assets/images/textures/${slug}.png`;
+      const img = new Image();
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.innerHTML = `<div class="cap"><b>${slug}</b><span class="state">loading…</span></div>`;
+      const holder = document.createElement('div');
+      cell.appendChild(holder);
+      grid.appendChild(cell);
+      img.onload = () => {
+        const left = document.createElement('div');
+        left.innerHTML = '<div class="sub">raw 50% offset</div>';
+        left.appendChild(offsetTest(img));
+        const right = document.createElement('div');
+        right.innerHTML = '<div class="sub">mirrored (engine path)</div>';
+        right.appendChild(mirrored(img));
+        const row = document.createElement('div');
+        row.className = 'pair';
+        row.append(left, right);
+        holder.appendChild(row);
+        cell.querySelector('.state').textContent = `${img.naturalWidth}x${img.naturalHeight}`;
+        if (--pending === 0) document.title = `SEAMCHECK ${TILES.length} tiles`;
+      };
+      img.onerror = () => {
+        cell.querySelector('.state').textContent = 'MISSING';
+        if (--pending === 0) document.title = `SEAMCHECK ${TILES.length} tiles`;
+      };
+      img.src = url;
+    }
+  </script>
+</body>
+</html>

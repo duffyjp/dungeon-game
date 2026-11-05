@@ -1,0 +1,30 @@
+{
+  "name": "strata-descent",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "STRATA: Descent - photoreal first-person procedural dungeon crawler (three.js)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "npm run test:levels && npm run test:loot && npm run test:movement",
+    "test:levels": "node tools/validateLevels.mjs 200",
+    "test:loot": "node tools/simulateLoot.mjs 6000",
+    "test:movement": "node tools/testMovement.mjs",
+    "test:game": "node tools/runSelfTest.mjs",
+    "test:keys": "node tools/keyCheck.mjs",
+    "qa:seams": "node tools/pageShot.mjs seamcheck.html seamcheck.png 1620 1400",
+    "qa:keys": "node tools/pageShot.mjs keycheck.html keycheck.png 1150 1700",
+    "shot": "node tools/pageShot.mjs"
+  },
+  "dependencies": {
+    "three": "^0.160.1"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
+  }
+}

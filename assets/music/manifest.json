@@ -1,0 +1,4 @@
+{
+  "_comment": "Optional. Drop .mp3/.ogg/.wav files in this folder and the game picks them up automatically at random per level - this manifest is only needed if you want to name tracks or exclude some. See README.md.",
+  "tracks": []
+}
