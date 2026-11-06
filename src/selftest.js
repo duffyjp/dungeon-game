@@ -4,6 +4,9 @@
 // the DOM so a headless browser run can read them.
 
 import { CFG } from './config.js';
+import enemiesData from '../data/enemies.json';
+import { makeProp } from './world/propMeshes.js';
+import { hasAsset } from './render/assets.js';
 
 export async function runSelfTest(game) {
   const results = [];
@@ -130,6 +133,65 @@ export async function runSelfTest(game) {
       }
       lvl.open.set(saved, 0);
       ok('WASD and arrows move the way the camera points', bad.length === 0, bad.join('; '));
+    }
+
+    // --- art wiring. A prop kind that resolves to neither geometry nor a generated asset
+    // draws the engine's placeholder noise, which in play looks like a grey blob sitting
+    // in a corridor — that is exactly how `rubble` and `cobweb` behaved, so the mapping
+    // from generator kinds to art is asserted rather than eyeballed.
+    {
+      const fakeBiome = { wall: 'wall_crypt', accent: '#7fa8ff' };
+      const kinds = ['crate', 'barrel', 'bones', 'cobweb', 'chain_hanging', 'rubble', 'door_oak', 'stone_arch', 'pillar'];
+      const broken = kinds.filter(k => {
+        if (k === 'pillar') return false;                     // carved column, own builder
+        if (makeProp(k, fakeBiome, { x: 2, y: 3 })) return false;   // real geometry
+        return !hasAsset(k === 'door_oak' ? 'textures/door_oak' : `props/${k}`);
+      });
+      ok('every prop kind has geometry or generated art', broken.length === 0, broken.join(','));
+    }
+
+    // --- torches must hang on a wall face. They used to be dropped at the centre of the
+    // cell, which put a lit sconce floating in mid-air in the middle of a corridor.
+    {
+      const torches = game.levelView ? game.levelView.torches : [];
+      const lvl = game.level;
+      const solidAt = (cx, cy) => (cx < 0 || cy < 0 || cx >= lvl.w || cy >= lvl.h) ? 0 : lvl.open[cy * lvl.w + cx];
+      const floating = torches.filter(t => {
+        const d = t.userData.mount;
+        if (!d) return true;
+        const cx = Math.floor(t.position.x / CFG.cell), cy = Math.floor(t.position.z / CFG.cell);
+        return solidAt(cx + d.x, cy + d.z) === 1;      // pointing at open space, not a wall
+      });
+      ok('torches are mounted on wall faces', torches.length > 0 && floating.length === 0,
+        `torches=${torches.length} floating=${floating.length}`);
+    }
+
+    // --- silhouette ramp. The generated art separates tiers by bulk and damage, but if the
+    // renderer draws every tier at one family height — a tier-1 wisp and a tier-4 shade both
+    // 1.8 m — the corridor never tells you which one is the lesser threat.
+    {
+      const bad = [];
+      for (const f of enemiesData.families) {
+        const hs = f.heightByTier;
+        if (!Array.isArray(hs) || hs.length !== 4) { bad.push(`${f.id}: no ramp`); continue; }
+        if (!(hs[0] < hs[3])) bad.push(`${f.id}: tier 1 not smaller than tier 4`);
+        const tallest = f.height * Math.max(...hs);
+        if (tallest > CFG.wallH * 0.75) bad.push(`${f.id}: ${tallest.toFixed(2)} m in a ${CFG.wallH} m hall`);
+      }
+      ok('enemies ramp their silhouette by tier', bad.length === 0, bad.join('; '));
+    }
+
+    // --- generated art must be reachable. `vfx/slime_splat` and `vfx/ghost_trail` sat in
+    // the manifest for a long time with nothing drawing them, so a slime died by shrinking
+    // and a ghost left no trace of having passed. Each is now wired to a family.
+    {
+      const wired = new Set();
+      for (const f of enemiesData.families) {
+        if (f.splat) wired.add(f.splat);
+        if (f.trail) wired.add(f.trail);
+      }
+      const missing = ['vfx/slime_splat', 'vfx/ghost_trail'].filter(k => !wired.has(k) || !hasAsset(k));
+      ok('splat and trail effects are wired and present', missing.length === 0, missing.join(','));
     }
 
     // --- death costs a life, zero lives ends the run

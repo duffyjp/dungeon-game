@@ -102,9 +102,14 @@ export class Projectile {
 }
 
 export class Vfx {
-  constructor(key, x, z, size = 1, life = 0.3, y) {
+  // maxOpacity caps the effect below full strength for its whole life. Translucent effects
+  // (a ghost's vapour, a wet splat) keep whatever the generated art picked up at their
+  // soft fringe — a magenta cast off the keying field, for one — and a ceiling makes that
+  // cast subtle enough to live with while the art itself is being re-authored.
+  constructor(key, x, z, size = 1, life = 0.3, y, maxOpacity = 1) {
     this.life = life;
     this.maxLife = life;
+    this.maxOpacity = maxOpacity;
     this.mesh = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
       new THREE.MeshBasicMaterial({ map: getTexture(key), transparent: true, depthWrite: false, toneMapped: false })
@@ -115,7 +120,7 @@ export class Vfx {
   update(dt) {
     this.life -= dt;
     const t = Math.max(0, this.life / this.maxLife);
-    this.mesh.material.opacity = t;
+    this.mesh.material.opacity = t * this.maxOpacity;
     this.mesh.scale.setScalar(1 + (1 - t) * 0.6);
     return this.life > 0;
   }

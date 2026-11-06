@@ -1,146 +1,429 @@
 {
-  "tierMult": { "hp": [1, 1.6, 2.4, 3.4], "dmg": [1, 1.5, 2.1, 2.8] },
-  "depthMult": { "hp": 0.18, "dmg": 0.15, "speed": 0.04, "speedCap": 1.35 },
+  "tierMult": {
+    "hp": [
+      1,
+      1.6,
+      2.4,
+      3.4
+    ],
+    "dmg": [
+      1,
+      1.5,
+      2.1,
+      2.8
+    ]
+  },
+  "depthMult": {
+    "hp": 0.18,
+    "dmg": 0.15,
+    "speed": 0.04,
+    "speedCap": 1.35
+  },
   "families": [
     {
       "id": "slime",
       "fromDepth": 1,
-      "weight": [10, 8, 6, 5],
-      "hp": 18, "damage": 7, "speed": 1.1,
-      "radius": 0.55, "height": 0.9,
-      "ai": "slime",
-      "attack": { "kind": "contact", "range": 1.2, "tell": 0.45, "cooldown": 1.6 },
-      "sprites": {
-        "1": "enemies/t1/slime", "2": "enemies/t2/acid_slime",
-        "3": "enemies/t3/caustic_ooze", "4": "enemies/t4/void_slime"
-      },
-      "names": { "1": "Slime", "2": "Acid Slime", "3": "Caustic Ooze", "4": "Void Slime" },
-      "drops": [
-        { "item": "potion_health", "chance": 0.90 },
-        { "item": "coin", "chance": 0.25 }
+      "weight": [
+        10,
+        8,
+        6,
+        5
       ],
-      "split": { "chance": 0.30, "into": "slime", "count": 2, "hpScale": 0.5, "tier": 1 },
-      "sfx": { "attack": "slime_squelch", "hurt": "hit_slime", "death": "hit_slime" },
-      "color": "#4fd18b"
+      "hp": 18,
+      "damage": 7,
+      "speed": 1.1,
+      "radius": 0.55,
+      "height": 0.9,
+      "ai": "slime",
+      "attack": {
+        "kind": "contact",
+        "range": 1.2,
+        "tell": 0.45,
+        "cooldown": 1.6
+      },
+      "sprites": {
+        "1": "enemies/t1/slime",
+        "2": "enemies/t2/acid_slime",
+        "3": "enemies/t3/caustic_ooze",
+        "4": "enemies/t4/void_slime"
+      },
+      "names": {
+        "1": "Slime",
+        "2": "Acid Slime",
+        "3": "Caustic Ooze",
+        "4": "Void Slime"
+      },
+      "drops": [
+        {
+          "item": "potion_health",
+          "chance": 0.9
+        },
+        {
+          "item": "coin",
+          "chance": 0.25
+        }
+      ],
+      "split": {
+        "chance": 0.3,
+        "into": "slime",
+        "count": 2,
+        "hpScale": 0.5,
+        "tier": 1
+      },
+      "sfx": {
+        "attack": "slime_squelch",
+        "hurt": "hit_slime",
+        "death": "hit_slime"
+      },
+      "color": "#4fd18b",
+      "heightByTier": [
+        0.85,
+        0.95,
+        1.15,
+        1.35
+      ],
+      "splat": "vfx/slime_splat"
     },
     {
       "id": "orc",
       "fromDepth": 1,
-      "weight": [10, 9, 8, 7],
-      "hp": 42, "damage": 12, "speed": 2.2,
-      "radius": 0.6, "height": 1.9,
-      "ai": "melee",
-      "attack": { "kind": "melee", "range": 1.7, "arc": 110, "tell": 0.6, "cooldown": 1.8 },
-      "sprites": {
-        "1": "enemies/t1/orc_grunt", "2": "enemies/t2/orc_brute",
-        "3": "enemies/t3/orc_warlord", "4": "enemies/t4/iron_reaver"
-      },
-      "names": { "1": "Orc Grunt", "2": "Orc Brute", "3": "Orc Warlord", "4": "Iron Reaver" },
-      "drops": [
-        { "item": "sword_worn", "chance": 0.18 },
-        { "item": "sword_short", "chance": 0.20 },
-        { "item": "sword_long", "chance": 0.10 },
-        { "item": "axe_battle", "chance": 0.04 },
-        { "item": "sword_great", "chance": 0.03 },
-        { "item": "coin", "chance": 0.25 },
-        { "item": "repair_kit", "chance": 0.06 }
+      "weight": [
+        10,
+        9,
+        8,
+        7
       ],
-      "sfx": { "attack": "orc_grunt", "hurt": "hit_flesh", "death": "orc_death" },
-      "color": "#8f6f4a"
+      "hp": 42,
+      "damage": 12,
+      "speed": 2.2,
+      "radius": 0.6,
+      "height": 1.9,
+      "ai": "melee",
+      "attack": {
+        "kind": "melee",
+        "range": 1.7,
+        "arc": 110,
+        "tell": 0.6,
+        "cooldown": 1.8
+      },
+      "sprites": {
+        "1": "enemies/t1/orc_grunt",
+        "2": "enemies/t2/orc_brute",
+        "3": "enemies/t3/orc_warlord",
+        "4": "enemies/t4/iron_reaver"
+      },
+      "names": {
+        "1": "Orc Grunt",
+        "2": "Orc Brute",
+        "3": "Orc Warlord",
+        "4": "Iron Reaver"
+      },
+      "drops": [
+        {
+          "item": "sword_worn",
+          "chance": 0.18
+        },
+        {
+          "item": "sword_short",
+          "chance": 0.2
+        },
+        {
+          "item": "sword_long",
+          "chance": 0.1
+        },
+        {
+          "item": "axe_battle",
+          "chance": 0.04
+        },
+        {
+          "item": "sword_great",
+          "chance": 0.03
+        },
+        {
+          "item": "coin",
+          "chance": 0.25
+        },
+        {
+          "item": "repair_kit",
+          "chance": 0.06
+        }
+      ],
+      "sfx": {
+        "attack": "orc_grunt",
+        "hurt": "hit_flesh",
+        "death": "orc_death"
+      },
+      "color": "#8f6f4a",
+      "heightByTier": [
+        0.92,
+        1,
+        1.1,
+        1.22
+      ]
     },
     {
       "id": "archer",
       "fromDepth": 2,
-      "weight": [0, 7, 8, 8],
-      "hp": 30, "damage": 14, "speed": 2.0,
-      "radius": 0.55, "height": 1.8,
+      "weight": [
+        0,
+        7,
+        8,
+        8
+      ],
+      "hp": 30,
+      "damage": 14,
+      "speed": 2,
+      "radius": 0.55,
+      "height": 1.8,
       "ai": "archer",
       "attack": {
-        "kind": "projectile", "minRange": 6, "maxRange": 9, "tell": 0.9,
-        "cooldown": 2.2, "speed": 16, "life": 1.4
+        "kind": "projectile",
+        "minRange": 6,
+        "maxRange": 9,
+        "tell": 0.9,
+        "cooldown": 2.2,
+        "speed": 16,
+        "life": 1.4
       },
       "sprites": {
-        "1": "enemies/t1/goblin_archer", "2": "enemies/t2/bone_archer",
-        "3": "enemies/t3/venom_archer", "4": "enemies/t4/hollow_ranger"
+        "1": "enemies/t1/goblin_archer",
+        "2": "enemies/t2/bone_archer",
+        "3": "enemies/t3/venom_archer",
+        "4": "enemies/t4/hollow_ranger"
       },
-      "names": { "1": "Goblin Archer", "2": "Bone Archer", "3": "Venom Archer", "4": "Hollow Ranger" },
+      "names": {
+        "1": "Goblin Archer",
+        "2": "Bone Archer",
+        "3": "Venom Archer",
+        "4": "Hollow Ranger"
+      },
       "drops": [
-        { "item": "bow_hunting", "chance": 0.25 },
-        { "item": "bow_war", "chance": 0.15 },
-        { "item": "bow_long", "chance": 0.10 },
-        { "item": "coin", "chance": 0.25 }
+        {
+          "item": "bow_hunting",
+          "chance": 0.25
+        },
+        {
+          "item": "bow_war",
+          "chance": 0.15
+        },
+        {
+          "item": "bow_long",
+          "chance": 0.1
+        },
+        {
+          "item": "coin",
+          "chance": 0.25
+        }
       ],
-      "sfx": { "attack": "archer_call", "hurt": "hit_flesh", "death": "orc_death" },
-      "color": "#9a7bb0"
+      "sfx": {
+        "attack": "archer_call",
+        "hurt": "hit_flesh",
+        "death": "orc_death"
+      },
+      "color": "#9a7bb0",
+      "heightByTier": [
+        0.92,
+        1,
+        1.08,
+        1.18
+      ]
     },
     {
       "id": "mage",
       "fromDepth": 3,
-      "weight": [0, 4, 7, 8],
-      "hp": 26, "damage": 18, "speed": 1.6,
-      "radius": 0.55, "height": 1.9,
+      "weight": [
+        0,
+        4,
+        7,
+        8
+      ],
+      "hp": 26,
+      "damage": 18,
+      "speed": 1.6,
+      "radius": 0.55,
+      "height": 1.9,
       "ai": "mage",
       "attack": {
-        "kind": "projectile", "minRange": 3.5, "maxRange": 13, "tell": 1.2,
-        "cooldown": 3.0, "speed": 9, "life": 3.0, "homing": 1.6, "splash": 2.2
+        "kind": "projectile",
+        "minRange": 3.5,
+        "maxRange": 13,
+        "tell": 1.2,
+        "cooldown": 3,
+        "speed": 9,
+        "life": 3,
+        "homing": 1.6,
+        "splash": 2.2
       },
-      "blink": { "trigger": 3.5, "distance": 6 },
+      "blink": {
+        "trigger": 3.5,
+        "distance": 6
+      },
       "sprites": {
-        "1": "enemies/t1/hedge_mage", "2": "enemies/t2/storm_mage",
-        "3": "enemies/t3/void_archmage", "4": "enemies/t4/doomspeaker"
+        "1": "enemies/t1/hedge_mage",
+        "2": "enemies/t2/storm_mage",
+        "3": "enemies/t3/void_archmage",
+        "4": "enemies/t4/doomspeaker"
       },
-      "names": { "1": "Hedge Mage", "2": "Storm Mage", "3": "Void Archmage", "4": "Doomspeaker" },
+      "names": {
+        "1": "Hedge Mage",
+        "2": "Storm Mage",
+        "3": "Void Archmage",
+        "4": "Doomspeaker"
+      },
       "drops": [
-        { "item": "armor_padded", "chance": 0.18 },
-        { "item": "armor_studded", "chance": 0.15 },
-        { "item": "armor_chain", "chance": 0.08 },
-        { "item": "armor_plate", "chance": 0.03 },
-        { "item": "armor_warded", "chance": 0.01 },
-        { "item": "coin", "chance": 0.25 },
-        { "item": "repair_kit", "chance": 0.12 }
+        {
+          "item": "armor_padded",
+          "chance": 0.18
+        },
+        {
+          "item": "armor_studded",
+          "chance": 0.15
+        },
+        {
+          "item": "armor_chain",
+          "chance": 0.08
+        },
+        {
+          "item": "armor_plate",
+          "chance": 0.03
+        },
+        {
+          "item": "armor_warded",
+          "chance": 0.01
+        },
+        {
+          "item": "coin",
+          "chance": 0.25
+        },
+        {
+          "item": "repair_kit",
+          "chance": 0.12
+        }
       ],
-      "sfx": { "attack": "fireball_cast", "hurt": "hit_flesh", "death": "orc_death" },
-      "color": "#6f8fd6"
+      "sfx": {
+        "attack": "fireball_cast",
+        "hurt": "hit_flesh",
+        "death": "orc_death"
+      },
+      "color": "#6f8fd6",
+      "heightByTier": [
+        0.9,
+        1,
+        1.1,
+        1.2
+      ]
     },
     {
       "id": "ghost",
       "fromDepth": 4,
-      "weight": [0, 3, 6, 8],
-      "hp": 34, "damage": 10, "speed": 2.6,
-      "radius": 0.5, "height": 1.8,
+      "weight": [
+        0,
+        3,
+        6,
+        8
+      ],
+      "hp": 34,
+      "damage": 10,
+      "speed": 2.6,
+      "radius": 0.5,
+      "height": 1.8,
       "ai": "ghost",
       "phasesWalls": true,
-      "attack": { "kind": "contact", "range": 1.1, "tell": 0.35, "cooldown": 1.4, "pierceArmor": true },
-      "sprites": {
-        "1": "enemies/t1/wisp", "2": "enemies/t2/wraith",
-        "3": "enemies/t3/dread_spectre", "4": "enemies/t4/hungering_shade"
+      "attack": {
+        "kind": "contact",
+        "range": 1.1,
+        "tell": 0.35,
+        "cooldown": 1.4,
+        "pierceArmor": true
       },
-      "names": { "1": "Wisp", "2": "Wraith", "3": "Dread Spectre", "4": "Hungering Shade" },
+      "sprites": {
+        "1": "enemies/t1/wisp",
+        "2": "enemies/t2/wraith",
+        "3": "enemies/t3/dread_spectre",
+        "4": "enemies/t4/hungering_shade"
+      },
+      "names": {
+        "1": "Wisp",
+        "2": "Wraith",
+        "3": "Dread Spectre",
+        "4": "Hungering Shade"
+      },
       "drops": [
-        { "item": "extra_life", "chance": 0.35 },
-        { "item": "coin", "chance": 0.25 }
+        {
+          "item": "extra_life",
+          "chance": 0.35
+        },
+        {
+          "item": "coin",
+          "chance": 0.25
+        }
       ],
-      "sfx": { "attack": "ghost_moan", "hurt": "ghost_hit", "death": "ghost_moan" },
-      "color": "#cfe0ff"
+      "sfx": {
+        "attack": "ghost_moan",
+        "hurt": "ghost_hit",
+        "death": "ghost_moan"
+      },
+      "color": "#cfe0ff",
+      "heightByTier": [
+        0.6,
+        0.85,
+        1.05,
+        1.2
+      ],
+      "trail": "vfx/ghost_trail"
     },
     {
       "id": "spider",
       "fromDepth": 1,
-      "weight": [4, 4, 4, 0],
-      "hp": 12, "damage": 6, "speed": 3.4,
-      "radius": 0.45, "height": 0.8,
-      "ai": "spider",
-      "attack": { "kind": "contact", "range": 1.0, "tell": 0.3, "cooldown": 1.2, "slow": 1.5 },
-      "sprites": {
-        "1": "enemies/t1/cellar_spider", "2": "enemies/t2/grave_spider",
-        "3": "enemies/t3/bone_spider", "4": "enemies/t3/bone_spider"
-      },
-      "names": { "1": "Cellar Spider", "2": "Grave Spider", "3": "Bone Spider", "4": "Bone Spider" },
-      "drops": [
-        { "item": "coin", "chance": 0.60 }
+      "weight": [
+        4,
+        4,
+        4,
+        0
       ],
-      "sfx": { "attack": "distant_skitter", "hurt": "hit_flesh", "death": "hit_flesh" },
-      "color": "#6b5a4a"
+      "hp": 12,
+      "damage": 6,
+      "speed": 3.4,
+      "radius": 0.45,
+      "height": 0.8,
+      "ai": "spider",
+      "attack": {
+        "kind": "contact",
+        "range": 1,
+        "tell": 0.3,
+        "cooldown": 1.2,
+        "slow": 1.5
+      },
+      "sprites": {
+        "1": "enemies/t1/cellar_spider",
+        "2": "enemies/t2/grave_spider",
+        "3": "enemies/t3/bone_spider",
+        "4": "enemies/t3/bone_spider"
+      },
+      "names": {
+        "1": "Cellar Spider",
+        "2": "Grave Spider",
+        "3": "Bone Spider",
+        "4": "Bone Spider"
+      },
+      "drops": [
+        {
+          "item": "coin",
+          "chance": 0.6
+        }
+      ],
+      "sfx": {
+        "attack": "distant_skitter",
+        "hurt": "hit_flesh",
+        "death": "hit_flesh"
+      },
+      "color": "#6b5a4a",
+      "heightByTier": [
+        0.8,
+        0.95,
+        1.15,
+        1.3
+      ]
     }
   ]
 }

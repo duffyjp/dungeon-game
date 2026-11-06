@@ -14,9 +14,11 @@
     "test:movement": "node tools/testMovement.mjs",
     "test:game": "node tools/runSelfTest.mjs",
     "test:keys": "node tools/keyCheck.mjs",
+    "qa:art": "node tools/unusedArt.mjs",
     "qa:seams": "node tools/pageShot.mjs seamcheck.html seamcheck.png 1620 2900",
     "qa:keys": "node tools/pageShot.mjs keycheck.html keycheck.png 1150 1700",
-    "qa:props": "node tools/pageShot.mjs propcheck.html propcheck.png 1240 760",
+    "qa:props": "node tools/pageShot.mjs propcheck.html propcheck.png 1400 820",
+    "qa:fx": "node tools/pageShot.mjs fxcheck.html fxcheck.png 1300 720",
     "qa:props:one": "node tools/pageShot.mjs propcheck.html propcheck.png 900 620",
     "shot": "node tools/pageShot.mjs"
   },

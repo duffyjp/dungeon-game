@@ -54,17 +54,27 @@ const camera = new THREE.PerspectiveCamera(58, VW / VH, 0.05, 80);
 camera.position.set(0, 1.75, 13.5);
 camera.lookAt(0, 1.0, -1);
 
-// Same lighting family as the game, only pushed brighter than a corridor would be: this
-// sheet exists to judge shapes, so it must not hide them the way gameplay lighting does.
-scene.add(new THREE.AmbientLight(biome.ambient, 0.22));
-const headlamp = new THREE.SpotLight(0xfff0dd, 34, 34, Math.PI / 3.6, 0.6, 1.2);
-headlamp.position.set(0, 2.4, 13);
+const only = new URLSearchParams(location.search).get('only');
+// In single-prop mode (?only=) the lighting is copied from main.js verbatim, because that
+// frame has to answer "what does this look like in play?". Overview mode boosts the pool —
+// a 15 m row of props side by side is not something the game ever lights, and shapes there
+// are what is being judged.
+renderer.toneMappingExposure = only ? 1.08 : 1.15;
+scene.add(new THREE.AmbientLight(0x101418, 0.9));
+scene.add(new THREE.HemisphereLight(0x223044, 0x0a0a0c, 0.25));
+const headlamp = new THREE.SpotLight(
+  0xfff0dd, only ? 18 : 34, only ? 26 : 34, Math.PI / 3.2, 0.95, 1.45);
+headlamp.position.set(0, 1.75, 13);
 headlamp.target.position.set(0, 0.8, -3);
 scene.add(headlamp, headlamp.target);
-const fill = new THREE.SpotLight(0xbfd4ff, 14, 34, Math.PI / 3.2, 0.7, 1.1);
-fill.position.set(-9, 5.5, 6);
-fill.target.position.set(0, 0.8, -3);
-scene.add(fill, fill.target);
+if (!only) {
+  const fill = new THREE.SpotLight(0xbfd4ff, 14, 34, Math.PI / 3.2, 0.7, 1.1);
+  fill.position.set(-9, 5.5, 6);
+  fill.target.position.set(0, 0.8, -3);
+  scene.add(fill, fill.target);
+}
+// The accent light is always present: in overview mode it stands in for a torch down the
+// hall, and in single-prop mode the ?only= block re-aims it low, as the staircase glow is.
 const torch = new THREE.PointLight(biome.torchColor, 14, 16, 2);
 torch.position.set(-5, 2.1, -1);
 scene.add(torch);
@@ -105,7 +115,7 @@ function label(text, x, y, z) {
 // whole reason to have geometry, so the sheet has to show them
 // ?only=staircase frames a single prop from standing eye height, the way it is actually
 // seen in play — useful for the landmarks where legibility matters more than detail.
-const only = new URLSearchParams(location.search).get('only');
+// (`only` itself is read up above, next to the lighting, because it chooses the lighting.)
 
 const items = [
   ['crate', () => makeProp('crate', biome, { x: 1, y: 1 }), 0],
@@ -116,20 +126,23 @@ const items = [
   ['door', () => makeProp('door_oak', biome, { x: 6, y: 1 }), 0],
   ['pillar', () => makePillar(biome), 0],
   ['staircase', () => makeStaircase(biome), 0],
-  ['torch', () => makeTorch(biome), 1.15],     // mounted at the height levelView uses
-  ['pedestal', () => makePedestal(), 0]
+  ['torch', () => makeTorch(biome), 1.55],     // mounted at the height levelView uses
+  ['pedestal', () => makePedestal(), 0],
+  ['rubble', () => makeProp('rubble', biome, { x: 7, y: 1 }), 0],
+  ['cobweb', () => makeProp('cobweb', biome, { x: 8, y: 1 }), 0]
 ];
 
 let built = 0, tris = 0;
-const tall = new Set(['chain', 'staircase', 'arch', 'door', 'pillar']);
+const tall = new Set(['chain', 'staircase', 'arch', 'door', 'pillar', 'cobweb']);
 const shown = only ? items.filter(([name]) => name === only) : items;
 if (only && shown.length === 0) say('no such prop: <b>' + only + '</b>');
 shown.forEach(([name, make, yOff], i) => {
   const g = make();
   if (!g) { say('MISSING builder: ' + name); return; }
-  const row = i < 5 ? 0 : 1;
-  const col = i % 5;
-  const x = only ? 0 : (col - 2) * 3.3;
+  const perRow = Math.ceil(items.length / 2);
+  const row = i < perRow ? 0 : 1;
+  const col = i % perRow;
+  const x = only ? 0 : (col - (perRow - 1) / 2) * 2.9;
   const z = only ? -1.7 : (row === 0 ? -0.5 : -5.0);
   g.position.set(x, yOff, z);
   g.rotation.y = only ? 0 : (row === 1 ? 0.7 : 0);
@@ -140,12 +153,21 @@ shown.forEach(([name, make, yOff], i) => {
 });
 
 if (only) {
-  // standing at the threshold and looking down, which is the only angle at which a
-  // floor opening reads as a floor opening
-  camera.position.set(0, 1.62, -0.45);
-  camera.lookAt(0, 0.05, -2.05);
-  headlamp.position.set(0, 1.72, -0.5);
-  headlamp.target.position.set(0, 0.1, -2.4);
+  // Standing at the threshold, eye height 1.62 — the angle a player actually sees from.
+  // Where the aim lands depends on the prop: a floor opening has to be looked *down* at,
+  // a torch on a wall has to be looked level at, or the framing itself is the lie.
+  const AIM = {
+    staircase: [0, 0.05, -2.05], rubble: [0, 0.12, -2.0], bones: [0, 0.12, -2.0],
+    pedestal: [0, 0.55, -2.0], crate: [0, 0.7, -2.0], barrel: [0, 0.65, -2.0],
+    door: [0, 1.1, -1.9], arch: [0, 1.2, -1.9], pillar: [0, 1.5, -1.9],
+    torch: [0, 1.62, -1.5], cobweb: [0, 2.5, -1.5], chain: [0, 1.9, -1.7]
+  };
+  const aim = AIM[only] || [0, 0.8, -2.0];
+  const back = (only === 'cobweb' || only === 'pillar' || only === 'arch') ? -0.15 : -0.45;
+  camera.position.set(0, 1.62, back);
+  camera.lookAt(aim[0], aim[1], aim[2]);
+  headlamp.position.set(0, 1.72, back - 0.05);
+  headlamp.target.position.set(aim[0], aim[1], aim[2]);
   torch.color.set(biome.accent);
   torch.intensity = 3.5;
   torch.position.set(0, 0.25, -2.1);      // light coming up out of the shaft

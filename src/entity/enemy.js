@@ -6,7 +6,7 @@
 
 import * as THREE from 'three';
 import { CFG } from '../config.js';
-import { getTexture } from '../render/assets.js';
+import { getTexture, getSoftShadowTexture } from '../render/assets.js';
 import { makeBillboard } from '../world/levelView.js';
 import { moveCircle, hasLineOfSight, findOpenSpot } from '../world/collision.js';
 import { isOpen } from '../util/grid.js';
@@ -32,12 +32,19 @@ export class Enemy {
     this.damage = Math.round(fam.damage * dmgMult * fam.tierMult.dmg[tierIdx]);
     this.speed = fam.speed * speedMult;
     this.radius = fam.radius * (opts.radiusMult || 1);
-    this.height = fam.height * (opts.radiusMult || 1);
+    // Height carries part of the threat read. The generated art separates tiers by bulk
+    // and damage, but a tier-1 wisp and a tier-4 shade are the same family and were being
+    // drawn the same size, so a corridor never told you which one was the lesser threat.
+    // `heightByTier` in data/enemies.json lets each family ramp its silhouette.
+    this.height = fam.height * (opts.radiusMult || 1) * ((fam.heightByTier || [])[tierIdx] || 1);
     this.isBoss = Boolean(opts.boss);
     this.x = (cell.x + 0.5) * CFG.cell;
     this.z = (cell.y + 0.5) * CFG.cell;
 
     this.state = 'idle';
+    this.lastX = this.x;
+    this.lastZ = this.z;
+    this.trailT = 0;
     this.cooldown = 0;
     this.tell = 0;
     this.tellTotal = 0;
@@ -55,12 +62,24 @@ export class Enemy {
     this.body = makeBillboard(spriteKey, [this.height * 0.75, this.height], this.x, this.z, this.height / 2);
     this.group.add(this.body);
 
+    // Contact shadow follows the same tier ramp as the silhouette, so a knee-high wisp
+    // does not sit in a puddle sized for a shade. Hovering and wall-phasing creatures get
+    // a smaller, fainter pool because their body is not really standing on the floor.
+    const ramp = this.height / fam.height;
+    const hover = Boolean(fam.phasesWalls);
     const shadow = new THREE.Mesh(
-      new THREE.PlaneGeometry(this.radius * 2.6, this.radius * 2.0),
-      new THREE.MeshBasicMaterial({ map: getTexture('vfx/contact_shadow'), transparent: true, opacity: 0.55, depthWrite: false })
+      new THREE.PlaneGeometry(
+        this.radius * 2.6 * ramp * (hover ? 0.62 : 1),
+        this.radius * 2.0 * ramp * (hover ? 0.62 : 1)
+      ),
+      new THREE.MeshBasicMaterial({
+        map: getSoftShadowTexture(), transparent: true,
+        opacity: hover ? 0.3 : 0.42, depthWrite: false
+      })
     );
     shadow.rotation.x = -Math.PI / 2;
     shadow.position.set(this.x, 0.03, this.z);
+    shadow.userData.baseOpacity = hover ? 0.3 : 0.42;
     this.shadow = shadow;
     this.group.add(shadow);
 
@@ -88,8 +107,26 @@ export class Enemy {
       this.deathT += dt;
       this.body.material.opacity = Math.max(0, 1 - this.deathT / 0.45);
       this.body.scale.setScalar(Math.max(0.01, 1 - this.deathT / 0.45));
-      this.shadow.material.opacity = Math.max(0, 0.55 * (1 - this.deathT / 0.45));
+      this.shadow.material.opacity = Math.max(0,
+        (this.shadow.userData.baseOpacity || 0.42) * (1 - this.deathT / 0.45));
       return this.deathT < 0.5;
+    }
+
+    // Ghosts shed vapour where they have been. Measuring real movement rather than state,
+    // because the trail should follow the body and not the AI's mood: a ghost that drifted
+    // through a wall should still mark the corridor behind it.
+    const moved = Math.hypot(this.x - this.lastX, this.z - this.lastZ);
+    this.lastX = this.x; this.lastZ = this.z;
+    if (this.fam.trail) {
+      this.trailT -= dt;
+      if (this.trailT <= 0 && moved > 0.004) {
+        this.trailT = 0.34;
+        // 0.55 s life, and the same number again is no coincidence to be read carelessly:
+        // the last argument caps the puff at 55% opacity, which keeps the vapour see-through
+        // and mutes whatever the keying left at its fringe
+        this.game.spawnVfx(this.fam.trail, this.x, this.z,
+          Math.max(0.7, this.radius * 2), 0.55, this.height * 0.45, 0.55);
+      }
     }
 
     if (this.hitFlash > 0) {
@@ -349,6 +386,14 @@ export class Enemy {
       this.alive = false;
       sfx.play(this.fam.sfx.death, { x: this.x, z: this.z });
       if (this.isBoss) sfx.play('boss_roar', { x: this.x, z: this.z });
+      // Families that are mostly body leave something behind. The sprite existed in the
+      // manifest and nothing drew it, so a slime died by shrinking — a balloon losing air
+      // rather than a thing coming apart.
+      if (this.fam.splat) {
+        const fx = this.game.spawnVfx(this.fam.splat, this.x, this.z, Math.max(1.1, this.radius * 3), 0.9, 0.045);
+        fx.mesh.rotation.x = -Math.PI / 2;      // a splat is on the floor, not facing you
+        fx.mesh.userData.billboard = false;
+      }
       this.game.onEnemyDeath(this);
       return true;
     }

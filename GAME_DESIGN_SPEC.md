@@ -132,6 +132,14 @@ Base roster of 6 families. Higher tiers are **reskins**: same behaviour, differe
 | Ghost | Wisp | Wraith | Dread Spectre | Hungering Shade |
 | Spider | Cellar Spider | Grave Spider | Bone Spider | (none) |
 
+Reskins carry their threat read in two places. The sprite changes bulk and damage — and,
+for the ghost family, stance: a wisp has no planted feet and no free hands, a shade is a
+full biped with claws. The renderer adds the rest with `heightByTier` per family in
+`data/enemies.json`, so a tier-1 wisp is drawn 1.08 m and a tier-4 shade 2.16 m. Collision
+radius is deliberately *not* ramped, so the ramp is presentation only and balance is
+untouched. The integration suite asserts that each family's tier-1 height is below its
+tier-4 height and that the tallest silhouette still clears a hallway ceiling.
+
 Tier stat scaling:
 
 ```
@@ -408,10 +416,22 @@ All SFX pitch-jitter ±8 % and voice-limit 6 simultaneous. Positional via `Panne
 
 ### 13.2 Known capability limits of this graph (do not work around with other models)
 
-- **Negated clauses inside the prompt make the thing appear.** This graph samples at CFG 1 with the negative branch wired to `ConditioningZeroOut`, so a `negative_prompt` is discarded entirely, and any `no X` phrase typed into the *positive* prompt is simply a description of X that the model then paints. Observed directly: "no dots" produced a lattice of dots, "no teal, no turquoise" produced teal, "no blue, no cyan" produced blue chips, and "no pictograms" is the likeliest cause of the pictograms on the first-pass `pillar`, `door_oak` and `cobweb`. **Write prompts affirmatively**: name the palette, name the arrangement ("evenly distributed all-over detail", "clean unbroken background"), and never name a thing you do not want. Do not pass a `negative_prompt` and assume it worked.
+- **Negated clauses inside the prompt make the thing appear.** This graph samples at CFG 1 with the negative branch wired to `ConditioningZeroOut`, so a `negative_prompt` is discarded entirely, and any `no X` phrase typed into the *positive* prompt is simply a description of X that the model then paints. Observed directly: "no dots" produced a lattice of dots, "no teal, no turquoise" produced teal, "no blue, no cyan" produced blue chips, and "no pictograms" is the likeliest cause of the pictograms on the first-pass `pillar`, `door_oak` and `cobweb`. **Write prompts affirmatively**: name the palette, name the arrangement ("evenly distributed all-over detail", "clean unbroken background"), and never name a thing you do not want. Do not pass a `negative_prompt` and assume it worked. The flip side of naming only what you want: **do not name the medium either.** Describing a coin as a "bold game pickup icon" embossed a modern games controller onto it. Describe the object as a thing in the world ("a worn gold piece, plain blank face"), and reserve framing language for composition and background.
 - **No inpainting, no outpainting, no img2img inside this graph.** Regenerate with a new seed instead of editing. `refine_image` (img2img) exists as a separate MCP tool but runs a *different* workflow, so it is only for optional polish on already-approved assets, with `denoise ≤ 0.35`, and never as a substitute for a good prompt.
 - **No upscaler models are installed on the server** (`upscale_models` is empty). `upscale_image` is therefore unavailable; do not depend on it. Get detail by prompting and, if needed, generating at 1024 and downscaling to the display size in-engine.
-- **ControlNet and IP-Adapter availability is unverified** on this server. Style consistency comes from a shared prompt suffix and shared seeds, not from conditioning tools. If a future request needs pose/depth control, report the missing models rather than swapping generators.
+- **Some ordinary words are objects to this model, not descriptions.** Each of these cost a
+  generation and was fixed by describing the *result* instead of the cause or the analogy:
+  "crescent" painted a moon; "the swept path of a heavy sword swing" painted a literal gold
+  sword with hilt and crossguard; "ribbons of mist breaking into wisps" painted a feather;
+  "molten" and "burning" put flame tongues on a spark sprite; "globe with rolling folds"
+  produced continent-shaped blotches (same failure as the coin's map blotches); "where the
+  ring meets the ground" painted a smear on the floor. For an effect, describe what is
+  visibly there — "a plain abstract curved band of light and dust with nothing solid inside
+  it" — and never the thing that made it.
+- **ControlNet and IP-Adapter availability is unverified** on this server. Style
+  consistency comes from a shared prompt suffix and shared seeds, not from conditioning
+  tools. If a future request needs pose/depth control, report the missing models rather
+  than swapping generators.
 - If a required MCP capability is missing, **report the exact tool or error** — do not substitute the default checkpoint model.
 
 ### 13.3 Shared prompt parts
@@ -421,7 +441,7 @@ All SFX pitch-jitter ±8 % and voice-limit 6 simultaneous. Positional via `Panne
 `_photoreal_v1` STYLE (batch 1-2, superseded; originals kept in `assets/images/_photoreal_v1/`) = `photorealistic AAA game asset, PBR material detail, crisp studio key light with cool rim light, subtle film grain, sharp focus, high dynamic range`
 
 **BG-SPRITE** = `isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, full body in frame`
-The magenta line is load-bearing: the runtime keyer samples the image border and cuts on chroma. Phrase "subject contains no pink/magenta" by *naming the subject's palette affirmatively* instead of forbidding hues.
+The magenta line is load-bearing: the runtime keyer samples the image border and cuts on chroma. Phrase "subject contains no pink/magenta" by *naming the subject's palette affirmatively* instead of forbidding hues. Two measured consequences of that, both learned the hard way: **violet is not safe either** — it sits close enough to the keyed family that a violet ward-glow on armour would key out and leave holes in the cuirass, so glowing subjects are authored ochre/amber instead. And a pale near-white subject picks up magenta bounce off the field (the extra-life icon measured 0.67% subject tint against a 0.2% bar); the engine despills surviving pixels so it still passes, but author the pale things cool and away from the field where you can.
 
 **BG-TILE** = `seamless tileable texture, flat top-down lighting, uniform scale, evenly distributed all-over detail, medium-frequency detail, soft brush-blended edges`
 Say "evenly distributed" rather than "no large motifs", and "soft edges" rather than "no outlines" — see §13.2.
@@ -528,7 +548,7 @@ One sprite per variant, 25 total. Photoreal creature, full body, standing pose, 
 | armor_studded | studded leather cuirass |
 | armor_chain | chainmail shirt |
 | armor_plate | plated cuirass with gorget |
-| armor_warded | ornate rune-etched cuirass, faint violet glow |
+| armor_warded | ornate rune-etched cuirass, dull ochre/amber ward-light (was "faint violet glow": violet sits in the hue family the runtime keyer eats, so it would punch holes in the cuirass — see §13.3) |
 | potion_health | glass flask of glowing red draught, corked |
 | item_extra_life | small porcelain skull charm with gold seam |
 | item_repair_kit | leather roll of armour tools and rivets |

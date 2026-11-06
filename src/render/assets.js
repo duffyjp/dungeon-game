@@ -21,6 +21,27 @@ export function hasAsset(key) { return Boolean(URLS[key]); }
 export function assetUrl(key) { return URLS[key] || null; }
 export function assetKeys() { return Object.keys(URLS).sort(); }
 
+// Ground contact shadows are drawn, not generated. The generated `vfx/contact_shadow`
+// blob keys out with a hard edge, and under a pale creature it photographed as a hole in
+// the floor; a radial gradient in code has no edge to key, costs no art slot, and can be
+// scaled per creature.
+let softShadowTex = null;
+export function getSoftShadowTexture() {
+  if (softShadowTex) return softShadowTex;
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const grd = g.createRadialGradient(64, 64, 3, 64, 64, 62);
+  grd.addColorStop(0, 'rgba(0,0,0,0.85)');
+  grd.addColorStop(0.55, 'rgba(0,0,0,0.42)');
+  grd.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = grd;
+  g.fillRect(0, 0, 128, 128);
+  softShadowTex = new THREE.CanvasTexture(c);
+  softShadowTex.colorSpace = THREE.SRGBColorSpace;
+  return softShadowTex;
+}
+
 const cache = new Map();     // key -> THREE.Texture
 const pending = new Map();   // key -> Promise<THREE.Texture>
 

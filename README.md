@@ -40,13 +40,16 @@ gold. Health comes back only from potions.
 
 ```
 npm test              # levels + loot + movement (headless Node, ~30 s)
-npm run test:game     # boots the real game in headless Edge, 21 integration checks
+npm run test:game     # boots the real game in headless Edge, 25 integration checks
 npm run test:keys     # chroma-key QA: measures every generated sprite, non-zero exit if one keys badly
 ```
 
 All four suites currently pass: 200/200 generated levels solvable, the loot spread
-checks, the collision checks, 21/21 integration checks (including that WASD and the
-arrow keys move the way the camera actually points), and 57/57 sprites key clean.
+checks, the collision checks, 25/25 integration checks (including that WASD and the arrow
+keys move the way the camera actually points, that every prop kind resolves to geometry or
+real art, that no torch floats free of a wall, that each enemy family ramps its silhouette
+by tier, and that the splat and trail effects are wired to the creatures they were drawn
+for), and 57/57 sprites key clean.
 
 Art QA, which renders a report you can look at instead of reading numbers:
 
@@ -55,12 +58,18 @@ npm run qa:seams      # seamcheck.png — every tile at 50% offset vs. the engin
 npm run qa:keys       # keycheck.png  — every sprite after the real keying pipeline, with numbers
 npm run qa:props      # propcheck.png — every solid prop, front view and turned 40 degrees
 npm run qa:props:one -- "?only=staircase"   # one prop, framed from standing eye height
+npm run qa:props:one -- "?only=torch"         # in that mode the lighting is copied from the game
+npm run qa:fx         # fxcheck.png — every effect composited the way the engine draws it
+npm run qa:art        # which manifest assets nothing in the source references
 npm run shot -- index.html play.png 1280 720 "?demo=1&seed=alpha&depth=9&preview=orc&tier=4"
 ```
 
 Each starts its own Vite server, so they work whether or not `npm run dev` is running.
 The game page preloads 88 textures, so `SHOT_BUDGET=150000 npm run shot -- index.html ...`
-raises the headless time budget when a screenshot comes back empty.
+raises the headless time budget when a screenshot comes back empty. A shot can also fail
+while the art pipeline is mid-write — PNGs being replaced under the dev server can break the
+page's preload — so re-run it after a generation batch lands. `test:game` is immune, because
+the self-test skips art preloading.
 
 `test:game` needs a Chromium browser installed; it uses a throwaway profile, so it will
 not disturb an open browser window. Individual suites: `test:levels`, `test:loot`,
@@ -73,6 +82,7 @@ Useful URL parameters:
 | `?demo=1&seed=777` | jump straight into a run with a fixed level |
 | `?demo=1&depth=7&preview=mage&tier=3` | stand one enemy in front of the camera for art review |
 | `?demo=1&depth=4&at=stair` | stand next to the staircase looking at it, for landmark review |
+| `?demo=1&depth=1&at=prop:rubble` | stand beside the nearest prop of that kind (`torch`, `cobweb`, `door_oak`, ...) |
 | `?selftest=1` | run the integration checks and print pass/fail |
 | `?selftest=1&assets=1` | same, but after decoding every generated image |
 | `/seamcheck.html` | texture tiling review sheet (raw vs. the engine's mirrored pass) |
@@ -123,6 +133,24 @@ attempts; the two rejected seeds are recorded in its manifest entry.
   (`MeshBasicMaterial`) since the generated art has lighting baked in — do not "fix" that
   by lighting the sprites. Prop materials and their texture clones are cached across
   levels and marked `userData.shared`, so level teardown must not dispose them.
+- **A prop kind that has no art is skipped, never drawn.** `rubble` and `cobweb` used to
+  fall through to `props/rubble` — an asset that was never generated — so the engine drew
+  its procedural placeholder: a grey blob sitting in a corridor. `makeProp` now builds both
+  as geometry, and the billboard path checks `hasAsset` before drawing anything. The
+  integration suite asserts the whole kind list, so a new kind cannot reintroduce it.
+- **Wall-mounted means mounted.** Torches hang on the nearest wall face, bracket plate on
+  the masonry and arm plus flame out over the corridor; a torch in a cell that is open on
+  all four sides is skipped rather than floated in mid-air. The integration suite fails if
+  any sconce points at open space instead of a wall.
+- **Metalness without reflections goes chalky.** Nothing here has an environment map, so a
+  high-metalness material has only the headlamp to reflect and blows out to pale grey right
+  in front of it. Iron is authored dark, low metalness, high roughness; the flame is
+  authored saturated and `toneMapped: false`, because ACES drags a bright warm emissive
+  toward white — which is why the torch read as a cream cone for a while.
+- **Ground shadows are drawn, not generated.** The generated `vfx/contact_shadow` sprite
+  keys out with a hard edge, and under a pale creature it looked like a hole in the floor.
+  `getSoftShadowTexture()` in `render/assets.js` is a radial gradient with no edge to key,
+  and it scales with each enemy's tier ramp (smaller and fainter for things that hover).
 - **Prompts must be affirmative.** The image graph samples at CFG 1 with its negative
   branch wired to `ConditioningZeroOut`, so a negative prompt is thrown away — and a
   `no X` clause typed into the positive prompt is just a description of X, which the

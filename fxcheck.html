@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>VFX review — the engine's own compositing</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0a0d12; overflow: hidden; }
+  canvas { display: block; }
+  #log {
+    position: fixed; top: 10px; right: 10px; max-width: 460px;
+    font: 13px/1.5 system-ui, sans-serif; color: #cfd6e4;
+    background: rgba(10,13,18,.82); border: 1px solid #2a3342; border-radius: 6px;
+    padding: 8px 11px; white-space: pre-wrap;
+  }
+  #log b { color: #f0c674; }
+</style>
+</head>
+<body>
+<div id="log">loading…</div>
+<script type="module">
+// What an effect actually looks like in play. The point of this sheet is that it does not
+// show the sprite files: it shows them after the engine's chroma key, at the sizes and
+// life fractions the engine uses, over a crypt floor with the game's own headlamp. A
+// translucent mist that keeps a magenta cast, or a "ring" whose interior is filled, is
+// only visible in a composite like this.
+import * as THREE from 'three';
+import { getTexture, getMirroredTexture, preloadAll } from './src/render/assets.js';
+import { CFG } from './src/config.js';
+
+const log = document.getElementById('log');
+const say = (m) => { log.innerHTML = m; };
+
+// key -> [size, lifeFraction shown, y, why, opacityCap]  from the real spawnVfx call sites
+const USED = [
+  ['vfx/slash_arc', 1.6, 0.55, 1.35, 'melee swing, midway through its 0.22 s life'],
+  ['vfx/hit_spark', 0.9, 0.55, 1.2, 'projectile impact'],
+  ['vfx/fireball', 0.9, 0.55, 1.2, 'splash damage'],
+  ['vfx/magic_orb', 0.9, 0.55, 1.2, 'mage bolt, mid-flight'],
+  ['vfx/portal_glow', 1.2, 0.55, 1.2, 'the way down, 0.5 s life']
+];
+const WIRED = [
+  ['vfx/ghost_trail', 1.1, 0.55, 0.8, 'vapour a ghost leaves behind, capped at 55% opacity', 0.55],
+  ['vfx/slime_splat', 1.3, 1.0, 0.05, 'where a slime died, flat on the floor']
+];
+const UNUSED = [
+  ['vfx/contact_shadow', 1.0, 1.0, 0.03, 'shadows are drawn procedurally instead']
+];
+
+const VW = window.innerWidth, VH = window.innerHeight;
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(VW, VH);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.08;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, VW / VH, 0.05, 60);
+camera.position.set(0, 1.7, 4.6);
+camera.lookAt(0, 1.0, -5.5);
+
+// Lighting copied from main.js, because an emissive sprite reads differently when the
+// wall behind it is lit the way it is in play. Reach is stretched past the game's value so
+// the back row is lit; nothing else differs.
+scene.add(new THREE.AmbientLight(0x101418, 0.9));
+scene.add(new THREE.HemisphereLight(0x223044, 0x0a0a0c, 0.25));
+const headlamp = new THREE.SpotLight(0xfff0dd, 20, 40, Math.PI / 2.6, 0.95, 1.1);
+headlamp.position.set(0, 1.7, 4.4);
+headlamp.target.position.set(0, 1.0, -8);
+scene.add(headlamp, headlamp.target);
+
+const biome = { fog: 0x0a0d12, fogDensity: 0.055 };
+scene.fog = new THREE.FogExp2(biome.fog, biome.fogDensity);
+scene.background = new THREE.Color(biome.fog);
+
+function label(text, x, y, z) {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 64;
+  const g = c.getContext('2d');
+  g.font = '600 30px system-ui, sans-serif';
+  g.fillStyle = '#f0c674';
+  g.textAlign = 'center';
+  g.fillText(text, 256, 40);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  const m = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.2, 0.27),
+    new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false })
+  );
+  m.position.set(x, y, z);
+  m.userData.billboard = true;
+  scene.add(m);
+}
+
+async function main() {
+  // the two room textures are preloaded too: getTexture() hands back procedural placeholder
+  // noise for anything not yet loaded, and a placeholder floor would flatter or damn every
+  // effect composited over it
+  const keys = [...USED, ...WIRED, ...UNUSED].map(([k]) => k)
+    .concat(['textures/floor_crypt', 'textures/wall_crypt']);
+  await preloadAll(keys);
+  say('textures loaded: <b>' + keys.length + '</b>');
+
+  // a crypt patch of the real world: floor and wall through the engine's mirrored tiling,
+  // so the backdrop the effect is judged against is the one a player sees
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(14, 16),
+    new THREE.MeshStandardMaterial({ map: getMirroredTexture('textures/floor_crypt'), roughness: 1 })
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(0, 0, -6);
+  scene.add(floor);
+  const wall = new THREE.Mesh(
+    new THREE.PlaneGeometry(14, 4),
+    new THREE.MeshStandardMaterial({ map: getMirroredTexture('textures/wall_crypt'), roughness: 1 })
+  );
+  wall.position.set(0, 2, -11);
+  scene.add(wall);
+
+  let built = 0;
+  const rows = [[...USED], [...WIRED, ...UNUSED]];
+  rows.forEach((row, r) => {
+    row.forEach(([key, size, lifeFrac, y, why, cap = 1], i) => {
+      const x = (i - (row.length - 1) / 2) * 2.2;
+      const z = r === 0 ? -3.2 : -7.6;
+      // Vfx.update() drives opacity = t and scale = 1 + (1 - t) * 0.6; the sheet uses the
+      // same numbers so the size on screen is the size a player sees
+      const t = lifeFrac;
+      const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(size, size),
+        new THREE.MeshBasicMaterial({
+          map: getTexture(key), transparent: true, depthWrite: false,
+          toneMapped: false, opacity: t * cap
+        })
+      );
+      mesh.scale.setScalar(1 + (1 - t) * 0.6);
+      const flat = key === 'vfx/slime_splat' || key === 'vfx/contact_shadow';
+      if (flat) {
+        mesh.rotation.x = -Math.PI / 2;
+        mesh.position.set(x, y, z);
+      } else {
+        mesh.position.set(x, y, z);
+        mesh.userData.billboard = true;
+      }
+      scene.add(mesh);
+      label(key.split('/')[1], x, 2.5, z);
+      built++;
+    });
+  });
+
+  // label the rows so the sheet is readable without a legend
+  label('weapon, projectile and portal effects', -5.0, 3.1, -3.2);
+  label('wired to creatures; last one is still an orphan', -5.0, 3.1, -7.6);
+
+  // one billboard pass, then the composite is static and safe to screenshot
+  scene.traverse(o => { if (o.userData.billboard) o.lookAt(camera.position); });
+  renderer.render(scene, camera);
+  say('effects composited: <b>' + built + '</b> &middot; engine effects on top, creature effects below');
+  window.__fxcheckDone = true;
+}
+
+main().catch(e => { say('ERROR: ' + e.message); window.__fxcheckDone = true; });
+</script>
+</body>
+</html>

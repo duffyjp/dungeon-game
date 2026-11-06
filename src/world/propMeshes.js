@@ -64,7 +64,7 @@ const M = {
     color: 0x8a6a44, roughness: 0.82, metalness: 0.02, map: tex('textures/door_oak')
   })),
   woodPlain: () => mat('woodPlain', () => new THREE.MeshStandardMaterial({ color: 0x9a7a52, roughness: 0.86, metalness: 0.02 })),
-  iron: () => mat('iron', () => new THREE.MeshStandardMaterial({ color: 0x7d828a, roughness: 0.5, metalness: 0.5 })),
+  iron: () => mat('iron', () => new THREE.MeshStandardMaterial({ color: 0x6b7076, roughness: 0.68, metalness: 0.22 })),
   stone: (biome) => mat(`stone:${biome.wall}`, () => new THREE.MeshStandardMaterial({
     color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`)
   })),
@@ -73,7 +73,7 @@ const M = {
     color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`, 1, 3)
   })),
   bone: () => mat('bone', () => new THREE.MeshStandardMaterial({ color: 0xd9d2bf, roughness: 0.7, metalness: 0.02 })),
-  brass: () => mat('brass', () => new THREE.MeshStandardMaterial({ color: 0xb08d4a, roughness: 0.4, metalness: 0.7 })),
+  brass: () => mat('brass', () => new THREE.MeshStandardMaterial({ color: 0x8f7338, roughness: 0.5, metalness: 0.3 })),
   door: () => mat('doorSlab', () => new THREE.MeshStandardMaterial({
     color: 0xbfae94, roughness: 0.8, metalness: 0.03, map: tex('textures/door_oak')
   })),
@@ -97,9 +97,23 @@ const M = {
   // reading as a hole and starts reading as a painted panel
   shaft: () => mat('shaft', () => new THREE.MeshBasicMaterial({ color: 0x04060a, toneMapped: false })),
   // Flame: emissive but not blown out. At 2.2 the cone photographed as a white spike
-  // floating in the corridor, which read as a spear tip rather than a fire.
+  // floating in the corridor, which read as a spear tip rather than a fire. The fix is not
+  // less brightness but colour that survives tone mapping — ACES pulls a bright warm
+  // emissive toward white, so these are authored as saturated orange and marked
+  // toneMapped: false, which keeps the hue instead of desaturating it.
   flame: () => mat('flame', () => new THREE.MeshStandardMaterial({
-    color: 0xffb347, emissive: 0xff7a1f, emissiveIntensity: 0.95, roughness: 1
+    color: 0x2b1405, emissive: 0xff6a12, emissiveIntensity: 1.15, roughness: 1, toneMapped: false
+  })),
+  // the inside of the fire, hotter and smaller, which is what gives the cone shape instead
+  // of reading as a flat orange blob
+  flameCore: () => mat('flameCore', () => new THREE.MeshStandardMaterial({
+    color: 0x3a2409, emissive: 0xffb347, emissiveIntensity: 1.6, roughness: 1, toneMapped: false
+  })),
+  // Wrought iron as it actually behaves here: no environment map exists in this scene, so
+  // a high-metalness surface has nothing to reflect and goes chalky straight in front of
+  // the headlamp. Dark colour, low metalness, high roughness is what reads as iron.
+  ironDark: () => mat('ironDark', () => new THREE.MeshStandardMaterial({
+    color: 0x474b52, roughness: 0.78, metalness: 0.18
   }))
 };
 
@@ -117,6 +131,18 @@ function mesh(geo, material, pos, rot) {
   if (rot) m.rotation.set(rot[0], rot[1], rot[2]);
   m.castShadow = false;
   m.receiveShadow = false;
+  return m;
+}
+
+// Drop a piece so its lowest point rests on the floor. Tumbled blocks are rotated, and a
+// box tipped onto a corner otherwise hovers a hand's width above the ground, which reads
+// instantly as a rendering mistake rather than as debris.
+const _box = new THREE.Box3();
+function settle(m, sink = 0.01) {
+  m.updateMatrixWorld(true);
+  _box.setFromObject(m);
+  if (_box.isEmpty()) return m;
+  m.position.y -= _box.min.y - sink;
   return m;
 }
 
@@ -248,16 +274,29 @@ function staircase(biome) {
   return g;
 }
 
-function torch(biome) {
+function torch(biome, cell = { x: 0, y: 0 }) {
   const g = new THREE.Group();
-  g.add(mesh(new THREE.BoxGeometry(0.16, 0.34, 0.2), M.iron(), [0, 0, 0.06]));          // bracket plate
-  const arm = mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.7, 6), M.iron(), [0, 0.28, -0.16]);
-  arm.rotation.x = -0.45;
-  g.add(arm);
-  g.add(mesh(new THREE.CylinderGeometry(0.13, 0.1, 0.22, 8), M.brass(), [0, 0.62, -0.3]));
-  // flame: emissive geometry, no texture, so the point light has something to attribute.
-  // Kept small — a big cone under a bright emissive reads as a weapon, not a fire.
-  g.add(mesh(new THREE.ConeGeometry(0.075, 0.26, 6), M.flame(), [0, 0.78, -0.3]));
+  // A wall sconce, not a chalice. Earlier proportions (a fat bracket slab, a brass cup
+  // wider than the fire) put all the visual weight on the metal, so the flame read as a
+  // gold spike. The metal is also kept low-metalness: nothing in this scene has an
+  // environment map, and metalness without reflections just goes chalky under the lamp.
+  g.add(mesh(new THREE.BoxGeometry(0.12, 0.2, 0.05), M.ironDark(), [0, 0, 0.025]));
+  g.add(mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.44, 6), M.ironDark(), [0, 0.16, -0.15], [-0.62, 0, 0]));
+  // small grease cup at the end of the arm — deliberately narrower than the flame
+  g.add(mesh(new THREE.CylinderGeometry(0.075, 0.05, 0.12, 8), M.ironDark(), [0, 0.36, -0.31]));
+  g.add(mesh(new THREE.TorusGeometry(0.075, 0.016, 6, 10), M.brass(), [0, 0.42, -0.31], [Math.PI / 2, 0, 0]));
+  // Fire, not a traffic cone. A single clean cone photographed as a solid orange hat, so
+  // the flame is a cluster of three licks at slightly different leans, hung from a group
+  // based at the cup rim — main.js flickers that group, and the base has to be the pivot
+  // or the fire jumps off the sconce as it wobbles.
+  const flame = new THREE.Group();
+  flame.position.set(0, 0.44, -0.31);
+  flame.add(mesh(new THREE.ConeGeometry(0.085, 0.32, 7), M.flame(), [0, 0.16, 0], [0.10, 0.3, 0.07]));
+  flame.add(mesh(new THREE.ConeGeometry(0.05, 0.2, 6), M.flameCore(), [0.015, 0.12, 0], [-0.12, 0, -0.10]));
+  flame.add(mesh(new THREE.ConeGeometry(0.03, 0.12, 5), M.flame(), [-0.055, 0.07, 0.03], [0.25, 0, 0.35]));
+  g.add(flame);
+  g.userData.flame = flame;
+  g.userData.phase = (jitter(cell.x, cell.y, 5) + 1) * Math.PI;   // no two torches in step
   return g;
 }
 
@@ -265,6 +304,89 @@ function pedestal() {
   const g = new THREE.Group();
   g.add(mesh(new THREE.CylinderGeometry(0.34, 0.42, 0.5, 8), M.plinth(), [0, 0.25, 0]));
   g.add(mesh(new THREE.BoxGeometry(0.72, 0.12, 0.72), M.plinthTop(), [0, 0.56, 0]));
+  return g;
+}
+
+function rubble(biome) {
+  const g = new THREE.Group();
+  // Broken masonry: a low scatter of tumbled blocks plus one toppled column drum, which
+  // is what makes it read as collapsed architecture instead of a pile of cubes. This used
+  // to be a billboard looking up `props/rubble`, an asset that was never generated, so
+  // the engine drew its procedural placeholder noise — a grey blob sitting in corridors.
+  for (let i = 0; i < 7; i++) {
+    const w = 0.26 + ((jitter(i, 1) + 1) / 2) * 0.3;
+    const h = 0.14 + ((jitter(i, 2) + 1) / 2) * 0.2;
+    const d = 0.26 + ((jitter(i, 3) + 1) / 2) * 0.3;
+    const m = mesh(new THREE.BoxGeometry(w, h, d), M.dressedDark(biome),
+      [jitter(i, 4) * 0.55, 0, jitter(i, 5) * 0.55]);
+    m.rotation.set(jitter(i, 7) * 0.22, jitter(i, 6) * Math.PI, jitter(i, 8) * 0.22);
+    g.add(settle(m));
+  }
+  g.add(settle(mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.72, 8), M.dressed(biome),
+    [0.16, 0, -0.12], [Math.PI / 2, 0.35, 0])));
+  for (let i = 0; i < 5; i++) {
+    g.add(settle(mesh(new THREE.TetrahedronGeometry(0.085), M.dressed(biome),
+      [jitter(i, 11) * 0.72, 0, jitter(i, 13) * 0.72], [0, jitter(i, 12) * Math.PI, 0])));
+  }
+  return g;
+}
+
+// Procedural web: a small canvas of radial spokes and sagging arcs. The generated
+// `textures/cobweb` tile is a seamless surface texture with its own background, which is
+// wrong for a hanging veil, so this is drawn in code instead of spending an art slot.
+let webTex = null;
+function webTexture() {
+  if (webTex) return webTex;
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.clearRect(0, 0, 256, 256);
+  g.strokeStyle = 'rgba(238,242,248,0.95)';
+  g.lineWidth = 2.2;
+  const cx = 24, cy = 24;                       // anchored in the corner
+  const spokes = 7;
+  const pts = [];
+  for (let i = 0; i <= spokes; i++) {
+    const a = (Math.PI / 2) * (i / spokes);
+    const r = 230;
+    const ex = cx + Math.cos(a) * r, ey = cy + Math.sin(a) * r;
+    g.beginPath();
+    g.moveTo(cx, cy);
+    // spokes sag slightly, the way a real web does under its own weight
+    g.quadraticCurveTo((cx + ex) / 2, (cy + ey) / 2 + 18, ex, ey);
+    g.stroke();
+    pts.push([ex, ey]);
+  }
+  g.lineWidth = 1.5;
+  for (let ring = 1; ring <= 6; ring++) {
+    const f = ring / 6.5;
+    g.beginPath();
+    for (let i = 0; i <= spokes; i++) {
+      const [ex, ey] = pts[i];
+      const x = cx + (ex - cx) * f, y = cy + (ey - cy) * f + 10 * f;
+      if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+    }
+    g.stroke();
+  }
+  webTex = new THREE.CanvasTexture(c);
+  webTex.colorSpace = THREE.SRGBColorSpace;
+  return webTex;
+}
+
+function cobweb() {
+  const g = new THREE.Group();
+  const sheet = new THREE.PlaneGeometry(1.5, 1.15);
+  const m = mat('cobweb', () => new THREE.MeshStandardMaterial({
+    map: webTexture(), transparent: true, opacity: 0.5, roughness: 1, metalness: 0,
+    side: THREE.DoubleSide, depthWrite: false, color: 0xdfe4ea
+  }));
+  // two crossing sheets hung from the ceiling; from any corridor angle at least one reads
+  for (const rot of [0, Math.PI / 2]) {
+    const q = mesh(sheet, m, [0, CFG.wallH - 0.62, 0], [0.18, rot, 0.1]);
+    g.add(q);
+  }
+  // a short drape down the corner catches the headlamp on the way past
+  g.add(mesh(new THREE.PlaneGeometry(0.7, 1.3), m, [0.42, CFG.wallH - 1.5, -0.42], [0, Math.PI / 4, 0]));
   return g;
 }
 
@@ -281,6 +403,8 @@ export function makeProp(kind, biome, cell = { x: 0, y: 0 }) {
     case 'chain_hanging': g = chain(); break;
     case 'stone_arch': g = arch(biome); break;
     case 'door_oak': g = door(biome); break;
+    case 'rubble': g = rubble(biome); break;
+    case 'cobweb': g = cobweb(biome); break;
     default: return null;
   }
   g.rotation.y = (jitter(cell.x, cell.y, 1) + 1) * Math.PI * 0.5;
@@ -291,7 +415,7 @@ export function makeProp(kind, biome, cell = { x: 0, y: 0 }) {
 
 export function makePillar(biome) { return pillar(biome); }
 export function makeStaircase(biome) { return staircase(biome); }
-export function makeTorch(biome) { return torch(biome); }
+export function makeTorch(biome, cell) { return torch(biome, cell); }
 export function makePedestal() { return pedestal(); }
 
 // Called when a level is torn down: the shared caches hold materials that reference

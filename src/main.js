@@ -65,7 +65,10 @@ export class Game {
     // Wider, softer cone than the photoreal pass used. Flat painted walls no longer hide
     // the cone's edge behind grit, so a tight penumbra reads as a hard disc of light
     // pasted onto the wall instead of light falling off.
-    this.headlamp = new THREE.SpotLight(0xfff0dd, 22, 24, Math.PI / 3.4, 0.9, 1.25);
+    // Wider and softer than a flashlight: on painted walls a tight cone showed as a hard
+    // disc pasted onto the masonry. The lower intensity and steeper falloff keep the near
+    // wall from washing out to flat pale under ACES while the far corridor stays dark.
+    this.headlamp = new THREE.SpotLight(0xfff0dd, 18, 26, Math.PI / 3.2, 0.95, 1.45);
     this.headlamp.position.set(0, 0, 0);
     this.camera.add(this.headlamp);
     this.headlamp.target.position.set(0, -0.15, -1);
@@ -185,26 +188,42 @@ export class Game {
     this.input.setYaw(this.player.yaw);
     this.player.invuln = CFG.respawnInvuln;
 
-    // ?at=stair stands the player on the tile beside the staircase, looking at its mouth.
-    // The stair is the one prop whose whole job is legibility from that angle, so it
-    // should be one URL away instead of a walk through the level. Standing *on* the stair
-    // would put the camera inside the geometry and start the descend timer.
-    if (params.get('at') === 'stair') {
-      const sc = level.stair, en = level.entry;
-      let best = null, bestD = Infinity;
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        const cx = sc.x + dx, cy = sc.y + dy;
-        if (cx < 0 || cy < 0 || cx >= level.w || cy >= level.h) continue;
-        if (level.open[cy * level.w + cx] !== 1) continue;
-        const d = Math.abs(cx - en.x) + Math.abs(cy - en.y);   // the approach side
-        if (d < bestD) { bestD = d; best = { x: cx, y: cy }; }
+    // ?at=stair and ?at=prop:<kind> stand the player beside one specific thing, looking at
+    // it, so a prop can be judged in real gameplay lighting from a URL instead of by
+    // walking a level hoping to bump into one. Both take the open neighbour nearest the
+    // entry as the vantage: standing *on* the target puts the camera inside the geometry,
+    // and on the staircase it also starts the descend timer.
+    const at = params.get('at');
+    if (at === 'stair' || (at && at.startsWith('prop'))) {
+      let target = null;
+      if (at === 'stair') {
+        target = level.stair;
+      } else {
+        const kind = at.split(':')[1] || 'rubble';
+        const pool = kind === 'torch' ? level.torches : level.props.filter(p => p.kind === kind);
+        let bestD = Infinity;
+        for (const p of pool) {
+          const d = Math.abs(p.x - level.entry.x) + Math.abs(p.y - level.entry.y);
+          if (d < bestD) { bestD = d; target = p; }
+        }
+        if (pool.length === 0) console.warn(`[debug] no "${kind}" prop in this level`);
       }
-      if (best) {
-        const stand = cellToWorld(level, best.x, best.y);
-        const stW = cellToWorld(level, sc.x, sc.y);
-        this.player.x = stand.x; this.player.z = stand.z;
-        this.player.yaw = Math.atan2(stW.x - stand.x, stW.z - stand.z);
-        this.input.setYaw(this.player.yaw);
+      if (target) {
+        let best = null, bestD = Infinity;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const cx = target.x + dx, cy = target.y + dy;
+          if (cx < 0 || cy < 0 || cx >= level.w || cy >= level.h) continue;
+          if (level.open[cy * level.w + cx] !== 1) continue;
+          const d = Math.abs(cx - level.entry.x) + Math.abs(cy - level.entry.y);
+          if (d < bestD) { bestD = d; best = { x: cx, y: cy }; }
+        }
+        if (best) {
+          const stand = cellToWorld(level, best.x, best.y);
+          const tgt = cellToWorld(level, target.x, target.y);
+          this.player.x = stand.x; this.player.z = stand.z;
+          this.player.yaw = Math.atan2(tgt.x - stand.x, tgt.z - stand.z);
+          this.input.setYaw(this.player.yaw);
+        }
       }
     }
 
@@ -337,6 +356,7 @@ export class Game {
 
     this.billboardAll();
     this.updateLights(dt);
+    this.updateFlames(dt);
     this.updateStairs(dt);
     this.updateVisibility(dt);
 
@@ -378,8 +398,27 @@ export class Game {
       const s = sorted[i];
       if (!s) { l.intensity = 0; continue; }
       const flick = 0.82 + Math.sin(this.time * (7 + i * 1.7)) * 0.09 + Math.sin(this.time * (2.3 + i)) * 0.09;
-      l.position.set(s.t.position.x, 1.9, s.t.position.z);
+      // userData.world sits a little off the wall face, so the corridor lights evenly
+      // instead of the whole pool hugging the masonry
+      const wp = s.t.userData.world || s.t.position;
+      l.position.set(wp.x, 1.9, wp.z);
       l.intensity = 12 * flick * Math.min(1, 40 / Math.max(1, s.d));
+    }
+  }
+
+  // Torch flames wobble with the same rhythm the pooled lights already flicker at, so the
+  // visible fire and the light it casts agree. Each sconce has its own phase from its
+  // cell, so a hall of torches never pulses in lockstep. The flame group is based at the
+  // cup rim, which is why scaling it does not slide the fire off the bracket.
+  updateFlames() {
+    if (!this.levelView) return;
+    for (const t of this.levelView.torches) {
+      const f = t.userData.flame;
+      if (!f) continue;
+      const p = t.userData.phase || 0;
+      const h = 1 + Math.sin(this.time * 8.5 + p) * 0.11 + Math.sin(this.time * 3.1 + p * 2) * 0.06;
+      f.scale.set(2 - h, h, 2 - h);      // spreads as it shortens, the way a flame does
+      f.rotation.z = Math.sin(this.time * 5.5 + p) * 0.1;
     }
   }
 
@@ -441,7 +480,9 @@ export class Game {
         const crit = Math.random() < (a.crit || 0.12);
         const dmg = Math.max(1, Math.round(w.damage * jit * (crit ? a.critMult : 1)));
         e.hurt(dmg, { crit });
-        this.spawnVfx('vfx/slash_arc', (this.player.x + e.x) / 2, (this.player.z + e.z) / 2, 1.4, 0.22, 1.35);
+        // 1.6 m, not 1.4: the swing has 0.22 s to be read while the player is moving, and
+        // at 1.4 the arc was a sliver in the corner of the eye
+        this.spawnVfx('vfx/slash_arc', (this.player.x + e.x) / 2, (this.player.z + e.z) / 2, 1.6, 0.22, 1.35);
       });
       if (!hits.length) sfx.play('swing_whoosh');
       return;
@@ -610,8 +651,8 @@ export class Game {
     return pr;
   }
 
-  spawnVfx(key, x, z, size, life, y) {
-    const fx = new Vfx(key, x, z, size, life, y);
+  spawnVfx(key, x, z, size, life, y, maxOpacity) {
+    const fx = new Vfx(key, x, z, size, life, y, maxOpacity);
     this.effects.push(fx);
     this.scene.add(fx.mesh);
     return fx;

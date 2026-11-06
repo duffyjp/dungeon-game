@@ -335,20 +335,23 @@
   {
     "path": "assets/images/enemies/t1/slime.png",
     "slug": "t1/slime",
-    "prompt": "translucent green gelatinous slime cube-creature, glossy, internal bubbles, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of translucent green and lime with ochre highlights, bold readable silhouette, crisp clean edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, character cut-out floating on the flat colour field, even background lighting edge to edge",
-    "seed": 44048,
+    "prompt": "translucent green gelatinous slime cube-creature, a low wide asymmetrical mass of dense gel with one heavy angular cube-form half sunk into the top of it, two dim narrow horizontal slits of light deep inside the mass, dense translucent body with a darker suspended core, dripping edges, shoulders wider than the cube-form with the cube-form occupying less than a third of the total body height, thick unequal weight-bearing limbs, mature grounded proportions of a large heavy adult creature, angular silhouette, mud and rust grit suspended throughout the gel, dulled weathered surface, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of translucent green and lime with ochre highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44088,
     "steps": 8,
     "size": [
       1024,
       1024
     ],
     "prefix": "strata-spr2-slime",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-slime_00003_.png&subfolder=&type=output",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-slime_00006_.png&subfolder=&type=output",
     "rejectedSeeds": [
       44046,
-      44047
+      44047,
+      44048,
+      44086,
+      44087
     ],
-    "generatedAt": "2026-11-05T20:42:43.526Z",
+    "generatedAt": "2026-11-06T00:15:08.550Z",
     "previousSeed": 41016,
     "previousPrompt": "translucent green gelatinous slime cube-creature, glossy, internal bubbles, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-slime_00001_.png&subfolder=&type=output"
@@ -356,17 +359,19 @@
   {
     "path": "assets/images/enemies/t2/acid_slime.png",
     "slug": "t2/acid_slime",
-    "prompt": "yellow-green corrosive slime, dripping, faint steam, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of translucent green and lime with ochre highlights, bold readable silhouette, crisp clean edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, character cut-out floating on the flat colour field, even background lighting edge to edge",
-    "seed": 44049,
+    "prompt": "yellow-green corrosive slime, dripping, faint steam, a low wide asymmetrical mass of dense gel with one heavy angular cube-form half sunk into the top of it, two dim narrow horizontal slits of light deep inside the mass, dense translucent body with a darker suspended core, dripping edges, thin vapour drawn tight against the body and contained within the silhouette, shoulders wider than the cube-form with the cube-form occupying less than a third of the total body height, thick unequal weight-bearing limbs, mature grounded proportions of a large heavy adult creature, angular silhouette, mud and rust grit suspended throughout the gel, dulled weathered surface, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of translucent yellow-green gel with sulfurous ochre highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44089,
     "steps": 8,
     "size": [
       1024,
       1024
     ],
     "prefix": "strata-spr2-acid_slime",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-acid_slime_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T20:42:43.526Z",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-acid_slime_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44049
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
     "previousSeed": 41017,
     "previousPrompt": "yellow-green corrosive slime, dripping, faint steam, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-acid_slime_00001_.png&subfolder=&type=output"
@@ -374,17 +379,20 @@
   {
     "path": "assets/images/enemies/t3/caustic_ooze.png",
     "slug": "t3/caustic_ooze",
-    "prompt": "black-purple viscous ooze with glowing core, dissolving tendrils, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of translucent green and lime with ochre highlights, bold readable silhouette, crisp clean edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, character cut-out floating on the flat colour field, even background lighting edge to edge",
-    "seed": 44050,
+    "prompt": "black-purple viscous ooze with glowing core, dissolving tendrils, a low wide asymmetrical mass of dense heavy gel with one sunken angular cube-form dissolved almost away, two dim narrow horizontal slits of light deep inside the mass, dense translucent body with a brighter acid green core suspended at the centre, dripping edges, short dissolving tendrils hanging from the underside, shoulders wider than the cube-form with the cube-form occupying less than a third of the total body height, thick unequal weight-bearing limbs, mature grounded proportions of a large heavy adult creature, angular silhouette, grit and dissolved debris suspended throughout the gel, dulled weathered surface, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of near-black violet-black gel with an acid green core and dull ochre highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, the core glow stays entirely inside the silhouette, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44091,
     "steps": 8,
     "size": [
       1024,
       1024
     ],
     "prefix": "strata-spr2-caustic_ooze",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-caustic_ooze_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T20:42:43.526Z",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-caustic_ooze_00003_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44050,
+      44090
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
     "previousSeed": 41018,
     "previousPrompt": "black-purple viscous ooze with glowing core, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-caustic_ooze_00001_.png&subfolder=&type=output"
@@ -392,17 +400,19 @@
   {
     "path": "assets/images/enemies/t4/void_slime.png",
     "slug": "t4/void_slime",
-    "prompt": "ink-black slime with starfield interior, void bubbles, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of translucent green and lime with ochre highlights over ink black, bold readable silhouette, crisp clean edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, character cut-out floating on the flat colour field, even background lighting edge to edge",
-    "seed": 44051,
+    "prompt": "ink-black slime with starfield interior, a low wide asymmetrical mass of dense heavy gel with one sunken angular cube-form half dissolved into the top of it, two dim narrow horizontal slits of pale light deep inside the mass, dense translucent body with a darker suspended core, tiny cold white star points suspended throughout the interior, dripping edges, shoulders wider than the cube-form with the cube-form occupying less than a third of the total body height, thick unequal weight-bearing limbs, mature grounded proportions of a large heavy adult creature, angular silhouette, grit and ash suspended throughout the gel, dulled weathered surface, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of near-black ink blue-black gel with cold white star points and dull grey-green edges, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44092,
     "steps": 8,
     "size": [
       1024,
       1024
     ],
     "prefix": "strata-spr2-void_slime",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-void_slime_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T20:42:43.526Z",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-void_slime_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44051
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
     "previousSeed": 41019,
     "previousPrompt": "ink-black slime with starfield interior, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-void_slime_00001_.png&subfolder=&type=output"
@@ -490,17 +500,19 @@
   {
     "path": "assets/images/enemies/t1/goblin_archer.png",
     "slug": "t1/goblin_archer",
-    "prompt": "wiry goblin archer, leather jerkin, crude bow held ready, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of bone white, weathered wood, dull steel, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, even background lighting edge to edge",
-    "seed": 44061,
+    "prompt": "wiry goblin archer, leather jerkin, crude bow, a lean sinewy adult goblin with long corded limbs, a narrow angular head with a heavy brow ridge and two narrow luminous eye-slits, patched worn leather jerkin over a bare rope-burned torso, crude yew bow held at the side, quiver of mismatched arrows on the back, mature grounded proportions of a wiry adult figure, angular silhouette, weathered well-used materials, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of moss green skin, weathered brown leather, dull steel and bone white, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44099,
     "steps": 8,
     "size": [
       1024,
       1024
     ],
     "prefix": "strata-spr2-goblin_archer",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-goblin_archer_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T20:42:43.526Z",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-goblin_archer_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44061
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
     "previousSeed": 41024,
     "previousPrompt": "wiry goblin archer, leather jerkin, crude bow, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-goblin_archer_00001_.png&subfolder=&type=output"
@@ -642,19 +654,24 @@
   {
     "path": "assets/images/enemies/t1/wisp.png",
     "slug": "t1/wisp",
-    "prompt": "small floating ghost wisp, a lantern-sized pale core with two faint dark eyes and a small mouth, a short wispy vapour tail curling below it, solid opaque pale grey-blue body colour with cold steel highlights and crisp painterly edges, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale grey-blue mist with cold steel highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, floating pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the figure is matte and dry with crisp edges against the colour field, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
-    "seed": 44075,
+    "prompt": "translucent pale ghost wisp, faint humanoid face, a knee-high hooded wisp hovering low with its hem trailing clear of the ground, one low compact mass wider across than it is tall, the whole figure reaching only to knee height, a pale hooded shroud with two points of light inside the deep hood, the mass held clear of the colour field with a short tapering vapour tail beneath the hem, angular silhouette, weathered ash-grey tones with charcoal shading inside the hood, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale grey-blue mist with cold steel highlights and charcoal shadow, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the figure is matte and dry with crisp edges, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44129,
     "steps": 8,
     "size": [
       1024,
       1024
     ],
     "prefix": "strata-spr2-wisp",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-wisp_00002_.png&subfolder=&type=output",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-wisp_00006_.png&subfolder=&type=output",
     "rejectedSeeds": [
-      44074
+      44074,
+      44075,
+      44094,
+      44095,
+      44093,
+      44130
     ],
-    "generatedAt": "2026-11-05T20:42:43.526Z",
+    "generatedAt": "2026-11-06T00:25:52.475Z",
     "previousSeed": 41032,
     "previousPrompt": "translucent pale ghost wisp, faint humanoid face, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-wisp_00001_.png&subfolder=&type=output"
@@ -662,17 +679,19 @@
   {
     "path": "assets/images/enemies/t2/wraith.png",
     "slug": "t2/wraith",
-    "prompt": "tattered spectral figure with hollow dark eyes, a torn cloak drifting into mist at the hem, solid opaque pale grey-blue body colour with cold steel highlights, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale grey-blue mist with cold steel highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, floating pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the figure is matte with crisp edges against the colour field, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
-    "seed": 44076,
+    "prompt": "tattered spectral figure, hollow eyes, a tall broad apparition in a ragged torn shroud with frayed hanging strips over a gaunt skeletal torso, broad stooped shoulders, long arms ending in skeletal clawed hands, deep hollow eye sockets with two small points of cold light inside them, mature grounded proportions of a large lean adult figure, angular silhouette, weathered well-used materials, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale grey-blue mist with cold steel highlights and charcoal shadow, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the figure is matte and dry with crisp edges, all illumination stays inside the silhouette, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44096,
     "steps": 8,
     "size": [
       1024,
       1024
     ],
     "prefix": "strata-spr2-wraith",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-wraith_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T20:42:43.526Z",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-wraith_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44076
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
     "previousSeed": 41033,
     "previousPrompt": "tattered spectral figure, hollow eyes, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-wraith_00001_.png&subfolder=&type=output"
@@ -680,17 +699,19 @@
   {
     "path": "assets/images/enemies/t3/dread_spectre.png",
     "slug": "t3/dread_spectre",
-    "prompt": "towering spectre trailing mist, fragments of corroded armour fused to its shoulders, a cracked pale mask for a face, solid opaque pale grey-blue body colour with cold steel highlights, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale grey-blue mist with cold steel highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, floating pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the figure is matte with crisp edges against the colour field, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
-    "seed": 44077,
+    "prompt": "towering spectre trailing mist, cracked mask, a towering broad apparition twice the bulk of a wraith, heavy layered burial cloth with wide slab-like shoulders, a pale cracked bone mask with two narrow points of cold light behind the eye slits, thick mist trailing from the sleeves and hem, mature grounded proportions of an imposing adult figure, angular silhouette, weathered well-used materials, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale grey-blue mist with cold steel highlights and charcoal shadow, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the figure is matte and dry with crisp edges, all illumination stays inside the silhouette, the creature stands directly on the colour field with the identical flat magenta colour continuing under it, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44097,
     "steps": 8,
     "size": [
       1024,
       1024
     ],
     "prefix": "strata-spr2-dread_spectre",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-dread_spectre_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T20:42:43.526Z",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-dread_spectre_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44077
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
     "previousSeed": 41034,
     "previousPrompt": "towering spectre trailing mist, cracked mask, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-dread_spectre_00001_.png&subfolder=&type=output"
@@ -698,19 +719,20 @@
   {
     "path": "assets/images/enemies/t4/hungering_shade.png",
     "slug": "t4/hungering_shade",
-    "prompt": "near-black shade with long pale grasping hands and long clawed fingers, a hollow jawless maw, smoke-thin edges, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of near-black shadow with pale grey-blue mist and cold steel highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, floating pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the saturated magenta colour field fills the entire canvas from corner to corner and touches all four sides of the image, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the figure is matte with crisp edges against the colour field, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
-    "seed": 44079,
+    "prompt": "near-black shade with pale grasping hands, a tall gaunt near-black shade with corded emaciated limbs, oversized pale grasping hands with long fingers held forward, a sunken featureless face with two narrow points of cold light, heavy tattered shadow-cloth hanging from the shoulders, mature grounded proportions of a large stooped adult figure, angular silhouette, weathered well-used materials, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of near-black charcoal and slate grey with pale bone-white hands and cold steel highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the figure is matte and dry with crisp edges, all illumination stays inside the silhouette, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44098,
     "steps": 8,
     "size": [
       1024,
       1024
     ],
     "prefix": "strata-spr2-hungering_shade",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-hungering_shade_00002_.png&subfolder=&type=output",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-hungering_shade_00003_.png&subfolder=&type=output",
     "rejectedSeeds": [
-      44078
+      44078,
+      44079
     ],
-    "generatedAt": "2026-11-05T20:42:43.526Z",
+    "generatedAt": "2026-11-06T00:15:08.550Z",
     "previousSeed": 41035,
     "previousPrompt": "near-black shade with pale grasping hands, full body, standing pose, facing camera, photoreal creature/prop rendering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-en-hungering_shade_00001_.png&subfolder=&type=output"
@@ -896,396 +918,518 @@
   {
     "path": "assets/images/items/sword_worn.png",
     "slug": "sword_worn",
-    "prompt": "notched short sword, pitted blade, leather grip, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42008,
+    "prompt": "notched short sword, pitted blade, leather grip, angled three-quarter view seen from the wielder's hand, grip at the lower left, blade running up to the upper right, dull scratched satin grey steel with a worn patina, deep nicks along the edge and a blunt tip, rust specks spread evenly over the blade, one small round brass disc set into the blade just above the guard as the only marking, worn brown leather grip wrapped tight, smooth plain brass cross guard with two rounded ends, smooth plain brass pommel, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of dull grey iron, worn brown leather and dull brass, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44103,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-sword_worn",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_worn_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:06:26Z"
+    "prefix": "strata-spr2-sword_worn",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-sword_worn_00004_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44100,
+      44101,
+      44102
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42008,
+    "previousPrompt": "notched short sword, pitted blade, leather grip, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_worn_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/sword_short.png",
     "slug": "sword_short",
-    "prompt": "clean steel short sword, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42009,
+    "prompt": "clean steel short sword, plain undecorated blade of pale bright steel with a fine ground edge, light wear from honest use, angled three-quarter view with the grip at the lower left and the blade running up to the upper right, simple straight iron cross guard with two rounded ends, dark leather wrapped grip, round iron pommel, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale steel grey, dark brown leather and blackened iron, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44104,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-sword_short",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_short_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:07:03Z"
+    "prefix": "strata-spr2-sword_short",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-sword_short_00001_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44106
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42009,
+    "previousPrompt": "clean steel short sword, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_short_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/sword_long.png",
     "slug": "sword_long",
-    "prompt": "longsword with cross guard, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42010,
+    "prompt": "longsword with cross guard, the blade is one single plain sheet of polished steel from guard to tip carrying only light scratches, angled three-quarter view with the grip at the lower left and the blade running up to the upper right, straight steel cross guard, walnuts grip with a wire wrap, steel cross guard and a round steel pommel, forged longsword with a balanced heavy point, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of polished steel grey, walnut brown wood and dull iron, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44105,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-sword_long",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_long_00001_.png&subfolder=&type=output",
+    "prefix": "strata-spr2-sword_long",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-sword_long_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:07:40Z"
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42010,
+    "previousPrompt": "longsword with cross guard, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_long_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/axe_battle.png",
     "slug": "axe_battle",
-    "prompt": "broad battle axe, hammered head, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42011,
+    "prompt": "broad battle axe, hammered head, the axe head is one solid plain forged wedge of hammered dark iron from poll to cutting edge carrying only hammer facets and wear, broad flared cutting edge with nicks from use, angled three-quarter view with the ash wood haft at the lower left and the head at the upper right, waxed leather binding where the head meets the haft, forged iron butt cap, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of hammered dark iron, pale ash wood and weathered brown leather, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44107,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-axe_battle",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-axe_battle_00001_.png&subfolder=&type=output",
+    "prefix": "strata-spr2-axe_battle",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-axe_battle_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:08:17Z"
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42011,
+    "previousPrompt": "broad battle axe, hammered head, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-axe_battle_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/sword_great.png",
     "slug": "sword_great",
-    "prompt": "two-handed greatsword, etched fuller, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42012,
+    "prompt": "two-handed greatsword, the blade is one single plain sheet of dull grey steel from guard to tip carrying only light scratches and a wide flat central ridge, long heavy blade with a chipped point, angled three-quarter view with the long leather wrapped two-handed grip at the lower left and the blade running up to the upper right, wide steel cross guard with two rounded ends, ringed steel pommel, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of dull grey steel, dark brown leather and blue-black iron, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44108,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-sword_great",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_great_00001_.png&subfolder=&type=output",
+    "prefix": "strata-spr2-sword_great",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-sword_great_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:08:54Z"
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42012,
+    "previousPrompt": "two-handed greatsword, etched fuller, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-sword_great_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/bow_hunting.png",
     "slug": "bow_hunting",
-    "prompt": "simple wooden hunting bow, strung, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42013,
+    "prompt": "simple wooden hunting bow, strung, a short stubby self-bow cut from one branch with a plain unmarked grip and one limb longer than the other, asymmetric rough-hewn stave with the bark worn off, plain horn nocks at both tips, thin taut hemp string, compact short silhouette occupying the middle of the frame, the bow laid diagonally with a three-quarter turn toward the viewer, the silhouette is defined by paint and light with soft painterly edges, thick semi-real painterly shading with visible brush strokes, the bow carries the same weathered dungeon-prop finish as the rest of the set, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of warm yew brown, pale hemp string and dark worn leather, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44131,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-bow_hunting",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-bow_hunting_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:09:31Z"
+    "prefix": "strata-spr2-bow_hunting",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-bow_hunting_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44109
+    ],
+    "generatedAt": "2026-11-06T00:25:52.475Z",
+    "previousSeed": 42013,
+    "previousPrompt": "simple wooden hunting bow, strung, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-bow_hunting_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/bow_war.png",
     "slug": "bow_war",
-    "prompt": "war bow with sinew reinforcement, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42014,
+    "prompt": "war bow with sinew reinforcement, a heavy thick-limbed bow with deeply recurved ears curling back at both tips and a broad thick pale sinew-backed belly running the full length of the stave, heavy drawn silhouette with wide limbs and a stout grip, plain unmarked surfaces, thick waxed hemp string strung taut, the bow standing upright and tilted slightly toward the viewer in three-quarter view, filling the frame top to bottom with a wide bow belly, the silhouette is defined by paint and light with soft painterly edges, thick semi-real painterly shading with visible brush strokes, the bow carries the same weathered dungeon-prop finish as the rest of the set, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of dark yew brown, pale bone-white sinew and dull waxed hemp, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44132,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-bow_war",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-bow_war_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:10:08Z"
+    "prefix": "strata-spr2-bow_war",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-bow_war_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44110
+    ],
+    "generatedAt": "2026-11-06T00:25:52.475Z",
+    "previousSeed": 42014,
+    "previousPrompt": "war bow with sinew reinforcement, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-bow_war_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/bow_long.png",
     "slug": "bow_long",
-    "prompt": "tall longbow with horn tips, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42015,
+    "prompt": "tall longbow with horn tips, an unstrung very tall straight elm stave lying at a diagonal across the whole frame from one corner to the other, its length nearly as tall as the frame is wide, one plain unmarked D-section limb with a gentle single curve, pale horn tips at both ends and a worn leather grip wrap at the centre, loose waxed linen string coiled and hanging at one end, plain unmarked surfaces, the silhouette is defined by paint and light with soft painterly edges, thick semi-real painterly shading with visible brush strokes, the bow carries the same weathered dungeon-prop finish as the rest of the set, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of olive-brown elm wood, pale horn and dark waxed linen, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44133,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-bow_long",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-bow_long_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:10:45Z"
+    "prefix": "strata-spr2-bow_long",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-bow_long_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44111
+    ],
+    "generatedAt": "2026-11-06T00:25:52.475Z",
+    "previousSeed": 42015,
+    "previousPrompt": "tall longbow with horn tips, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-bow_long_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/armor_padded.png",
     "slug": "armor_padded",
-    "prompt": "padded gambeson torso, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42016,
+    "prompt": "padded gambeson torso, displayed as a worn standing harness in three-quarter view, a short waist-length headless sleeveless padded jacket with thick horizontal quilted stitching in faded natural linen, the front is one smooth plain undecorated panel from neckline to hem, one small round bronze clasp at the centre of the waist belt and one small round bronze rivet on each leather shoulder strap as the only fittings, leather hem binding, scuffed armholes and stains from use, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of faded oatmeal linen, ecru quilting, weathered tan leather and dull bronze, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the harness stands directly on the colour field with the identical flat magenta colour continuing under it, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44114,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-armor_padded",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_padded_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:11:22Z"
+    "prefix": "strata-spr2-armor_padded",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-armor_padded_00003_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44112,
+      44113
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42016,
+    "previousPrompt": "padded gambeson torso, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_padded_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/armor_studded.png",
     "slug": "armor_studded",
-    "prompt": "studded leather cuirass, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42017,
+    "prompt": "studded leather cuirass, displayed as a worn standing harness in three-quarter view, a hardened leather torso cup with rows of small round dull iron rivets across the chest and shoulders, the front is one smooth plain undecorated panel of dark hardened leather, one small round iron boss at the centre of the chest as the only ornament, leather straps at the shoulders and sides with small round buckles, cracked and sun-scorched edges, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of dark oxblood-brown leather, dull iron rivets and pale rawhide straps, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the harness stands directly on the colour field with the identical flat magenta colour continuing under it, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44115,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-armor_studded",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_studded_00001_.png&subfolder=&type=output",
+    "prefix": "strata-spr2-armor_studded",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-armor_studded_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:11:59Z"
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42017,
+    "previousPrompt": "studded leather cuirass, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_studded_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/armor_chain.png",
     "slug": "armor_chain",
-    "prompt": "chainmail shirt, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42018,
+    "prompt": "chainmail shirt, displayed as a worn standing harness in three-quarter view, a knee-length shirt of thousands of small interlinked steel riveted rings with short sleeves, a plain reinforced band of larger rings around the neckline and hem, a few bright new rings mixed in among the dulled ones, a leather belt cinched at the waist with one small round iron buckle, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of cool steel grey, dark gunmetal shadow and weathered brown leather, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the harness stands directly on the colour field with the identical flat magenta colour continuing under it, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44116,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-armor_chain",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_chain_00001_.png&subfolder=&type=output",
+    "prefix": "strata-spr2-armor_chain",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-armor_chain_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:12:36Z"
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42018,
+    "previousPrompt": "chainmail shirt, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_chain_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/armor_plate.png",
     "slug": "armor_plate",
-    "prompt": "plated cuirass with gorget, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42019,
+    "prompt": "plated cuirass with gorget, displayed as a worn standing harness in three-quarter view, the breastplate is one single plain sheet of blued steel from gorget to waist carrying only scratches and rubbed wear, a separate plate gorget at the throat, short layered plate pauldrons and hip tassets, narrow brass trim lines along the neck, waist and hem, one small round brass rivet at each shoulder, the harness sits low in the frame with its hem resting on the colour field and the identical flat magenta colour continuing directly under the hem, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of blued dark steel, dull brass trim and deep gunmetal shadow, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44118,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-armor_plate",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_plate_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:13:13Z"
+    "prefix": "strata-spr2-armor_plate",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-armor_plate_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44117
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42019,
+    "previousPrompt": "plated cuirass with gorget, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_plate_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/armor_warded.png",
     "slug": "armor_warded",
-    "prompt": "ornate rune-etched cuirass, faint violet glow, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42020,
+    "prompt": "ornate etched cuirass with a faint inner glow, displayed as a worn standing harness in three-quarter view, dark steel plate with straight parallel dull ochre bands etched along the neckline, the waist and the hem, plain unmarked steel panels between the bands, one small round ochre-gold boss at the centre of the chest as the only ornament, a faint warm ochre light showing from inside the seams and kept entirely inside the silhouette, short layered pauldrons and a plate gorget, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of dark gunmetal steel, dull ochre gold bands and warm amber glow, bold readable silhouette, crisp clean hard edges, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the harness sits low in the frame with its hem resting on the colour field and the identical flat magenta colour continuing directly under the hem, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44119,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-armor_warded",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_warded_00001_.png&subfolder=&type=output",
+    "prefix": "strata-spr2-armor_warded",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-armor_warded_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:13:50Z"
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42020,
+    "previousPrompt": "ornate rune-etched cuirass, faint violet glow, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-armor_warded_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/potion_health.png",
     "slug": "potion_health",
-    "prompt": "glass flask of glowing red draught, corked, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42021,
+    "prompt": "glass flask of glowing red draught, corked, a chunky round-bellied potion bottle with thick heavy glass, bright blood-red liquid filling two thirds with a soft warm inner glow kept entirely inside the glass, thick glass walls with real thickness and refracted highlights, a plain cork stopper and a thin wax seal ring at the neck, bold high-contrast game pickup icon read, three-quarter view, the silhouette is defined by paint and light with soft painterly edges, thick semi-real painterly shading with visible brush strokes, the object carries the same weathered dungeon-prop finish as the rest of the set, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of deep crimson red, warm amber highlight and clear glass grey, bold readable silhouette, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the flask sits low in the frame with its base resting on the colour field and the identical flat magenta colour continuing directly under it, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44121,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-potion_health",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-potion_health_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:14:27Z"
+    "prefix": "strata-spr2-potion_health",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-potion_health_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44120
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42021,
+    "previousPrompt": "glass flask of glowing red draught, corked, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-potion_health_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/item_extra_life.png",
     "slug": "item_extra_life",
-    "prompt": "small porcelain skull charm with gold seam, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42022,
+    "prompt": "small porcelain skull charm with gold seam, a palm-sized skull of cool undyed bone-white porcelain with flat grey shadowing and a cool green-grey cast across the glaze, a thin dull gold seam running over the crown where it was mended, a small dark brass hanging loop at the top, a faint cool ivory light glowing from inside the seam and kept entirely inside the charm, bold high-contrast game pickup icon read, three-quarter view, the silhouette is defined by paint and light with soft painterly edges, thick semi-real painterly shading with visible brush strokes, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of cool bone-white porcelain, sage grey shadow, dull gold seam and dark brass, bold readable silhouette, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the charm sits low in the frame with its base resting on the colour field and the identical flat magenta colour continuing directly under it, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44123,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-item_extra_life",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-item_extra_life_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:15:04Z"
+    "prefix": "strata-spr2-item_extra_life",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-item_extra_life_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44122
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42022,
+    "previousPrompt": "small porcelain skull charm with gold seam, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-item_extra_life_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/item_repair_kit.png",
     "slug": "item_repair_kit",
-    "prompt": "leather roll of armour tools and rivets, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42023,
+    "prompt": "leather roll of armour tools and rivets, a worn oiled leather tool roll half unrolled with steel rivets in small pockets, a small iron hammer, a rivet punch and a pair of pliers lying across it, bold high-contrast game pickup icon read, three-quarter view from slightly above, the silhouette is defined by paint and light with soft painterly edges, thick semi-real painterly shading with visible brush strokes, the kit carries the same weathered dungeon-prop finish as the rest of the set, hand-painted stylized game item sprite, dungeon crawler prop concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of oiled tan leather, dull steel tools and dark iron rivets, bold readable silhouette, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the kit rests directly on the colour field with the identical flat magenta colour continuing under and around it, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44124,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-item_repair_kit",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-item_repair_kit_00001_.png&subfolder=&type=output",
+    "prefix": "strata-spr2-item_repair_kit",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-item_repair_kit_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:15:41Z"
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42023,
+    "previousPrompt": "leather roll of armour tools and rivets, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-item_repair_kit_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/coin.png",
     "slug": "coin",
-    "prompt": "antique gold coin, worn, no lettering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42024,
+    "prompt": "antique gold coin, worn, one small thick hand-struck gold disc standing on its edge in the middle third of the frame with generous space around it, the face is one smooth blank undecorated hammered gold surface carrying only fine dents and light scratches, uneven clipped rim, warm matte gold with a bright rim highlight, bold high-contrast treasure token read, three-quarter view with the disc tilted toward the viewer, the silhouette is defined by paint and light with soft painterly edges, thick semi-real painterly shading with visible brush strokes, hand-painted stylized prop sprite, dungeon crawler treasure concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of warm antique gold, deep bronze shadow and dull ochre highlight, bold readable silhouette, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the disc rests directly on the colour field with the identical flat magenta colour continuing under it, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44127,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-coin",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-coin_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:16:18Z"
+    "prefix": "strata-spr2-coin",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-coin_00003_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44125,
+      44126
+    ],
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "previousSeed": 42024,
+    "previousPrompt": "antique gold coin, worn, no lettering, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-coin_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/items/arrow.png",
     "slug": "arrow",
-    "prompt": "steel-pointed arrow with fletching, lying flat, viewed from directly above, product cutout sprite, photorealistic metal and feather material detail, centered composition, sharp focus, background is a single flat solid magenta colour rgb(255,0,255) filling every pixel edge to edge like a graphics-program fill, completely uniform with no lighting, no gradient, no vignette, no floor, no ground plane, no horizon, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 43125,
+    "prompt": "steel-pointed arrow with fletching, lying flat, viewed from directly above, one straight slender spruce shaft running diagonally from the lower left to the upper right, a narrow diamond steel head at the upper end, three bound goose-feather fletches at the lower end with a plain dyed band, a tight sinew binding at the point, worn matte wood with light scratches, bold high-contrast pickup read, the silhouette is defined by paint and light with soft painterly edges, thick semi-real painterly shading with visible brush strokes, hand-painted stylized prop sprite, dungeon crawler munition concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale spruce wood, dull steel grey and faded ochre feathers, bold readable silhouette, slight visible brushwork, full object in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the arrow lies directly on the colour field with the identical flat magenta colour continuing under and around the shaft, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the object edge, even background lighting edge to edge",
+    "seed": 44128,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-items-arrow",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-arrow_00003_.png&subfolder=&type=output",
+    "prefix": "strata-spr2-arrow",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-spr2-arrow_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [
       42025,
       43025
     ],
-    "generatedAt": "2026-11-05T06:01:29.132Z",
-    "note": "regenerated twice: studio-style prompts produced a gradient backdrop and cast shadow that survived chroma keying (keycheck.html measured 10.4% then 5.7% magenta left); the flat \"colour fill\" wording fixed it"
+    "generatedAt": "2026-11-06T00:15:08.550Z",
+    "note": "regenerated twice: studio-style prompts produced a gradient backdrop and cast shadow that survived chroma keying (keycheck.html measured 10.4% then 5.7% magenta left); the flat \"colour fill\" wording fixed it",
+    "previousSeed": 43125,
+    "previousPrompt": "steel-pointed arrow with fletching, lying flat, viewed from directly above, product cutout sprite, photorealistic metal and feather material detail, centered composition, sharp focus, background is a single flat solid magenta colour rgb(255,0,255) filling every pixel edge to edge like a graphics-program fill, completely uniform with no lighting, no gradient, no vignette, no floor, no ground plane, no horizon, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-items-arrow_00003_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/vfx/slash_arc.png",
     "slug": "slash_arc",
-    "prompt": "crescent motion-blur slash trail, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42026,
+    "prompt": "a broad sweeping wake of light left in dusty air by something moving very fast, one continuous curved band of glowing air as wide as a forearm from its leading edge to its trailing edge, the band arcing in a wide open sweep from lower left to upper right spanning most of the frame, a keen bright leading edge and a ragged feathered trailing edge that thins gradually and tapers to a point at both ends, the whole band saturated amber gold deepening into burnt orange through its body with a hot pale cream line running along the leading edge, small motes of dust caught and lit inside the wake, the shape is a plain abstract curved band of light and dust with nothing solid inside it, thick heavy light with visible weight behind it, painted with broad visible brush strokes and thick opaque paint handling, semi-real painterly rendering consistent with a gritty dungeon, limited cohesive palette of saturated amber gold, burnt orange and pale cream white, bold heavy readable silhouette, the light contained inside the band with the surrounding colour field untouched, centered composition, full sweep in frame, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44151,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-vfx-slash_arc",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-slash_arc_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:17:32Z"
+    "prefix": "strata-vfx2-slash_arc",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx2-slash_arc_00004_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44134,
+      44135,
+      44150
+    ],
+    "generatedAt": "2026-11-06T01:12:01.429Z",
+    "previousSeed": 42026,
+    "previousPrompt": "crescent motion-blur slash trail, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-slash_arc_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/vfx/hit_spark.png",
     "slug": "hit_spark",
-    "prompt": "bright orange impact spark burst, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42027,
+    "prompt": "a flat radial spray of molten metal flung from the point where a blade rang against steel, the whole composition built only from thin straight tapering streaks and small round droplets of glowing metal, every element a ruler-straight trail or a round bead with a short tail, all of them flying outward from one small white-hot impact point in a single flat plane, an even hand-thrown spread with streaks of uneven length and clear open space between every element, painted with broad visible brush strokes and thick opaque paint handling, semi-real painterly rendering consistent with a gritty dungeon, limited cohesive palette of amber gold, deep orange and pale cream white, bold readable silhouette, the brightness confined to each painted streak and bead with the surrounding colour field untouched, centered composition, full spray in frame, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44138,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-vfx-hit_spark",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-hit_spark_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:18:09Z"
+    "prefix": "strata-vfx2-hit_spark",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx2-hit_spark_00003_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44136,
+      44137
+    ],
+    "generatedAt": "2026-11-06T01:05:15.337Z",
+    "previousSeed": 42027,
+    "previousPrompt": "bright orange impact spark burst, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-hit_spark_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/vfx/fireball.png",
     "slug": "fireball",
-    "prompt": "orange fireball with smoke tail, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42028,
+    "prompt": "a comet of fire streaking through the air, one dense teardrop mass of streaming flame with a blunt rounded leading edge at the upper right and a long tail of fire drawing away toward the lower left, the body built from long tapered flame licks loaded with thick paint, each lick a soft wedge of colour that fades into its neighbour, pale cream white light boiling up from inside the blunt leading edge and softening outward through amber gold into deep orange with darker brick red shading in the troughs, the silhouette defined by paint and light with soft painterly edges and visible brush strokes throughout, thick opaque paint handling, semi-real painterly rendering consistent with a gritty dungeon, limited cohesive palette of amber gold, deep orange, brick red and pale cream white, bold readable silhouette, all of the brightness contained inside the mass and its tail with the surrounding colour field untouched, centered composition, full mass and tail in frame, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44141,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-vfx-fireball",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-fireball_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:18:46Z"
+    "prefix": "strata-vfx2-fireball",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx2-fireball_00003_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44139,
+      44140
+    ],
+    "generatedAt": "2026-11-06T01:05:15.337Z",
+    "previousSeed": 42028,
+    "previousPrompt": "orange fireball with smoke tail, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-fireball_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/vfx/magic_orb.png",
     "slug": "magic_orb",
-    "prompt": "violet arcane orb with arcs, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42029,
+    "prompt": "a conjured sphere of arcane light hovering in the air, one dense round orb with a pale cream white core glowing through a smooth unbroken amber gold shell, the shell one continuous swirling surface of soft concentric light folds with no seams or patches, short forked filaments of static discharge crawling across the outer shell in warm ochre light, a thin even ring of suspended dust caught in the updraught around the orb equator, painted with broad visible brush strokes and thick opaque paint handling, semi-real painterly rendering consistent with a gritty dungeon, limited cohesive palette of amber gold, warm ochre, deep orange and pale cream white, bold readable silhouette, all of the brightness contained inside the orb and its filaments with the surrounding colour field untouched, centered composition, full orb and ring in frame, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44142,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-vfx-magic_orb",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-magic_orb_00001_.png&subfolder=&type=output",
+    "prefix": "strata-vfx2-magic_orb",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx2-magic_orb_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:19:23Z"
+    "generatedAt": "2026-11-06T01:05:15.337Z",
+    "previousSeed": 42029,
+    "previousPrompt": "violet arcane orb with arcs, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-magic_orb_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/vfx/ghost_trail.png",
     "slug": "ghost_trail",
-    "prompt": "pale dissipating mist trail, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42030,
+    "prompt": "a compact drifting trail of dense cold vapour hanging in the dungeon air, a short line of three rounded billowing puffs of thick fog marching along one diagonal from lower left to upper right, each puff a heavy rounded swelling mass of opaque fog with a crisp paint edge where it meets the surrounding field, cool grey-white surfaces rolled with pale slate shadow and faint charcoal hollows, small trailing wisps of the same dense fog curling off the trailing side of each puff, the fog heavy and opaque like steam off a grate with firm sculpted edges built from thick rounded paint strokes, semi-real painterly rendering consistent with a gritty dungeon, limited cohesive palette of cool grey-white, pale slate shadow and faint charcoal, bold readable silhouette, the cold light contained inside the vapour while the surrounding colour field stays clean and unbroken right up to each edge, centered composition with the trail kept compact inside the frame and generous flat colour field all around it, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44155,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-vfx-ghost_trail",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-ghost_trail_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:20:00Z"
+    "prefix": "strata-vfx2-ghost_trail",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx2-ghost_trail_00004_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44143,
+      44144,
+      44154
+    ],
+    "generatedAt": "2026-11-06T01:12:01.429Z",
+    "previousSeed": 42030,
+    "previousPrompt": "pale dissipating mist trail, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-ghost_trail_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/vfx/slime_splat.png",
     "slug": "slime_splat",
-    "prompt": "green slime splash, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42031,
+    "prompt": "a fresh splash of slime guts flung flat onto stone, seen from directly above, one broad thick irregular mass of saturated green gel filling most of the frame with thick rounded ragged lobes spreading outward in uneven fingers, a clearly darker forest green rim outlining the whole outer edge of the mass, a darker olive core with rust grit suspended in the middle, several round droplets and smears of gel splashed away from the main mass at uneven distances, the gel opaque and heavy with a saturated moss green body, brighter yellow-green where the light catches it and deep forest green in shadow, a wet sheen contained inside the gel, the whole splash lies flat against the colour field with the identical flat colour continuing under and between every lobe and droplet, painted with broad visible brush strokes and thick opaque paint handling, semi-real painterly rendering consistent with a gritty dungeon, limited cohesive palette of saturated moss green, yellow-green highlight, olive core and deep forest green rim, bold heavy readable silhouette, centered composition with the splash spreading wide in frame, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44152,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-vfx-slime_splat",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-slime_splat_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:20:37Z"
+    "prefix": "strata-vfx2-slime_splat",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx2-slime_splat_00003_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44145,
+      44146,
+      44153
+    ],
+    "generatedAt": "2026-11-06T01:12:01.429Z",
+    "previousSeed": 42031,
+    "previousPrompt": "green slime splash, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-slime_splat_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/vfx/portal_glow.png",
     "slug": "portal_glow",
-    "prompt": "radial warm light bloom ring, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42032,
+    "prompt": "a hoop of warm light opened in open air, one broad upright circular ring of ochre and amber light with the whole ring clear of the ground and floating in the middle of the frame, the interior of the hoop filled with a smooth even field of soft amber glow a shade darker and duller than the ring, the ring built from layered brush-loaded arcs of light with soft feathered inner and outer edges and a brighter cream core line running around the ring, a few motes of dust lit from within the ring, painted with broad visible brush strokes and thick opaque paint handling, semi-real painterly rendering consistent with a gritty dungeon, limited cohesive palette of ochre, amber gold, warm cream and deep bronze shadow, bold readable silhouette, every bit of light contained inside the ring and its filled interior with the surrounding colour field untouched and unbroken all the way to the frame edges, centered composition, full hoop in frame with generous colour field around it, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44148,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-vfx-portal_glow",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-portal_glow_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:21:14Z"
+    "prefix": "strata-vfx2-portal_glow",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx2-portal_glow_00002_.png&subfolder=&type=output",
+    "rejectedSeeds": [
+      44147
+    ],
+    "generatedAt": "2026-11-06T01:05:15.337Z",
+    "previousSeed": 42032,
+    "previousPrompt": "radial warm light bloom ring, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-portal_glow_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/vfx/contact_shadow.png",
     "slug": "contact_shadow",
-    "prompt": "soft elliptical black contact shadow, feathered edges, solid white background, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, on flat solid white background, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42033,
+    "prompt": "one low wide elliptical shadow shape alone in the frame, a single flat oval pooled as if under a standing figure, dense charcoal grey-black at its centre thinning smoothly and evenly outward to a soft feathered rim, the darkest density concentrated along the lower middle of the oval, the oval painted with soft blended dry-brush work and an entirely smooth gradation from core to rim, limited cohesive palette of neutral charcoal grey and soft black, bold readable oval silhouette, centered composition with generous colour field around the oval, full oval in frame, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
+    "seed": 44149,
     "steps": 8,
     "size": [
       512,
       512
     ],
-    "prefix": "strata-vfx-contact_shadow",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-contact_shadow_00001_.png&subfolder=&type=output",
+    "prefix": "strata-vfx2-contact_shadow",
+    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx2-contact_shadow_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:21:51Z"
+    "generatedAt": "2026-11-06T01:05:15.337Z",
+    "previousSeed": 42033,
+    "previousPrompt": "soft elliptical black contact shadow, feathered edges, solid white background, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, on flat solid white background, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-contact_shadow_00001_.png&subfolder=&type=output"
   },
   {
     "path": "assets/images/ui/bar_frame_health.png",

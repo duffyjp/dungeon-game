@@ -4,7 +4,7 @@
 
 import * as THREE from 'three';
 import { CFG } from '../config.js';
-import { getTexture, getMirroredTexture } from '../render/assets.js';
+import { getTexture, getMirroredTexture, hasAsset } from '../render/assets.js';
 import { makeProp, makePillar, makeStaircase, makeTorch } from './propMeshes.js';
 import { isOpen } from '../util/grid.js';
 
@@ -154,20 +154,32 @@ export function buildLevelView(level, biome) {
       continue;
     }
     const key = p.kind === 'door_oak' ? 'textures/door_oak' : `props/${p.kind}`;
+    // A prop kind with no art must be skipped, not drawn: the placeholder stand-in is a
+    // development aid, and in play it shows up as a grey blob sitting in a corridor.
+    if (!hasAsset(key)) {
+      console.warn(`[levelView] no art for prop "${p.kind}" — skipping`);
+      continue;
+    }
     const mesh = makeBillboard(key, propSize(p.kind), wx, wz);
     group.add(mesh);
     propMeshes.push(mesh);
   }
 
-  // ---- torches: real bracket geometry; only the nearest few get a PointLight (§16)
+  // ---- torches: mounted on a wall face; only the nearest few get a PointLight (§16)
   const torchMeshes = [];
   for (const t of level.torches) {
-    const tx = (t.x + 0.5) * CFG.cell, tz = (t.y + 0.5) * CFG.cell;
-    const sconce = makeTorch(biome);
-    sconce.position.set(tx, 1.15, tz);
-    // snapped to a quarter turn so sconces look wall-mounted rather than randomly spun
-    sconce.rotation.y = ((t.x * 7 + t.y * 13) % 4) * Math.PI / 2;
-    sconce.userData.world = { x: tx, z: tz };
+    const dir = wallDirection(level, t.x, t.y);
+    if (!dir) continue;               // an all-open cell has no face; skip rather than float
+    const cx = (t.x + 0.5) * CFG.cell, cz = (t.y + 0.5) * CFG.cell;
+    const mx = cx + dir.x * (CFG.cell / 2 - 0.07);
+    const mz = cz + dir.z * (CFG.cell / 2 - 0.07);
+    const sconce = makeTorch(biome, t);
+    sconce.position.set(mx, 1.55, mz);
+    // the bracket plate is the group's +z side, so point +z into the wall and the arm,
+    // cup and flame hang out into the corridor where they belong
+    sconce.rotation.y = Math.atan2(dir.x, dir.z);
+    sconce.userData.world = { x: mx - dir.x * 0.4, z: mz - dir.z * 0.4 };
+    sconce.userData.mount = dir;
     group.add(sconce);
     torchMeshes.push(sconce);
   }
@@ -210,6 +222,24 @@ export function buildLevelView(level, biome) {
       });
     }
   };
+}
+
+// Which wall face a wall-mounted fixture should hang on. Returns a unit direction from
+// the cell centre toward a neighbouring wall (the map edge counts as wall), or null when
+// the cell is open on all four sides and has nothing to mount to. Where several faces are
+// available it prefers one whose opposite neighbour is open, so the flame lights along the
+// corridor instead of into a dead-end alcove.
+function wallDirection(level, x, y) {
+  const at = (cx, cy) => {
+    if (cx < 0 || cy < 0 || cx >= level.w || cy >= level.h) return 0;   // outside = solid
+    return level.open[cy * level.w + cx];
+  };
+  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  const faces = dirs.filter(([dx, dy]) => at(x + dx, y + dy) !== 1);
+  if (faces.length === 0) return null;
+  const facing = faces.find(([dx, dy]) => at(x - dx, y - dy) === 1);
+  const [dx, dy] = facing || faces[0];
+  return { x: dx, z: dy };
 }
 
 function propSize(kind) {

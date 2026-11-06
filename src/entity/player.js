@@ -146,13 +146,17 @@ export class Viewmodel {
   constructor(camera) {
     this.camera = camera;
     this.group = new THREE.Group();
+    // Slightly larger and a touch closer than before: at 0.30 m the painted blade read as
+    // an object resting in the corner of the frame rather than something being held. The
+    // mesh is depthTest:false with renderOrder 999, so it can never clip into geometry —
+    // these two numbers are the whole dial for weapon presence.
     this.mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.30, 0.30),
+      new THREE.PlaneGeometry(0.35, 0.35),
       new THREE.MeshBasicMaterial({ map: getTexture('items/sword_worn'), transparent: true, alphaTest: 0.3, depthTest: false, toneMapped: false })
     );
     this.mesh.renderOrder = 999;
     this.group.add(this.mesh);
-    this.base = new THREE.Vector3(0.235, -0.215, -0.50);
+    this.base = new THREE.Vector3(0.225, -0.205, -0.47);
     this.mesh.position.copy(this.base);
     this.mesh.rotation.z = -0.5;
     this.group.renderOrder = 999;
