@@ -48,9 +48,10 @@ Health comes back only from potions.
 npm test              # levels + loot + movement (headless Node, ~30 s)
 npm run test:game     # boots the real game in headless Edge, 40 integration checks
 npm run test:keys     # chroma-key QA: measures every generated sprite, non-zero exit if one keys badly
+npm run build && npm run check:build   # the built site, served as plain static files, not the dev server
 ```
 
-All four suites currently pass: 200/200 generated levels solvable, the loot spread
+All five currently pass: 200/200 generated levels solvable, the loot spread
 checks, the collision checks, 40/40 integration checks (including that WASD and the arrow
 keys move the way the camera actually points, that every prop kind resolves to geometry or
 real art, that no torch floats free of a wall, that each enemy family ramps its silhouette
@@ -104,6 +105,41 @@ Useful URL parameters:
 | `/seamcheck.html` | texture tiling review sheet (raw vs. the engine's mirrored pass) |
 | `/propcheck.html` | solid-prop review sheet, built from the same code the game uses |
 | `/fxcheck.html` | every effect composited the way the engine draws it, at the size and opacity it is really drawn at |
+
+## Sharing it: GitHub Pages
+
+The built game is plain static files — HTML, ES modules, CSS and the generated PNGs. No
+server, no database, nothing that runs after the page loads, and nothing the visitor needs
+Node for. So it can live on Pages.
+
+Three steps, once:
+
+1. Push the repository to GitHub (`git remote add origin …`, `git push -u origin main`).
+2. In the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
+3. Push. `.github/workflows/deploy.yml` runs the test suites, builds `dist/` and publishes
+   it. The URL appears on the workflow run's summary page; every push to `main` redeploys,
+   and the Actions tab can run it by hand.
+
+Check the build the way a visitor receives it before publishing:
+
+```
+npm run build
+npm run check:build
+```
+
+`check:build` deliberately does not use the dev server. It serves `dist/` from an ordinary
+static file server, runs the full integration suite against that, and loads every generated
+image the way a first visit does. It fails if `index.html` references an absolute path — a
+project site is served under `/<user>/<repo>/`, which is why the Vite config uses
+`base: './'` — or if the build is missing `music/manifest.json` (copied out of
+`assets/music/` by a small build plugin, because a hosted page cannot read your source
+tree) or `.nojekyll` (kept in `public/`, telling Pages not to run the site through Jekyll).
+
+Two limits, both from Pages rather than from the game: the whole site is about **53 MB**,
+which is a real first download, and Pages allows 1 GB of storage and roughly 100 GB of
+bandwidth a month — comfortable for sharing with friends, not for a launch on a front page.
+The tiling textures are most of the weight and are the one part that could be lossily
+compressed without disturbing the chroma-key pipeline the sprites depend on.
 
 ## Adding music
 
@@ -190,6 +226,12 @@ attempts; the two rejected seeds are recorded in its manifest entry.
   around the staircase** (`placeDecor` in `world/levelGen.js`). While props were
   transparent cutouts the overlap was invisible; as geometry it put a door physically on
   top of the way down.
+- **Archive folders have to be excluded from the asset glob.** `assets/images/_photoreal_v1/`
+  keeps every superseded generation for reference, and the registry globs
+  `assets/images/**/*.png` — so the first hosted build shipped all 57 archival PNGs too:
+  113 MB instead of 53, every one of them unreachable by the game. The glob now carries a
+  negated pattern for `images/_*/**,` and `npm run check:build` prints the file count and
+  total size, so a surprise like that shows up before a visitor pays for it.
 - **Node is not on PATH** on this machine. Use the full path
   (`C:\Program Files\nodejs\npm.cmd`), and prepend `C:\Program Files\nodejs` to `$env:PATH`
   for scripts that shell out to `node`.

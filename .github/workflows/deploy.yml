@@ -1,0 +1,53 @@
+# Publish the game on GitHub Pages.
+#
+# One-time setup in the repository's Settings → Pages: set "Source" to "GitHub Actions".
+# After that, every push to main builds `dist/` and publishes it. The run's summary page
+# shows the site URL.
+#
+# Nothing here uploads to a host or runs a server: Pages serves the static build, which is
+# all this game needs — the art is bundled by Vite at build time and every sound effect is
+# synthesised in the browser.
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # The same checks the README promises: 200 generated levels, the loot simulation and
+      # the movement suite, all in headless Node with no display needed.
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

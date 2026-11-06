@@ -29,19 +29,29 @@ export function setMusicVolume(v) {
   if (current) current.el.volume = muted ? 0 : v;
 }
 
-// Optional manifest (assets/music/manifest.json) can pin the order; the glob wins
-// when the manifest is absent, which is the shipping state.
+// Optional manifest can pin the order or exclude tracks; the build-time glob wins when it
+// is absent, which is the shipping state. Two locations are tried: `music/manifest.json`
+// relative to the site root, which is where the build copies it and the only path that
+// resolves on static hosting such as GitHub Pages, and the source-tree path, which is what
+// the dev server answers.
 export async function loadManifest() {
-  try {
-    const res = await fetch(new URL('../../assets/music/manifest.json', import.meta.url));
-    if (!res.ok) return tracks;
-    const json = await res.json();
-    if (Array.isArray(json.tracks) && json.tracks.length) {
-      const byName = new Map(tracks.map(t => [t.name, t]));
-      const pinned = json.tracks.map(n => byName.get(n)).filter(Boolean);
-      if (pinned.length) tracks = pinned;
-    }
-  } catch { /* no manifest: fine, glob order is used */ }
+  const tries = [
+    new URL((import.meta.env.BASE_URL || './') + 'music/manifest.json', location.href),
+    new URL('../../assets/music/manifest.json', import.meta.url)
+  ];
+  for (const url of tries) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const json = await res.json();
+      if (Array.isArray(json.tracks) && json.tracks.length) {
+        const byName = new Map(tracks.map(t => [t.name, t]));
+        const pinned = json.tracks.map(n => byName.get(n)).filter(Boolean);
+        if (pinned.length) tracks = pinned;
+      }
+      break;
+    } catch { /* nowhere to read: glob order is used */ }
+  }
   return tracks;
 }
 

@@ -1,0 +1,5 @@
+GitHub Pages runs every site through Jekyll unless this empty file is present at the site
+root. This game has nothing Jekyll should process — the build output is plain HTML, JS and
+PNG — so the marker tells Pages to publish `dist/` exactly as built, and to stop mangling
+paths that begin with an underscore. Vite copies everything in `public/` into the build, so
+this file lands where it needs to.

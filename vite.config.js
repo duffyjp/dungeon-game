@@ -1,6 +1,33 @@
 import { defineConfig } from 'vite';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+
+// Relative base, not '/'. GitHub Pages serves a project site under /<user>/<repo>/, and
+// absolute asset paths would then point at the domain root and 404. './' makes the built
+// bundle work under any subpath, and also from a file:// double-click while testing.
 export default defineConfig({
+  base: './',
+
+  plugins: [
+    // The music manifest is optional and user-supplied, so it cannot be imported (a
+    // missing import breaks the build). Copy it next to the site instead, and the loader
+    // fetches it from the site root — which is the only way it can be found once hosted.
+    {
+      name: 'copy-music-manifest',
+      writeBundle(options) {
+        const from = path.join(HERE, 'assets/music/manifest.json');
+        if (!fs.existsSync(from)) return;
+        const outDir = options.dir || path.join(HERE, 'dist');
+        const to = path.join(outDir, 'music');
+        fs.mkdirSync(to, { recursive: true });
+        fs.copyFileSync(from, path.join(to, 'manifest.json'));
+      }
+    }
+  ],
+
   server: {
     port: 5177,
     strictPort: true,

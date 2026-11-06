@@ -746,6 +746,7 @@ M5 is deliberately late: grey-box first, because generation and keying are cheap
 - **In-run cheat for manual testing:** while paused, `L` then one or two digits jumps the run to that depth (`L 0 5` → 5, `L 1 0` → 10). It runs through the ordinary level-load path, so a cheated depth is a genuine generated level with genuine spawns. It is a remembered chord rather than a menu option so it cannot fire during play, and the pause card carries one quiet line reminding you it exists.
 - Headless generation test: 200 levels per difficulty band, assert §9.1 on each, print path-length histogram. Target: median shortest path ≥ 0.55 × diameter, zero unreachable entities.
 - Drop simulation (no rendering): simulate 10 000 kill-drops per depth band, assert mean item score rises with depth and stddev of same-depth drops ≥ 15 % (the "not always the same" requirement, made measurable).
+- **Hosting check:** `npm run build && npm run check:build` serves the built `dist/` from a plain static file server — not the dev server — and runs the integration suite against it with every image loaded. It also rejects absolute asset paths and reports the payload size. The game is static-only and is published from GitHub Actions; nothing in the design requires a runtime server.
 - Balance bot: a scripted player with fixed reaction time; report depth-at-death distribution over 100 runs. Accept target 6–12.
 - Manual checklist: 10 playthroughs, log per-depth time, and note any depth where progression stalls or spikes.
 

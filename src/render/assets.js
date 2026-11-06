@@ -9,7 +9,14 @@
 import * as THREE from 'three';
 import { chromaKeyCanvas } from './chromaKey.js';
 
-const found = import.meta.glob('../../assets/images/**/*.png', { eager: true, query: '?url', import: 'default' });
+// Underscore-prefixed folders are archive, not content. `assets/images/_photoreal_v1/`
+// keeps every superseded photographic pass for reference, and globbing them in would ship
+// 57 images nobody displays — the built site would be twice the download for a visitor. A
+// negated pattern keeps them out of the build entirely, not just out of the registry.
+const found = import.meta.glob(
+  ['../../assets/images/**/*.png', '!../../assets/images/_*/**'],
+  { eager: true, query: '?url', import: 'default' }
+);
 
 const URLS = {};
 for (const [path, url] of Object.entries(found)) {
