@@ -178,12 +178,19 @@
       "ai": "archer",
       "attack": {
         "kind": "projectile",
+        "arrow": true,
+        "spread": 3,
         "minRange": 6,
         "maxRange": 9,
         "tell": 0.9,
         "cooldown": 2.2,
         "speed": 16,
         "life": 1.4
+      },
+      "ammo": {
+        "item": "arrow",
+        "min": 1,
+        "max": 3
       },
       "sprites": {
         "1": "enemies/t1/goblin_archer",

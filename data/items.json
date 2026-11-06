@@ -49,6 +49,10 @@
       "sfx": "bow_release"
     },
     {
+      "id": "arrow", "name": "Arrow", "slot": "ammo", "family": "ammo",
+      "sprite": "items/arrow", "base": 1, "tierRank": 0, "stack": true
+    },
+    {
       "id": "armor_padded", "name": "Padded Jack", "slot": "armor", "family": "armor",
       "sprite": "items/armor_padded", "base": 40, "tierRank": 1, "mitigation": 0.09
     },

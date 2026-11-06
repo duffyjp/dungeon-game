@@ -135,7 +135,10 @@ export class Game {
     this.kills = 0;
     this.player.health = CFG.maxHealth;
     this.player.lives = CFG.startLives;
+    this.player.melee = null;
+    this.player.ranged = null;
     this.player.weapon = null;
+    this.player.arrows = 0;
     this.player.armor = null;
     this.equipInitial();
     this.toasts.clear();
@@ -148,7 +151,8 @@ export class Game {
   equipInitial() {
     const def = itemsData.items.find(i => i.id === itemsData.startingWeapon);
     const inst = { def, id: def.id, slot: 'weapon', sprite: def.sprite, damage: def.base, score: def.base, tierIndex: 0, color: '#e6e8ea', label: def.name, quality: 1, jitter: 1 };
-    this.player.weapon = inst;
+    this.player.melee = inst;
+    this.player.selectWeapon('melee');
     this.viewmodel.setWeapon(inst);
     this.hud.setGear(this.player);
   }
@@ -231,7 +235,51 @@ export class Game {
     this.pickups = spawnLevelLoot(this, level, this.rng, depth);
     this.minimap.attach(level);
 
-    if (params.get('preview')) this.stagePreviewEnemy(params.get('preview'), Number(params.get('tier') || 1));
+    // ?at=loot stands next to the nearest treasure pedestal and looks at it; add &bow=1 to
+    // pick the nearest pedestal holding a bow, which is the one that has to show a quiver.
+    if (params.get('at') === 'loot') this.standAtNearestLoot(Boolean(params.get('bow')));
+
+    const previewed = params.get('preview') ? this.stagePreviewEnemy(params.get('preview'), Number(params.get('tier') || 1)) : null;
+    // ?previewshoot=1 makes the staged creature loose its shot immediately, so a screenshot
+    // can see what a projectile actually looks like leaving the muzzle.
+    if (previewed && params.get('previewshoot')) {
+      previewed.cooldown = 0;
+      previewed.landAttack();
+      // Nudge the frozen shot clear of the shooter's own art, which also has an arrow
+      // painted on it, so a screenshot can tell the two apart.
+      const pr = this.projectiles[this.projectiles.length - 1];
+      if (pr) { pr.x += pr.dx * 1.6; pr.z += pr.dz * 1.6; pr.mesh.position.set(pr.x, pr.y, pr.z); }
+    }
+
+    // QA aid: ?arrows=6 hands over a bow and a quiver, ?shoot fires once on arrival, and
+    // ?freeze holds shots in mid-air so a screenshot can look at an arrow in flight.
+    if (params.get('arrows')) {
+      const bowDef = itemsData.items.find(i => i.id === 'bow_war');
+      this.equip({ def: bowDef, id: bowDef.id, slot: 'weapon', sprite: bowDef.sprite, damage: 22, score: 26, tierIndex: 2, color: '#f5a524', label: 'War Bow', jitter: 1, quality: 1 });
+      this.player.arrows = Number(params.get('arrows')) || 3;
+      this.selectWeaponSlot('ranged');
+      this.hud.setGear(this.player);
+      if (params.get('shoot')) {
+        this.player.attackCd = 0;
+        this.attack();
+        // ?mark=1 pushes the frozen shot downrange: at arm's length it hides behind the
+        // viewmodel, which tells a screenshot nothing.
+        const pr = this.projectiles[this.projectiles.length - 1];
+        if (pr && params.get('mark')) {
+          pr.x += pr.dx * 2.6; pr.z += pr.dz * 2.6; pr.y = 1.5;
+          pr.mesh.position.set(pr.x, pr.y, pr.z);
+          // ?turn=90 swings the head round after the shot, so the same frozen arrow can be
+          // photographed crossing the view instead of receding down it.
+          if (params.get('turn')) {
+            const t = this.player.yaw + Number(params.get('turn')) * Math.PI / 180;
+            this.player.yaw = t; this.input.setYaw(t);
+          }
+        }
+      }
+    }
+    if (params.get('freeze')) this.freezeProjectiles = true;
+    // ?pause=1 comes back paused, which is how you photograph the pause card.
+    if (params.get('pause')) setTimeout(() => this.pause(), 120);
 
     this.hud.setDepth(depth, this.runSeed);
     const tier = tierForDepth(depth);
@@ -258,6 +306,23 @@ export class Game {
     sfx.play('stairs_complete');
     if (repaired > 0) this.toast(`armour repaired +${repaired}`, '#5b8fd6');
     this.loadLevel(this.depth);
+  }
+
+  // Playtest cheat, typed on the pause screen: L then one or two digits jumps the run to
+  // that depth. Deliberately a remembered chord rather than a menu button, so it cannot
+  // fire by accident mid-fight, and it goes through the ordinary level-load path so a
+  // jumped-to depth is a real generated level with real spawns, not a shortcut past the
+  // generator.
+  cheatToDepth(digits) {
+    const n = parseInt(String(digits), 10);
+    if (!Number.isFinite(n) || n < 1) return false;
+    const depth = Math.min(99, n);
+    this.depth = depth;
+    this.loadLevel(depth);
+    this.resume();
+    this.toast(`cheat: depth ${depth}`, '#f5a524', 2000);
+    console.info(`[cheat] jumped to depth ${depth}`);
+    return true;
   }
 
   pause() {
@@ -489,16 +554,63 @@ export class Game {
     }
 
     // ranged
+    if (this.player.arrows <= 0) {
+      // Should not happen while the switch guard holds, but a bow with no arrows is a
+      // stick, so refuse the shot and put the sword back rather than fire nothing.
+      sfx.play('bow_empty');
+      this.selectWeaponSlot('melee');
+      return;
+    }
     const dir = this.player.aimDir();
     const crit = Math.random() < (a.crit || 0.15);
     const dmg = Math.max(1, Math.round(w.damage * (0.92 + Math.random() * 0.16) * (crit ? a.critMult : 1)));
-    this.projectiles.push(new Projectile(this, {
+    // spawnProjectile, not a bare push: the mesh has to go into the scene. Pushing the
+    // projectile onto the list alone meant the player's own arrows were never drawn.
+    this.spawnProjectile({
       x: this.player.x + dir.x * 0.4, z: this.player.z + dir.z * 0.4, y: 1.35,
       speed: a.speed, life: a.range / a.speed, damage: dmg, hostile: false,
-      sprite: 'vfx/arrow', size: 0.34, dir, crit
-    }));
+      // items/arrow, not vfx/arrow: the arrow sprite was generated into the items folder,
+      // and this path was pointing at a file that never existed, so the shot rendered as
+      // the grey placeholder.
+      sprite: 'items/arrow', size: 0.44, arrow: true, dir, crit
+    });
+    this.spendArrow();
     sfx.play('bow_draw');
     setTimeout(() => sfx.play('bow_release'), Math.round((a.draw || 0.3) * 1000));
+  }
+
+  // Spend one arrow. Running dry hands the sword back over immediately.
+  spendArrow() {
+    const p = this.player;
+    p.arrows = Math.max(0, p.arrows - 1);
+    if (p.arrows === 0) {
+      p.selectWeapon('melee');
+      this.viewmodel.setWeapon(p.weapon);
+      this.toast('Out of arrows — blade back in hand', '#e0a030', 1800);
+    }
+    this.hud.setGear(p);
+  }
+
+  // Keys 1 and 2. A bow you do not own, or own with nothing to shoot, is refused with a
+  // reason instead of swapping to an empty hand.
+  selectWeaponSlot(kind) {
+    const p = this.player;
+    const before = p.weapon;
+    const w = p.selectWeapon(kind);
+    if (!w) {
+      sfx.play('bow_empty');
+      if (kind === 'ranged' && !p.ranged) this.toast('No bow — archers drop them', '#9aa0a6', 1600);
+      else if (kind === 'ranged') this.toast('No arrows left — archers carry them', '#e0a030', 1800);
+      return false;
+    }
+    // selectWeapon already moved the hand, so compare against what it held beforehand.
+    // Comparing against the new weapon instead would skip the viewmodel update every time
+    // the switch was real, leaving a sword in your hands while the bow was drawn.
+    if (w === before) return true;
+    this.viewmodel.setWeapon(w);
+    this.hud.setGear(p);
+    sfx.play('weapon_swap');
+    return true;
   }
 
   damagePlayer(amount, source, opts = {}) {
@@ -597,8 +709,20 @@ export class Game {
       return;
     }
 
+    if (item.slot === 'ammo') {
+      const n = item.count || 1;
+      p.arrows += n;
+      sfx.play('pickup_gear');
+      this.toast(`+${n} arrow${n === 1 ? '' : 's'} (${p.arrows}) — press 2`, '#c9a227', 1600);
+      this.hud.setGear(p);
+      return;
+    }
+
     if (item.slot === 'weapon' || item.slot === 'armor') {
-      const current = item.slot === 'weapon' ? p.weapon : p.armor;
+      // Bows and blades live in different slots now, so a bow is never "better" than the
+      // sword in hand — it goes in the other slot and both are kept.
+      const ranged = item.def && item.def.attack && item.def.attack.kind === 'ranged';
+      const current = item.slot === 'armor' ? p.armor : (ranged ? p.ranged : p.melee);
       if (!isBetter(item, current)) {
         this.score += item.score;
         sfx.play('salvage');
@@ -628,9 +752,26 @@ export class Game {
   equip(item) {
     const p = this.player;
     if (item.slot === 'weapon') {
-      p.weapon = item;
-      this.viewmodel.setWeapon(item);
-      this.hud.flashGear('weapon');
+      const ranged = item.def && item.def.attack && item.def.attack.kind === 'ranged';
+      if (ranged) {
+        p.ranged = item;
+        this.hud.flashGear('ranged');
+        // The viewmodel follows the bow only if the bow is what is in hand — a fresh bow
+        // does not yank the sword out of your grip.
+        if (p.weaponKind === 'ranged' || !p.melee) {
+          p.selectWeapon('ranged');
+          this.viewmodel.setWeapon(p.weapon);
+        }
+      } else {
+        p.melee = item;
+        this.hud.flashGear('weapon');
+        // If the blade is what is in hand, the hand has to follow the new sword. Forgetting
+        // this leaves you swinging the sword you just replaced.
+        if (p.weaponKind === 'melee') {
+          p.weapon = item;
+          this.viewmodel.setWeapon(item);
+        }
+      }
     } else {
       item.durability = item.maxDurability;
       p.armor = item;
@@ -699,6 +840,41 @@ export class Game {
 
   // QA affordance: ?preview=orc&tier=2 stages one enemy 3 m in front of the player
   // so a freshly generated sprite can be reviewed in-scene without a full run.
+  // Debug view: stand in an open cell beside the nearest treasure pedestal and face it.
+  standAtNearestLoot(bowOnly = false) {
+    const level = this.level;
+    const want = this.pickups.filter(p => p.item &&
+      (!bowOnly || (p.item.def.attack && p.item.def.attack.kind === 'ranged')));
+    if (!want.length) {
+      console.warn('[debug] no pedestal loot' + (bowOnly ? ' with a bow' : '') + ' in this level');
+      return;
+    }
+    let best = null, bd = Infinity;
+    for (const p of want) {
+      const d = Math.abs(Math.floor(p.x / CFG.cell) - level.entry.x) +
+                Math.abs(Math.floor(p.z / CFG.cell) - level.entry.y);
+      if (d < bd) { bd = d; best = p; }
+    }
+    const cx = Math.floor(best.x / CFG.cell), cy = Math.floor(best.z / CFG.cell);
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = cx + dx, ny = cy + dy;
+      if (nx < 0 || ny < 0 || nx >= level.w || ny >= level.h) continue;
+      if (level.open[ny * level.w + nx] !== 1) continue;
+      // Step one cell further back when the corridor allows it: from arm's length a
+      // pedestal fills the frame and the quiver at its foot is below the view.
+      let sx = nx, sy = ny;
+      const bx = cx + dx * 2, by = cy + dy * 2;
+      if (bx >= 0 && by >= 0 && bx < level.w && by < level.h && level.open[by * level.w + bx] === 1) {
+        sx = bx; sy = by;
+      }
+      const stand = cellToWorld(level, sx, sy);
+      this.player.x = stand.x; this.player.z = stand.z;
+      this.player.yaw = Math.atan2(best.x - stand.x, best.z - stand.z);
+      this.input.setYaw(this.player.yaw);
+      return;
+    }
+  }
+
   stagePreviewEnemy(familyId, tier, dist = 3.2) {
     const fam = enemiesData.families.find(f => f.id === familyId);
     if (!fam) { console.warn('[preview] unknown family', familyId); return; }

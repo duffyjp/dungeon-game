@@ -168,7 +168,13 @@ stair guard = 0–2 enemies within 3 cells of the staircase (never on it)
 
 **Player attack (melee — swords):** left click. Swing 0.45 s, cooldown 0.70 s, arc 110°, range 1.9 m (2.4 m for greatsword family). Hit = any sprite whose angle to camera is inside the arc and within range; single target per swing (no cleave until Masterwork tier adds `cleave: 2`). Damage = weapon damage × quality multiplier, ±10 % jitter, 12 % crit for ×1.75.
 
-**Player attack (ranged — bows):** left click with a bow equipped. Draw 0.35 s, cooldown 0.90 s, arrow travels 24 m/s up to 18 m, damage falls off to 70 % at max range, 15 % crit. **Infinite ammo** — decided deliberately: ammo scarcity would fight the "walk over it to get stronger" loop and turn the game into inventory management.
+**Two weapon slots.** The player carries a melee weapon and a bow in separate slots, and `1` / `2` put one of them in hand. Equipping never transfers between slots: a bow picked up over a sword fills the empty ranged slot, so the loop stays "walk over it and get stronger" without the bow ever stealing the blade. The active weapon drives the viewmodel, the HUD highlight and the attack rule.
+
+**Ammunition (revised — supersedes the original "infinite ammo" decision).** The bow is powerful, so it is rationed: one arrow per shot, archers always drop 1–3 arrows on death, and an empty quiver closes the ranged slot — `2` is refused with a reason, and firing the last arrow hands the melee weapon back immediately. The ranged slot is therefore gated on ammunition, not on owning a bow.
+
+**Player attack (ranged — bows):** left click with a bow in hand and an arrow to spend. Draw 0.35 s, cooldown 0.90 s, arrow travels 24 m/s up to 18 m, damage falls off to 70 % at max range, 15 % crit.
+
+**Projectiles are physical, visible objects.** Every arrow — the player's and an archer's — is a real moving sprite, not a hit-scan, and it must be aimed from the shooter toward its target. A projectile's direction may never default to the viewer's own facing: an archer behind you would then shoot away from you, which is exactly what an early build did. Both sides' arrows use the `items/arrow` sprite, fly point-first, and are oriented by a stated convention: an arrow crossing the view lies along its path, one receding shows its fletching, one closing shows its head. Sprite roll is applied inside the upright billboard, so the billboard pass has to reset orientation before rolling, or the roll compounds every frame.
 
 **Enemy attack tells:** every enemy attack has a visible tell (0.3–1.2 s) and a distinct audio cue before damage lands. No enemy may deal damage without a tell. This is the main fairness mechanism.
 
@@ -185,7 +191,8 @@ stair guard = 0–2 enemies within 3 cells of the staircase (never on it)
 | Source | Drop | Chance | Slot |
 |---|---|---|---|
 | Orc family | Sword family | 55 % | weapon |
-| Archer family | Bow family | 50 % | weapon |
+| Archer family | Bow family | 50 % | weapon (ranged slot) |
+| Archer family | **Arrows ×1–3** | 100 % | ammo |
 | Mage family | Armor family | 45 % | armor |
 | Slime family | Health Draught | 90 % | instant (heal 25–45) |
 | Ghost family | Extra Life | 35 % | instant (+1 life, cap 5) |
@@ -194,7 +201,7 @@ stair guard = 0–2 enemies within 3 cells of the staircase (never on it)
 | Brute / Mage / miniboss | Repair Kit | 12 % | instant (+40 % armour durability) |
 | Miniboss | guaranteed gear, quality tier +2 | 100 % | weapon or armor |
 
-Drops land as physical sprites where the enemy died, bob gently, and glow faintly with their rarity colour. They persist for the whole level.
+Drops land as physical sprites where the enemy died, bob gently, and glow faintly with their rarity colour. They persist for the whole level. Treasure pedestals in dead ends are the exception to the ammunition rule: a pedestal that holds a bow also holds **5 arrows** beside it, so a bow found before any archer is met is a working weapon on pickup rather than a promise.
 
 ### 8.2 Weapon and armor families
 
@@ -699,7 +706,7 @@ These were not in the request. They are my calls; flag any you want reversed.
 1. **First-person, 2.5D sprite entities** rather than 3D meshes — the asset generator makes images, and photoreal sprites in a real lit maze is the honest way to get the requested look.
 2. **Damage model:** armour = mitigation tier + durability that soaks 65 % of hits; armour partially repairs on descent. Makes the armour bar matter moment-to-moment.
 3. **Lives = 3, cap 5;** death costs a life and respawns you at the level entry, not to Game Over. Game Over only when lives reach 0, per the request.
-4. **Infinite bow ammo.** Ammo would add inventory friction that fights the auto-upgrade loop.
+4. **Arrow ammunition (reversed after play).** Infinite ammo was tried and the bow outclassed the sword with no cost. Arrows are now a counted resource: 1–3 per archer killed, one spent per shot, and an empty quiver locks the ranged slot.
 5. **Salvage instead of discard** for weaker items — gives a score sink and makes junk drops feel useful.
 6. **Quality tiers with colour-coded glow** rather than 6 separate art variants per item — 78 assets instead of ~400, and rarity stays readable.
 7. **Miniboss every 3rd depth** with a guaranteed high-tier drop. Without a spike, depth 3/6/9 are just more of the same.
@@ -736,6 +743,7 @@ M5 is deliberately late: grey-box first, because generation and keying are cheap
 ## 19. Testing & tuning harness
 
 - `?seed=1234&depth=7` URL params jump straight to a state — required for tuning.
+- **In-run cheat for manual testing:** while paused, `L` then one or two digits jumps the run to that depth (`L 0 5` → 5, `L 1 0` → 10). It runs through the ordinary level-load path, so a cheated depth is a genuine generated level with genuine spawns. It is a remembered chord rather than a menu option so it cannot fire during play, and the pause card carries one quiet line reminding you it exists.
 - Headless generation test: 200 levels per difficulty band, assert §9.1 on each, print path-length histogram. Target: median shortest path ≥ 0.55 × diameter, zero unreachable entities.
 - Drop simulation (no rendering): simulate 10 000 kill-drops per depth band, assert mean item score rises with depth and stddev of same-depth drops ≥ 15 % (the "not always the same" requirement, made measurable).
 - Balance bot: a scripted player with fixed reaction time; report depth-at-death distribution over 100 runs. Accept target 6–12.

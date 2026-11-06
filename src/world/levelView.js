@@ -275,5 +275,8 @@ export function billboardTowards(mesh, camera) {
   // upright (Y-only) billboarding so standing sprites never tilt (spec §3)
   const dx = camera.position.x - mesh.position.x;
   const dz = camera.position.z - mesh.position.z;
-  mesh.rotation.y = Math.atan2(dx, dz);
+  // Set, do not add: an extra roll below has to be applied to a known orientation or it
+  // would compound every frame and spin the sprite up into a blur.
+  mesh.rotation.set(0, Math.atan2(dx, dz), 0);
+  if (mesh.userData.roll) mesh.rotateZ(mesh.userData.roll);
 }

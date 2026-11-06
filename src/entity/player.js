@@ -13,7 +13,10 @@ export class Player {
     this.health = CFG.maxHealth;
     this.maxHealth = CFG.maxHealth;
     this.lives = CFG.startLives;
-    this.weapon = null;         // item instance (slot weapon)
+    this.melee = null;          // item instance in the melee slot
+    this.ranged = null;         // item instance in the ranged slot (a bow)
+    this.weapon = null;         // whichever of the two is currently in hand
+    this.arrows = 0;            // every shot spends one; a bow without arrows cannot be drawn
     this.armor = null;          // item instance with .durability
     this.invuln = 0;
     this.attackCd = 0;
@@ -27,6 +30,24 @@ export class Player {
   }
 
   get alive() { return this.health > 0; }
+
+  // Which of the two weapon slots is currently in hand.
+  get weaponKind() { return this.weapon && this.weapon === this.ranged ? 'ranged' : 'melee'; }
+
+  // A bow is only usable while there is an arrow to spend, so the ranged slot is gated on
+  // ammunition and not merely on owning a bow.
+  canUse(kind) {
+    if (kind === 'melee') return Boolean(this.melee);
+    return Boolean(this.ranged) && this.arrows > 0;
+  }
+
+  // Put one slot in hand. Refuses a bow with no arrows and returns null so the caller can
+  // say why instead of silently handing over an empty pair of hands.
+  selectWeapon(kind) {
+    if (!this.canUse(kind)) return null;
+    this.weapon = kind === 'ranged' ? this.ranged : this.melee;
+    return this.weapon;
+  }
 
   place(level) {
     const e = level.entry;

@@ -55,12 +55,16 @@ export class Hud {
     // equipped gear
     const gear = el('gear', 'div', 'gear');
     gear.innerHTML = `<div class="gear-weapon"><canvas width="56" height="56"></canvas><span class="wname"></span></div>
+                      <div class="gear-ranged"><canvas width="56" height="56"></canvas><span class="rname"></span></div>
                       <div class="gear-armor"><canvas width="56" height="56"></canvas><span class="aname"></span></div>`;
     this.el.weaponCanvas = gear.querySelector('.gear-weapon canvas');
     this.el.weaponName = gear.querySelector('.wname');
+    this.el.rangedCanvas = gear.querySelector('.gear-ranged canvas');
+    this.el.rangedName = gear.querySelector('.rname');
     this.el.armorCanvas = gear.querySelector('.gear-armor canvas');
     this.el.armorName = gear.querySelector('.aname');
     this.el.gearWeapon = gear.querySelector('.gear-weapon');
+    this.el.gearRanged = gear.querySelector('.gear-ranged');
     this.el.gearArmor = gear.querySelector('.gear-armor');
     hud.appendChild(gear);
 
@@ -132,10 +136,24 @@ export class Hud {
   }
 
   setGear(player) {
-    const w = player.weapon;
+    const w = player.melee;
     drawIcon(this.el.weaponCanvas, w ? w.sprite : null);
-    this.el.weaponName.textContent = w ? `${w.label} · ${w.damage}` : 'none';
+    this.el.weaponName.textContent = w ? `[1] ${w.label} · ${w.damage}` : '[1] none';
     this.el.weaponName.style.color = w ? w.color : '#6b7076';
+
+    // The bow box tells you three things at a glance: whether you own one, whether you can
+    // draw it, and how many arrows are left to spend.
+    const r = player.ranged;
+    const ready = player.canUse('ranged');
+    drawIcon(this.el.rangedCanvas, r ? r.sprite : null);
+    this.el.rangedName.textContent = r ? `[2] ${r.label} · ${player.arrows} arrows` : '[2] no bow';
+    this.el.rangedName.style.color = r ? (ready ? r.color : '#e0a030') : '#6b7076';
+    this.el.gearRanged.classList.toggle('dim', Boolean(r) && !ready);
+
+    const inHand = player.weaponKind;
+    this.el.gearWeapon.classList.toggle('active', inHand === 'melee' && Boolean(w));
+    this.el.gearRanged.classList.toggle('active', inHand === 'ranged');
+
     const a = player.armor;
     drawIcon(this.el.armorCanvas, a ? a.sprite : null);
     this.el.armorName.textContent = a ? `${a.label} · ${a.maxDurability}` : 'none';
@@ -143,7 +161,8 @@ export class Hud {
   }
 
   flashGear(which) {
-    const node = which === 'weapon' ? this.el.gearWeapon : this.el.gearArmor;
+    const node = which === 'weapon' ? this.el.gearWeapon
+      : which === 'ranged' ? this.el.gearRanged : this.el.gearArmor;
     node.classList.remove('flash');
     void node.offsetWidth;
     node.classList.add('flash');

@@ -92,6 +92,10 @@ const RECIPES = {
   hit_slime: () => { noise(0.2, { type: 'bandpass', freq: 520, q: 3, gain: 0.3 }); tone(300, 0.18, { type: 'sine', gain: 0.14, slideTo: 120 }); },
   bow_draw: () => noise(0.25, { type: 'highpass', freq: 3200, gain: 0.12, attack: 0.08, curve: 'lin' }),
   bow_release: () => { tone(180, 0.18, { type: 'triangle', gain: 0.22, slideTo: 90 }); noise(0.1, { type: 'bandpass', freq: 2600, q: 2, gain: 0.2 }); },
+  // The sound of drawing a bow that has nothing to shoot: string against an empty hand.
+  bow_empty: () => { tone(1500, 0.05, { type: 'square', gain: 0.09, slideTo: 700 }); noise(0.05, { type: 'highpass', freq: 4200, gain: 0.1 }); },
+  // Changing which hand holds what: short, cloth-and-leather, deliberately not a threat.
+  weapon_swap: () => noise(0.16, { type: 'bandpass', freq: 1200, q: 0.8, gain: 0.16, attack: 0.03, curve: 'lin' }),
   arrow_impact: () => { tone(900, 0.1, { type: 'square', gain: 0.12, slideTo: 300 }); noise(0.08, { type: 'highpass', freq: 3000, gain: 0.16 }); },
   fireball_cast: () => tone(160, 0.9, { type: 'sawtooth', gain: 0.16, slideTo: 620 }),
   fireball_impact: () => { noise(0.5, { type: 'lowpass', freq: 1400, gain: 0.45 }); tone(90, 0.4, { type: 'sine', gain: 0.3, slideTo: 40 }); },

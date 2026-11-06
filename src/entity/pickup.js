@@ -26,7 +26,7 @@ export class Pickup {
       this.group.add(ped);
     }
 
-    const size = item.slot === 'score' ? 0.35 : 0.62;
+    const size = (item.slot === 'score' || item.slot === 'ammo') ? 0.34 : 0.62;
     this.body = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
       new THREE.MeshBasicMaterial({ map: getTexture(`items/${item.sprite.split('/').pop()}`), transparent: true, alphaTest: 0.3, toneMapped: false })

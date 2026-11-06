@@ -67,6 +67,11 @@ html, body { margin: 0; height: 100%; background: #05070a; color: var(--ink); ov
 .gear > div { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--edge); background: var(--panel); border-radius: 4px; }
 .gear span { font: 600 12px/1.2 system-ui; }
 .gear .flash { animation: flash 0.7s ease-out; }
+/* the playtest cheat reminder on the pause card: deliberately quiet */
+.cheatline { font: 500 11px/1.4 system-ui; color: var(--dim); opacity: 0.7; letter-spacing: 0.04em; text-align: center; }
+/* which slot is in hand, and which slot you cannot use right now */
+.gear .active { border-color: var(--gold); }
+.gear .dim { opacity: 0.45; }
 @keyframes flash { from { box-shadow: 0 0 0 2px #4fd18b; } to { box-shadow: 0 0 0 0 transparent; } }
 
 .crosshair { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border: 1px solid rgba(255,255,255,0.75); border-radius: 50%; opacity: 0.8; transition: transform 90ms; }

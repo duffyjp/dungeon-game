@@ -6,6 +6,14 @@ import { getTexture } from '../render/assets.js';
 import { hasLineOfSight } from '../world/collision.js';
 import * as sfx from '../audio/sfx.js';
 
+// Where a shot with no stated direction should go.
+function aimAtPlayer(p, game) {
+  if (!p.hostile) return game.playerLook();      // the player's own shot flies where they look
+  const dx = game.player.x - p.x, dz = game.player.z - p.z;
+  const l = Math.hypot(dx, dz) || 1;
+  return { x: dx / l, z: dz / l };
+}
+
 export class Projectile {
   constructor(game, cfg) {
     this.game = game;
@@ -20,11 +28,23 @@ export class Projectile {
     this.size = cfg.size || 0.4;
     this.dead = false;
 
-    const dir = cfg.dir || game.playerLook();
+    // Direction. A hostile shot with no explicit direction has to aim at the player. The
+    // old fallback here was game.playerLook() — the *player's* facing — which is why an
+    // archer loosed its arrow off in whatever direction you happened to be looking.
+    const dir = cfg.dir || aimAtPlayer(this, game);
     this.dx = dir.x; this.dz = dir.z;
 
+    this.arrow = Boolean(cfg.arrow);
+    this.assetKey = cfg.sprite;   // kept for the self-test and for debugging shots
+    this.age = 0;
+    this.wobble = Math.random() * Math.PI * 2;
+
+    // An arrow reads as an arrow only at a decent length; the sprite is a square quad with
+    // the shaft running along its diagonal, so 0.44 m gives a shaft about 0.6 m long.
+    const size = this.arrow ? Math.max(cfg.size || 0, 0.44) : (cfg.size || 0.4);
+    this.size = size;
     this.mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(this.size, this.size),
+      new THREE.PlaneGeometry(size, size),
       new THREE.MeshBasicMaterial({ map: getTexture(cfg.sprite), transparent: true, alphaTest: 0.2, toneMapped: false })
     );
     this.mesh.position.set(this.x, this.y, this.z);
@@ -34,7 +54,10 @@ export class Projectile {
 
   update(dt) {
     if (this.dead) return false;
-    this.life -= dt;
+    // A QA hook (?freeze=1) holds shots in place so a screenshot can actually look at one.
+    // Orientation still updates, which is the whole point of freezing one.
+    const still = Boolean(this.game.freezeProjectiles);
+    if (!still) this.life -= dt;
     if (this.life <= 0) return false;
 
     if (this.homing > 0) {
@@ -50,10 +73,33 @@ export class Projectile {
       }
     }
 
-    const step = this.speed * dt;
+    const step = still ? 0 : this.speed * dt;
     this.x += this.dx * step;
     this.z += this.dz * step;
     this.mesh.position.set(this.x, this.y, this.z);
+
+    if (this.arrow) {
+      // Fly point-first. The billboard pass turns the quad to face the camera while keeping
+      // it upright, so the shaft has to be rolled inside that plane. The generated arrow
+      // art lies nose-up-right at 45 degrees, which is what the PI/4 accounts for; the
+      // small flutter is the shaft shivering in flight.
+      this.age += dt;
+      const camx = this.game.camera.position.x - this.x;
+      const camz = this.game.camera.position.z - this.z;
+      const camLen = Math.hypot(camx, camz) || 1;
+      // across: the part of the flight that runs sideways on screen. toward: the part that
+      // is closing on the camera. Together they cover every angle without a discontinuity.
+      const across = (this.dx * camz - this.dz * camx) / camLen;
+      const toward = (this.dx * camx + this.dz * camz) / camLen;
+      const k = Math.max(-1, Math.min(1, across / 0.55));
+      let roll = Math.PI / 4 - (Math.PI / 2) * k;
+      // An arrow running across your view lies along its path. One travelling almost exactly
+      // at you has no sideways direction to borrow, so it stands nose-down instead — the
+      // head coming at you, not the feathers.
+      if (toward > 0.25 && Math.abs(k) < 0.4) roll += Math.PI;
+      this.roll = roll + Math.sin(this.age * 26 + this.wobble) * 0.035;
+      this.mesh.userData.roll = this.roll;
+    }
 
     // walls stop everything except magic that is explicitly splash-cast
     const cx = Math.floor(this.x / CFG.cell), cy = Math.floor(this.z / CFG.cell);

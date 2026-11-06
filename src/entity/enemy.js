@@ -225,13 +225,22 @@ export class Enemy {
       return;
     }
     if (a.kind === 'projectile') {
+      // Aim at the player, with a few degrees of spread so a volley is threatening but not
+      // inevitable. Anything that does not state a direction here used to fall back to the
+      // player's own facing, which is how archers ended up shooting backwards.
+      const dx = this.game.player.x - this.x, dz = this.game.player.z - this.z;
+      const ang = Math.atan2(dx, dz) + ((a.spread || 0) * Math.PI / 180) * (Math.random() * 2 - 1);
+      const dir = { x: Math.sin(ang), z: Math.cos(ang) };
+      const muzzle = this.radius + 0.25;
       this.game.spawnProjectile({
-        x: this.x, z: this.z, y: 1.3,
+        x: this.x + dir.x * muzzle, z: this.z + dir.z * muzzle, y: a.arrow ? 1.25 : 1.3,
+        dir,
         speed: a.speed, life: a.life, damage: this.damage,
         homing: a.homing || 0, splash: a.splash || 0,
         hostile: true, owner: this,
-        sprite: a.splash ? 'vfx/fireball' : 'vfx/magic_orb',
-        size: a.splash ? 0.5 : 0.42
+        arrow: Boolean(a.arrow),
+        sprite: a.arrow ? 'items/arrow' : (a.splash ? 'vfx/fireball' : 'vfx/magic_orb'),
+        size: a.arrow ? 0.44 : (a.splash ? 0.5 : 0.42)
       });
     }
   }

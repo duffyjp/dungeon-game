@@ -47,8 +47,23 @@ export class Input {
     this.keys.set(k, down);
     if (!down) return;
     if (k === 'Escape') {
+      // Unpausing also drops any half-typed cheat sequence, so digits typed later cannot
+      // land in a sequence the player thinks they abandoned.
+      clearTimeout(this._cheatT);
+      this._cheat = null;
       if (this.game.state === 'playing') this.game.pause();
       else if (this.game.state === 'paused') this.game.resume();
+      return;
+    }
+    // Playtest cheat, typed while paused: L then up to two digits (L 0 5 → depth 5,
+    // L 1 0 → depth 10). It commits when the second digit lands, or 900 ms after the last
+    // one, which is what lets a single digit like "L 5" work without waiting for a partner.
+    if (this.game.state === 'paused') {
+      if (k === 'KeyL') { this.startCheat(); return; }
+      // The sequence is a string, and while it is empty it is still active, so test for
+      // null rather than truthiness — "L" alone leaves it as an empty string waiting for
+      // its first digit.
+      if (this._cheat !== null && this._cheat !== undefined) this.pushCheat(k);
       return;
     }
     if (this.game.state !== 'playing') return;
@@ -56,6 +71,30 @@ export class Input {
     if (k === 'KeyM') this.game.toggleMusicMute();
     if (k === 'KeyR' && e.ctrlKey) return;
     if (k === 'KeyF') this._pendingInteract = true;
+    // 1 = blade, 2 = bow. The game itself decides whether the request is allowed.
+    if (k === 'Digit1' || k === 'Numpad1') this.game.selectWeaponSlot('melee');
+    if (k === 'Digit2' || k === 'Numpad2') this.game.selectWeaponSlot('ranged');
+  }
+
+  startCheat() {
+    clearTimeout(this._cheatT);
+    this._cheat = '';
+  }
+
+  pushCheat(code) {
+    const d = /^Digit(\d)$/.exec(code)?.[1] ?? /^Numpad(\d)$/.exec(code)?.[1];
+    if (!d) { this.commitCheat(); return; }   // any other key ends the sequence
+    this._cheat += d;
+    clearTimeout(this._cheatT);
+    if (this._cheat.length >= 2) this.commitCheat();
+    else this._cheatT = setTimeout(() => this.commitCheat(), 900);
+  }
+
+  commitCheat() {
+    clearTimeout(this._cheatT);
+    const seq = this._cheat;
+    this._cheat = null;
+    if (seq) this.game.cheatToDepth(seq);
   }
 
   sample() {

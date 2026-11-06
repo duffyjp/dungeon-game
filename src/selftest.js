@@ -6,6 +6,7 @@
 import { CFG } from './config.js';
 import enemiesData from '../data/enemies.json';
 import { makeProp } from './world/propMeshes.js';
+import { rollDrops, spawnLevelLoot } from './world/spawner.js';
 import { hasAsset } from './render/assets.js';
 
 export async function runSelfTest(game) {
@@ -43,6 +44,119 @@ export async function runSelfTest(game) {
     game.attack();
     step(2);
     ok('enemy death produces loot', game.pickups.length > 0, `${game.pickups.length} pickups`);
+
+    // --- two weapon slots: a bow fills its own slot and never steals the blade
+    const bladeBefore = game.player.melee;
+    const bowDef = game.items.items.find(i => i.id === 'bow_hunting');
+    const bowInst = { def: bowDef, id: bowDef.id, slot: 'weapon', sprite: bowDef.sprite, damage: 40, score: 44, tierIndex: 3, color: '#f5a524', label: 'Test Bow', jitter: 1, quality: 1 };
+    game.makePickup(bowInst, game.player.x, game.player.z);
+    step(2);
+    ok('a bow fills the ranged slot without displacing the blade',
+      game.player.ranged?.id === 'bow_hunting' && game.player.melee === bladeBefore,
+      `ranged=${game.player.ranged?.id} melee=${game.player.melee?.id}`);
+
+    // --- the ranged slot is gated on ammunition, not on owning a bow
+    ok('a bow with no arrows cannot be selected',
+      game.selectWeaponSlot('ranged') === false && game.player.weaponKind === 'melee',
+      `in hand=${game.player.weaponKind}`);
+    game.player.arrows = 3;
+    ok('with arrows the bow can be drawn',
+      game.selectWeaponSlot('ranged') === true && game.player.weaponKind === 'ranged');
+
+    // --- firing spends an arrow and looses a real arrow, not a placeholder
+    const arrows0 = game.player.arrows;
+    game.player.attackCd = 0;
+    game.attack();
+    step(1);
+    const mine = game.projectiles.filter(p => p.arrow && !p.hostile);
+    ok('a shot spends one arrow and flies a real arrow sprite',
+      game.player.arrows === arrows0 - 1 && mine.length > 0 && mine[0].assetKey === 'items/arrow',
+      `arrows=${game.player.arrows} arrow projectiles=${mine.length} sprite=${mine[0]?.assetKey}`);
+
+    while (game.player.arrows > 0) { game.player.attackCd = 0; game.attack(); step(1); }
+    ok('running dry hands the blade back over', game.player.weaponKind === 'melee', `in hand=${game.player.weaponKind}`);
+    ok('an empty quiver keeps the ranged slot locked',
+      game.selectWeaponSlot('ranged') === false && game.player.canUse('ranged') === false);
+
+    // --- enemy arrows fly at the player (they used to inherit the player's own facing)
+    game.player.health = game.player.maxHealth;
+    game.player.invuln = 99;
+    // The staging helper refuses a wall, so try a few ranges and turns until the archer
+    // lands on open floor instead of inside the maze.
+    const yaw0 = game.input.yaw;
+    let arch = null;
+    for (const [d, turn] of [[5, 0], [4, 0], [3, 0], [5, Math.PI / 2], [5, -Math.PI / 2], [4, Math.PI]]) {
+      game.input.yaw = yaw0 + turn;
+      arch = game.stagePreviewEnemy('archer', 1, d);
+      if (arch) break;
+    }
+    game.input.yaw = yaw0;
+    if (!arch) ok('staged an archer', false);
+    else {
+      const px = game.player.x, pz = game.player.z;
+      const d0 = Math.hypot(arch.x - px, arch.z - pz);
+      arch.landAttack();
+      const shot = game.projectiles[game.projectiles.length - 1];
+      step(4);
+      const d1 = shot ? Math.hypot(shot.x - px, shot.z - pz) : Infinity;
+      ok('an archer shot travels toward the player', Boolean(shot && shot.hostile) && d1 < d0,
+        `${d0.toFixed(1)}m -> ${Number.isFinite(d1) ? d1.toFixed(1) + 'm' : 'removed'}`);
+      ok('an enemy archer looses an actual arrow', Boolean(shot && shot.arrow && shot.assetKey === 'items/arrow'),
+        shot ? shot.assetKey : 'no projectile');
+    }
+
+    // --- archers hand over 1-3 arrows when they die, and picking them up refills the quiver
+    if (arch) {
+      const before = game.player.arrows;
+      const drops = rollDrops(game, arch, game.rng);
+      const ammo = drops.filter(d => d.item && d.item.slot === 'ammo');
+      const n = ammo.reduce((s, d) => s + (d.item.count || 0), 0);
+      ok('an archer drops between 1 and 3 arrows', ammo.length === 1 && n >= 1 && n <= 3,
+        `${n} arrows across ${ammo.length} drop(s)`);
+      ammo.forEach(d => game.onPickup(d));
+      ok('arrows go to the quiver instead of becoming gear',
+        game.player.arrows === before + n && game.player.ranged?.id === 'bow_hunting',
+        `${before} -> ${game.player.arrows}`);
+    }
+
+    // --- a treasure pedestal bow comes with a working quiver, so the first bow of a run
+    // is a usable weapon and not a promise you have to survive an archer to cash in
+    {
+      const real = game.makePickup;
+      let found = null;
+      try {
+        game.makePickup = (item, x, z) => ({ item, x, z });
+        for (let i = 0; i < 60 && !found; i++) {
+          const loot = spawnLevelLoot(game, game.level, game.rng, game.depth);
+          const bow = loot.find(p => p.item.def.attack && p.item.def.attack.kind === 'ranged');
+          if (bow) found = { bow, loot };
+        }
+      } finally {
+        game.makePickup = real;
+      }
+      ok('a pedestal bow turns up in the loot tables', Boolean(found),
+        found ? 'rolled one within 60 alcove passes' : 'no bow in 60 alcove rolls');
+      if (found) {
+        const quiver = found.loot.find(p => p.item.slot === 'ammo');
+        const gap = quiver ? Math.hypot(quiver.x - found.bow.x, quiver.z - found.bow.z) : Infinity;
+        ok('a pedestal bow sits beside 5 arrows',
+          Boolean(quiver) && quiver.item.count === CFG.arrowsWithTreasureBow && gap < CFG.cell,
+          quiver ? `${quiver.item.count} arrows, ${gap.toFixed(1)} m away` : 'no quiver beside it');
+      }
+    }
+
+    // --- the playtest cheat: while paused, L then digits jumps the run to that depth
+    game.pause();
+    for (const code of ['KeyL', 'Digit1', 'Digit0']) game.input.onKey({ code }, true);
+    step(3);
+    ok('L 1 0 on the pause screen drops the run into depth 10',
+      game.depth === 10 && game.state === 'playing' && Boolean(game.level),
+      `depth=${game.depth} state=${game.state}`);
+    ok('a cheated depth is a real generated level',
+      game.level.dist[game.level.stair.y * game.level.w + game.level.stair.x] >= 0,
+      `path=${game.level.dist[game.level.stair.y * game.level.w + game.level.stair.x]}`);
+    ok('a single pair with a leading zero works too (L 0 5)',
+      game.cheatToDepth('05') && game.depth === 5, `depth=${game.depth}`);
 
     // --- damage maths: no armour means full damage to health
     const h0 = game.player.health;

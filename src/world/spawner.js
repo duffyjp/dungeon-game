@@ -79,8 +79,22 @@ export function spawnLevelLoot(game, level, rng, depth) {
     const defId = rng.pick(gearIds);
     const def = itemsData.items.find(i => i.id === defId);
     const item = makeItem(def, depth, rng);
-    const p = game.makePickup(item, (a.x + 0.5) * CFG.cell, (a.y + 0.5) * CFG.cell, { pedestal: true });
+    const cx = (a.x + 0.5) * CFG.cell, cz = (a.y + 0.5) * CFG.cell;
+    const p = game.makePickup(item, cx, cz, { pedestal: true });
     if (p) out.push(p);
+    // A treasure bow sits beside a quiver. Without it the first bow of a run is a dead
+    // pickup: you would have to survive long enough to meet an archer before the find paid.
+    if (p && def.attack && def.attack.kind === 'ranged') {
+      const arrowDef = itemsData.items.find(i => i.slot === 'ammo');
+      if (arrowDef) {
+        const ammo = makeItem(arrowDef, depth, rng);
+        ammo.count = CFG.arrowsWithTreasureBow;
+        ammo.label = `${arrowDef.name} x${ammo.count}`;
+        ammo.score = ammo.count * 2;
+        const quiver = game.makePickup(ammo, cx + CFG.cell * 0.3, cz + CFG.cell * 0.3);
+        if (quiver) out.push(quiver);
+      }
+    }
   }
   return out;
 }
@@ -98,6 +112,20 @@ export function rollDrops(game, enemy, rng) {
     const bonus = enemy.isBoss ? 2 : 0;
     out.push(game.makePickup(makeItem(def, depth, rng, bonus), enemy.x, enemy.z));
   }
+  // Archers carry ammunition, and always hand it over: that is what keeps the bow a
+  // resource you spend rather than a free upgrade. A boss archer carries a bundle.
+  if (fam.ammo) {
+    const def = itemsData.items.find(i => i.id === fam.ammo.item);
+    if (def) {
+      const n = rng.int(fam.ammo.min, fam.ammo.max) + (enemy.isBoss ? 3 : 0);
+      const inst = makeItem(def, depth, rng);
+      inst.count = n;
+      inst.label = n > 1 ? `${def.name} x${n}` : def.name;
+      inst.score = n * 2;
+      out.push(game.makePickup(inst, enemy.x, enemy.z));
+    }
+  }
+
   if (!out.length) {
     const coin = itemsData.items.find(i => i.id === 'coin');
     out.push(game.makePickup(makeItem(coin, depth, rng), enemy.x, enemy.z));

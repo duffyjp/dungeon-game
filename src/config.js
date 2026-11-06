@@ -63,6 +63,11 @@ export const CFG = {
   musicCrossfade: 1.2,
   musicDuck: 0.2,
 
+  // loot
+  // A bow found on a treasure pedestal comes with a quiver, so the find is a working
+  // weapon the moment you pick it up instead of a promise you have to keep.
+  arrowsWithTreasureBow: 5,
+
   // score
   scorePerDepth: 100,
   scorePerKill: 10,

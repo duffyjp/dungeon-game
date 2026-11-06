@@ -78,6 +78,11 @@ export function makeItem(itemDef, depth, rng, bonus = 0) {
     inst.heal = rng.int(h0, h1);
     inst.score = inst.heal;
     inst.label = `${itemDef.name} (+${inst.heal})`;
+  } else if (itemDef.slot === 'ammo') {
+    // Arrows are a counted stack, not a stat-bearing item. The drop roll decides how many.
+    inst.count = 1;
+    inst.score = 2;
+    inst.label = itemDef.name;
   } else {
     inst.score = 5;
     inst.label = itemDef.name;

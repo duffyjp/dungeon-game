@@ -28,28 +28,38 @@ the image list is resolved when the server starts (see *Dev notes*).
 | `W A S D` | Move |
 | `Shift` | Run |
 | Left click / `Space` | Attack |
+| `1` | Melee weapon |
+| `2` | Bow (refused if you have no bow, or no arrows) |
 | `E` / `F` | Interact (stairs, chests) |
 | Hold on stairs | `1.5 s` to descend |
 | `Esc` | Pause |
+| Paused: `L` then digits | Playtest cheat — jump the run to that depth (`L 0 5` → depth 5, `L 1 0` → depth 10) |
 | `M` | Mute |
 
-Walk over an item to pick it up. Better gear equips itself, worse gear is sold for
-gold. Health comes back only from potions.
+Walk over an item to pick it up. Better gear equips itself into its own slot — a bow never
+replaces the sword in your hand — and worse gear is sold for gold. Bows are fired with
+arrows: every shot spends one, archers drop 1–3 when they die, and when the quiver runs
+empty the sword goes back in your hand and `2` does nothing until you find more arrows.
+Health comes back only from potions.
 
 ## Tests
 
 ```
 npm test              # levels + loot + movement (headless Node, ~30 s)
-npm run test:game     # boots the real game in headless Edge, 25 integration checks
+npm run test:game     # boots the real game in headless Edge, 40 integration checks
 npm run test:keys     # chroma-key QA: measures every generated sprite, non-zero exit if one keys badly
 ```
 
 All four suites currently pass: 200/200 generated levels solvable, the loot spread
-checks, the collision checks, 25/25 integration checks (including that WASD and the arrow
+checks, the collision checks, 40/40 integration checks (including that WASD and the arrow
 keys move the way the camera actually points, that every prop kind resolves to geometry or
 real art, that no torch floats free of a wall, that each enemy family ramps its silhouette
-by tier, and that the splat and trail effects are wired to the creatures they were drawn
-for), and 57/57 sprites key clean.
+by tier, that the splat and trail effects are wired to the creatures they were drawn for,
+that an archer's shot travels toward the player, that a pedestal bow sits beside a quiver of
+five arrows, that the pause cheat `L` + digits jumps the run to a real generated depth, and
+that the quiver gates the bow: a shot spends an arrow, an empty quiver hands the blade back
+and refuses `2`, and an archer's carcass yields between 1 and 3 arrows), and 57/57 sprites
+key clean.
 
 Art QA, which renders a report you can look at instead of reading numbers:
 
@@ -60,6 +70,8 @@ npm run qa:props      # propcheck.png — every solid prop, front view and turne
 npm run qa:props:one -- "?only=staircase"   # one prop, framed from standing eye height
 npm run qa:props:one -- "?only=torch"         # in that mode the lighting is copied from the game
 npm run qa:fx         # fxcheck.png — every effect composited the way the engine draws it
+npm run qa:arrow      # an archer's arrow frozen in flight, coming at the camera
+npm run qa:bow        # the player's own arrow frozen in flight down the corridor
 npm run qa:art        # which manifest assets nothing in the source references
 npm run shot -- index.html play.png 1280 720 "?demo=1&seed=alpha&depth=9&preview=orc&tier=4"
 ```
@@ -83,10 +95,15 @@ Useful URL parameters:
 | `?demo=1&depth=7&preview=mage&tier=3` | stand one enemy in front of the camera for art review |
 | `?demo=1&depth=4&at=stair` | stand next to the staircase looking at it, for landmark review |
 | `?demo=1&depth=1&at=prop:rubble` | stand beside the nearest prop of that kind (`torch`, `cobweb`, `door_oak`, ...) |
+| `?demo=1&depth=3&at=loot&bow=1` | stand beside the nearest treasure pedestal — with `&bow=1`, the nearest one holding a bow, which should have a quiver at its foot |
+| `?demo=1&depth=3&pause=1` | come back paused, so the pause card can be photographed |
+| `?demo=1&depth=2&arrows=6&shoot=1&freeze=1&mark=1` | hand over a bow, loose one arrow and freeze it in mid-air down the corridor (`&turn=90` swings the head round so the same arrow can be seen crossing the view) |
+| `?demo=1&depth=2&preview=archer&tier=2&previewshoot=1&freeze=1` | make a staged archer loose an arrow at the camera and freeze it, to check enemy shots aim correctly |
 | `?selftest=1` | run the integration checks and print pass/fail |
 | `?selftest=1&assets=1` | same, but after decoding every generated image |
 | `/seamcheck.html` | texture tiling review sheet (raw vs. the engine's mirrored pass) |
 | `/propcheck.html` | solid-prop review sheet, built from the same code the game uses |
+| `/fxcheck.html` | every effect composited the way the engine draws it, at the size and opacity it is really drawn at |
 
 ## Adding music
 
@@ -151,6 +168,18 @@ attempts; the two rejected seeds are recorded in its manifest entry.
   keys out with a hard edge, and under a pale creature it looked like a hole in the floor.
   `getSoftShadowTexture()` in `render/assets.js` is a radial gradient with no edge to key,
   and it scales with each enemy's tier ramp (smaller and fainter for things that hover).
+- **A shot's direction comes from the shooter.** A projectile whose direction defaults to
+  the viewer's own facing makes an archer behind you fire away from you, which is precisely
+  what an early build did. Enemy shots now carry an explicit direction plus a few degrees of
+  spread, and the integration suite asserts that a hostile shot closes the distance to the
+  player.
+- **Adding to the logic list is not the same as putting it in the scene.** The player's own
+  arrows were pushed onto `game.projectiles` without ever being added to the scene graph:
+  they existed, spent ammunition and dealt damage, and were never drawn. `spawnProjectile`
+  does both — use it for anything that must be seen.
+- **Sprite roll lives inside the upright billboard.** `billboardTowards` sets orientation
+  before any extra roll is applied; if it only assigned `rotation.y`, each frame would roll
+  the sprite a little further and an arrow in flight would end up a spinning blur.
 - **Prompts must be affirmative.** The image graph samples at CFG 1 with its negative
   branch wired to `ConditioningZeroOut`, so a negative prompt is thrown away — and a
   `no X` clause typed into the positive prompt is just a description of X, which the
