@@ -45,14 +45,17 @@ Health comes back only from potions.
 ## Tests
 
 ```
-npm test              # levels + loot + movement (headless Node, ~30 s)
+npm test              # levels + loot + movement + file-name case (headless Node, ~30 s)
+npm run test:case     # every asset key the code names matches the spelling on disk
 npm run test:game     # boots the real game in headless Edge, 40 integration checks
 npm run test:keys     # chroma-key QA: measures every generated sprite, non-zero exit if one keys badly
 npm run build && npm run check:build   # the built site, served as plain static files, not the dev server
 ```
 
-All five currently pass: 200/200 generated levels solvable, the loot spread
-checks, the collision checks, 40/40 integration checks (including that WASD and the arrow
+All currently pass: 200/200 generated levels solvable, the loot spread
+checks, the collision checks, the file-name case audit (every asset key the code names
+matches the spelling on disk, which any case-sensitive host such as Pages requires),
+40/40 integration checks (including that WASD and the arrow
 keys move the way the camera actually points, that every prop kind resolves to geometry or
 real art, that no torch floats free of a wall, that each enemy family ramps its silhouette
 by tier, that the splat and trail effects are wired to the creatures they were drawn for,
@@ -140,6 +143,12 @@ which is a real first download, and Pages allows 1 GB of storage and roughly 100
 bandwidth a month — comfortable for sharing with friends, not for a launch on a front page.
 The tiling textures are most of the weight and are the one part that could be lossily
 compressed without disturbing the chroma-key pipeline the sprites depend on.
+
+The workflow runs `npm test` before it publishes, and that now includes a file-name case
+audit: Windows treats `Wall_Crypt.png` and `wall_crypt.png` as the same file, the Linux
+runner and Pages do not, and a mis-cased reference arrives as a 404 that the game papers
+over with a grey placeholder. `tools/caseCheck.mjs` compares every asset key the source and
+data name against the exact spelling on disk and fails the build on a mismatch.
 
 ## Adding music
 
