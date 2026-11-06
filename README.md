@@ -118,10 +118,12 @@ Node for. So it can live on Pages.
 Three steps, once:
 
 > **Plan check first.** Pages can only be served from a **public** repository on a free
-> GitHub account. From a private one the workflow still builds and still leaves a
-> `strata-site` zip under the run's Artifacts tab, which you can host on Cloudflare Pages or
-> Netlify — both connect to a private repository at no cost. Making the repository public,
-> or paying for Pro, is what lets the deploy step below work.
+> GitHub account, and a **private** repository's Pages site is access-controlled: only people
+> GitHub lets into the repository can load the site. With Pro, publishing from this private
+> repository works, and the URL for this one is `https://duffyjp.github.io/dungeon-game/` —
+> friends need to be collaborators until the repository is made public, which needs no other
+> change. Either way the workflow also leaves a `strata-site` zip under the run's Artifacts
+> tab, which Cloudflare Pages or Netlify can serve from a private repository at no cost.
 
 1. Push the repository to GitHub (`git remote add origin …`, `git push -u origin main`).
 2. In the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.

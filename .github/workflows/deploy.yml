@@ -8,12 +8,12 @@
 # all this game needs — the art is bundled by Vite at build time and every sound effect is
 # synthesised in the browser.
 #
-# One caveat about plans, not about the game: GitHub Pages can only be served from a
-# **public** repository on a free account. From a private repository this workflow still
-# builds and still hands you a `strata-site` zip under the run's Artifacts section, which
-# you can drop onto Cloudflare Pages, Netlify, or any static host — both of those connect to
-# a private GitHub repository for free. Alternatively make the repository public, or pay for
-# GitHub Pro, and the deploy step below publishes it.
+# One caveat about plans, not about the game: on a free account GitHub Pages serves only
+# **public** repositories, and a private repository's Pages site is access-controlled — only
+# people with repository access can load it. Pro makes publishing from a private repository
+# work, but the link only reaches collaborators until the repository is made public. Either
+# way this build job also uploads a `strata-site` zip under the run's Artifacts section,
+# which Cloudflare Pages or Netlify can serve from a private repository for free.
 
 name: Deploy to GitHub Pages
 
