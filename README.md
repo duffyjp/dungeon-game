@@ -117,6 +117,12 @@ Node for. So it can live on Pages.
 
 Three steps, once:
 
+> **Plan check first.** Pages can only be served from a **public** repository on a free
+> GitHub account. From a private one the workflow still builds and still leaves a
+> `strata-site` zip under the run's Artifacts tab, which you can host on Cloudflare Pages or
+> Netlify — both connect to a private repository at no cost. Making the repository public,
+> or paying for Pro, is what lets the deploy step below work.
+
 1. Push the repository to GitHub (`git remote add origin …`, `git push -u origin main`).
 2. In the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
 3. Push. `.github/workflows/deploy.yml` runs the test suites, builds `dist/` and publishes

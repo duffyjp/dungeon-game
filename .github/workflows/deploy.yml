@@ -7,6 +7,13 @@
 # Nothing here uploads to a host or runs a server: Pages serves the static build, which is
 # all this game needs — the art is bundled by Vite at build time and every sound effect is
 # synthesised in the browser.
+#
+# One caveat about plans, not about the game: GitHub Pages can only be served from a
+# **public** repository on a free account. From a private repository this workflow still
+# builds and still hands you a `strata-site` zip under the run's Artifacts section, which
+# you can drop onto Cloudflare Pages, Netlify, or any static host — both of those connect to
+# a private GitHub repository for free. Alternatively make the repository public, or pay for
+# GitHub Pro, and the deploy step below publishes it.
 
 name: Deploy to GitHub Pages
 
@@ -34,13 +41,22 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      # The same checks the README promises: 200 generated levels, the loot simulation and
-      # the movement suite, all in headless Node with no display needed.
+      # The same checks the README promises: 200 generated levels solvable, the loot
+      # simulation, the movement suite and the asset-name case audit — all in headless Node,
+      # no display needed. A push that breaks generation never reaches the site.
       - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+      # The same output as a downloadable zip, for any host you like better than Pages —
+      # and the only route that works while the repository is private, since Pages cannot
+      # serve from a private repository on a free plan.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: strata-site
+          path: dist
+          retention-days: 30
 
   deploy:
     needs: build
