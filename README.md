@@ -158,6 +158,35 @@ runner and Pages do not, and a mis-cased reference arrives as a 404 that the gam
 over with a grey placeholder. `tools/caseCheck.mjs` compares every asset key the source and
 data name against the exact spelling on disk and fails the build on a mismatch.
 
+## ComfyUI boxes, and which model may be used at all
+
+Three probes, because model advice is worthless without the hardware and the licence:
+
+```
+node tools/comfyStats.mjs                 # the box the MCP server talks to: GPU, VRAM, installed models
+node tools/findComfy.mjs                  # what ComfyUI servers exist on the LAN
+node tools/probeHost.mjs 10.1.1.1         # which port a given machine actually serves (accepts ranges)
+```
+
+- **`http://10.0.0.99:8000`** — the box the art pipeline is bound to. RTX 2060, 12 GB, about
+  1 GB free while the Z-Image pipeline is resident. No upscaler, ControlNet or IP-Adapter
+  models installed. Everything in `assets/images/` came from **Z-Image Turbo, which is Apache
+  2.0**, so every shipped pixel has a clean chain of title.
+- **`10.1.1.1`** — a second machine holding **Qwen-Image-2.1** (int8 conversion, and an
+  image-*editing* graph rather than text-to-image). As of 2026-11-06 it is **not reachable
+  from here**: a sweep of 21,001 ports found only Windows services (135, 445, 3389, 7680),
+  which is what a box looks like when ComfyUI is either not running or bound to `127.0.0.1`
+  — its default — or blocked by the Windows Firewall. Reaching it needs
+  `--listen 0.0.0.0` on that machine plus an inbound rule for its port.
+- **The licence is the reason to be careful about that second box, not the network.**
+  Qwen-Image-2.1 ships under the **Qwen Research License**: "Non-Commercial shall mean for
+  research or evaluation purposes only", commercial use requires a separate agreement with
+  Alibaba, and a quantised conversion of the weights inherits those terms. The model does
+  generate RGBA natively — the capability Z-Image lacks — which is exactly why it is worth
+  writing down: **nothing produced by that box may enter `assets/images/` for this game
+  unless a commercial licence is in hand.** Record the model and licence in the manifest for
+  every asset so that rule is auditable rather than remembered.
+
 ## Adding music
 
 Drop `.mp3`/`.ogg`/`.wav` files into `assets/music/`. Each new depth plays one at
