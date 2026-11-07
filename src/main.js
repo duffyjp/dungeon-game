@@ -203,11 +203,62 @@ export class Game {
     // If the first descent arrives before it finishes, the loading bar picks up the remainder.
     sfx.warmAll().then((r) => { this.sfxWarmed = true; if (r.failed) console.warn('[sfx] effects failed to decode:', r.failed); }).catch(() => {});
     this.state = 'menu';
-    this.menus.showMain();
+    this.showMenu();
     // Awaited on the demo/QA path so a harness that photographs or probes a depth does not
     // arrive while its art is still loading.
     if (params.get('demo')) await this.startRun(params.get('seed') || 'demo', Number(params.get('depth') || 1));
     this.loop();
+  }
+
+  // The menu is not a black page with a card on it any more: a real depth-1 crypt is built and
+  // orbited slowly behind it, the way Minecraft shows a landscape behind its title. Everything
+  // the menu needs is the same level pipeline the game uses, so nothing here is a second
+  // renderer to keep honest - only the run-only parts (banner, HUD, music cue, level_start
+  // sting, state transition) are switched off.
+  showMenu() {
+    this.state = 'menu';
+    this.menus.showMain();
+    this.enterMenuChrome();
+    // ?menuworld=0 skips the backdrop for the QA tools, which decide a page has finished by
+    // waiting for it to go quiet - a permanently orbiting scene never does. ?orbit=0 slows it to
+    // a standstill instead, so a screenshot can still show the world behind the card.
+    if (params.get('menuworld') === '0') return;
+    if (!this.level) {
+      this.menuWorld = this.loadLevel(1, 0, { menu: true }).catch((e) => {
+        console.warn('[menu] could not build the backdrop level:', e.message);
+      });
+    }
+  }
+
+  enterMenuChrome() {
+    document.body.classList.add('menu-view');
+    this.overlay.classList.add('no-chrome');
+    if (this.viewmodel) this.viewmodel.group.visible = false;
+  }
+
+  exitMenuChrome() {
+    document.body.classList.remove('menu-view');
+    this.overlay.classList.remove('no-chrome');
+    if (this.viewmodel) this.viewmodel.group.visible = true;
+  }
+
+  // Ambient upkeep while the menu is up: the camera turns, torches flicker, the light pool
+  // follows it, and standing monsters keep breathing. No player control, no AI, no combat -
+  // the world is a view, not a simulation the player can affect.
+  updateMenu(dt) {
+    this.time += dt;
+    const orbit = params.has('orbit') ? Number(params.get('orbit')) : CFG.menuOrbitDegPerSec;
+    this.menuYaw = (this.menuYaw || this.player.yaw) + THREE.MathUtils.degToRad(orbit) * dt;
+    this.player.yaw = this.menuYaw;
+    this.camera.position.set(this.player.x, CFG.eye, this.player.z);
+    this.camera.rotation.set(0, 0, 0);
+    this.camera.rotateY(this.menuYaw);
+    this.camera.rotateX(THREE.MathUtils.degToRad(CFG.menuPitchDeg));
+    for (const e of this.enemies) if (e.alive) e.tickAnimation(dt, 0);
+    this.billboardAll();
+    this.updateLights(dt);
+    this.updateFlames(dt);
+    this.updateVisibility(dt);
   }
 
   async startRun(seed = this.runSeed, depth = 1) {
@@ -233,6 +284,7 @@ export class Game {
     // viewport, and entering fullscreen can drop the pointer lock, so the lock is asked for
     // after the transition settles as well as before it.
     this.state = 'loading';
+    this.exitMenuChrome();
     this.menus.hide();
     const autoFs = this.settings.autoFullscreen !== false && params.get('fullscreen') !== '0'
       && !params.get('selftest') && !params.get('demo');
@@ -259,12 +311,13 @@ export class Game {
   // Wrapped so the in-flight load is reachable: `await game.loading` is how the harness, and
   // anything else, waits for a depth that was started by a key press rather than by a call site
   // it controls.
-  loadLevel(depth, retry = 0) {
-    this.loading = this._loadLevel(depth, retry);
+  loadLevel(depth, retry = 0, opts = {}) {
+    this.loading = this._loadLevel(depth, retry, opts);
     return this.loading;
   }
 
-  async _loadLevel(depth, retry = 0) {
+  async _loadLevel(depth, retry = 0, opts = {}) {
+    const menu = Boolean(opts.menu);
     const level = buildLevel(depth, this.runSeed);
     const check = validateLevel(level);
     if (!check.ok) {
@@ -276,7 +329,7 @@ export class Game {
         return;
       }
       this.runSeed = `${this.runSeed}!${retry + 1}`;
-      await this.loadLevel(depth, retry + 1);
+      await this.loadLevel(depth, retry + 1, opts);
       return;
     }
     this.clearLevel();
@@ -289,8 +342,10 @@ export class Game {
     // Everything this depth is going to draw arrives before it is playable. Loading it lazily
     // instead meant a new biome's walls, a tier's first monster and that monster's first step
     // each downloaded and decoded mid-fight, which is the hitching the owner heard about.
-    this.state = 'loading';
-    await this.preloadLevelAssets(level, biome);
+    // In menu mode the state stays 'menu' and no progress card is shown: the backdrop appears
+    // when it is ready, and the card the player is reading is the menu itself.
+    if (!menu) this.state = 'loading';
+    await this.preloadLevelAssets(level, biome, menu);
     this.levelView = buildLevelView(level, biome);
     this.scene.add(this.levelView.group);
 
@@ -393,12 +448,14 @@ export class Game {
     // ?pause=1 comes back paused, which is how you photograph the pause card.
     if (params.get('pause')) setTimeout(() => this.pause(), 120);
 
-    this.hud.setDepth(depth, this.runSeed);
-    const tier = tierForDepth(depth);
-    this.hud.banner(`DEPTH ${depth}`, `${biome.name}${tier > 1 ? ` · ${['', 'Tier 2', 'Tier 3', 'Tier 4'][tier - 1]} threat` : ''}`, 2200);
-    sfx.play('level_start');
-    music.playNext(`depth ${depth}`, { biome: level.biome, boss: this.enemies.some(e => e.isBoss) });
-    console.info(`[level] depth=${depth} seed=${level.seed} size=${level.w} path=${check.stairDist}/${check.diameter} enemies=${this.enemies.length}`);
+    if (!menu) {
+      this.hud.setDepth(depth, this.runSeed);
+      const tier = tierForDepth(depth);
+      this.hud.banner(`DEPTH ${depth}`, `${biome.name}${tier > 1 ? ` · ${['', 'Tier 2', 'Tier 3', 'Tier 4'][tier - 1]} threat` : ''}`, 2200);
+      sfx.play('level_start');
+      music.playNext(`depth ${depth}`, { biome: level.biome, boss: this.enemies.some(e => e.isBoss) });
+    }
+    console.info(`[level]${menu ? ' menu backdrop' : ''} depth=${depth} seed=${level.seed} size=${level.w} path=${check.stairDist}/${check.diameter} enemies=${this.enemies.length}`);
 
     // The scene exists now, so bring the GPU up to speed before the player can move. three.js
     // uploads a texture the first time it is drawn and compiles a material's shader the first
@@ -410,11 +467,20 @@ export class Game {
     // used, and this GPU has no parallel shader compile - each new variant blocks the main
     // thread where the player feels it. Put one of each off-level so the compile pass below
     // covers them, then clear the props away. The materials stay cached either way.
-    const fxWarmed = this.prewarmEffects();
-    await this.warmGpu();
-    this.clearWarmEffects();
+    if (!menu) {
+      const fxWarmed = this.prewarmEffects();
+      await this.warmGpu();
+      this.clearWarmEffects();
+    }
     this.hideLoadProgress();
-    if (this.state === 'loading') this.state = 'playing';
+    if (menu) {
+      // The backdrop is ready: start the orbit from wherever the player was placed and keep the
+      // run chrome (weapon in hand, HUD) off the screen.
+      this.menuYaw = this.player.yaw;
+      this.enterMenuChrome();
+    } else if (this.state === 'loading') {
+      this.state = 'playing';
+    }
   }
 
   // Spawn one of every effect kind (and a damage number, crit and normal, plus a pickup glint)
@@ -470,7 +536,7 @@ export class Game {
   // decode plus the mirror/downscale passes, and animation clips are worse still: a clip is 18
   // frames pushed through ImageDecoder and canvas copies, which is the stutter people feel when
   // a monster first moves.
-  async preloadLevelAssets(level, biome) {
+  async preloadLevelAssets(level, biome, quiet = false) {
     const enemyKeys = enemyAssetKeys(this.depth);
     const keys = new Set([...biomeAssetKeys(biome), ...propAssetKeys(level), ...enemyKeys]);
     // Item icons, effects and HUD frames can be needed at any moment in the run, so they ride
@@ -485,12 +551,13 @@ export class Game {
     const total = keys.size + clips.length + sfxJobs;
     const t0 = performance.now();
     let done = 0;
-    this.showLoadProgress(0, total);
-    await warmAssets(keys, (d) => { done = d; this.showLoadProgress(done, total); });
+    const show = (d, t) => { if (!quiet) this.showLoadProgress(d, t); };
+    show(0, total);
+    await warmAssets(keys, (d) => { done = d; show(done, total); });
     done = keys.size;
-    await Promise.all(clips.map(e => loadFrames(e).then(() => { done++; this.showLoadProgress(done, total); })));
+    await Promise.all(clips.map(e => loadFrames(e).then(() => { done++; show(done, total); })));
     if (sfxJobs) {
-      await sfx.warmAll((d) => { done = keys.size + clips.length + d; this.showLoadProgress(done, total); });
+      await sfx.warmAll((d) => { done = keys.size + clips.length + d; show(done, total); });
       this.sfxWarmed = true;
     }
     // The card stays up: _loadLevel hides it after the GPU has been brought up to speed, so the
@@ -621,6 +688,7 @@ export class Game {
     const dt = Math.min(0.05, this.clock.getDelta());
     if (!this.perfOn) {
       if (this.state === 'playing') this.update(dt);
+      else if (this.state === 'menu' && this.level) this.updateMenu(dt);
       this.renderer.render(this.scene, this.camera);
       return;
     }
@@ -631,6 +699,7 @@ export class Game {
     // in the fragment work, not the game logic.
     const t0 = performance.now();
     if (this.state === 'playing') this.update(dt);
+    else if (this.state === 'menu' && this.level) this.updateMenu(dt);
     const t1 = performance.now();
     // ?noscene=1 answers the one question the other knobs cannot: if the frame interval is still
     // ~33 ms with nothing rendered, the ceiling is the display or the browser's compositing, not
@@ -1210,7 +1279,9 @@ export class Game {
       '--frame-health': 'ui/bar_frame_health',
       '--frame-armor': 'ui/bar_frame_armor',
       '--frame-panel': 'ui/frame_panel',
-      '--frame-banner': 'ui/frame_banner'
+      '--frame-banner': 'ui/frame_banner',
+      // The menu card's emblem: the same generated blade the game ships, not a separate asset.
+      '--emblem-sword': 'items/sword_long'
     };
     const root = document.documentElement;
     for (const [varName, key] of Object.entries(map)) {

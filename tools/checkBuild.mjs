@@ -65,7 +65,18 @@ const server = createServer((req, res) => {
   res.end(readFileSync(target));
 });
 
-await new Promise(r => server.listen(PORT, r));
+// A port clash used to surface as "the page did not boot", which is the wrong diagnosis and
+// costs a session to find: the browser was talking to whatever else held the port.
+await new Promise((resolve, reject) => {
+  server.once('error', reject);
+  server.listen(PORT, resolve);
+}).catch((e) => {
+  if (e && e.code === 'EADDRINUSE') {
+    console.error(`BUILD CHECK FAILED :: port ${PORT} is already in use (a lingering pageShot, another checkBuild, or a dev server). Nothing was tested - the browser would have talked to the wrong server.`);
+    process.exit(1);
+  }
+  throw e;
+});
 
 // ---------------------------------------------------------------- static sanity checks
 const problems = [];

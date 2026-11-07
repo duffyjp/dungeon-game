@@ -428,6 +428,24 @@ Batch 1 (16 textures + 23 enemies, seeds 41000–41038) and batch 2 (8 props + 1
 server on the other PC handles a single generation at a time. `items/arrow` took three
 attempts; the two rejected seeds are recorded in its manifest entry.
 
+### The menu screen
+
+The menu sits in front of **a real generated depth-1 crypt that orbits slowly** — one revolution
+in about 100 seconds (`CFG.menuOrbitDegPerSec`) — blurred and dimmed by CSS so the card stays
+readable. It is built by the same level pipeline the game uses, so torches flicker, the light pool
+follows the camera and standing monsters keep breathing; the difference is that the run-only parts
+(banner, HUD, weapon in hand, `level_start`, music cue, input) are switched off and the state stays
+`menu`. Quitting to menu returns you to the level you died in.
+
+| URL | Why |
+|---|---|
+| `?orbit=0` | hold the camera still — a QA screenshot needs a page that goes quiet |
+| `?menuworld=0` | skip the backdrop entirely (no level built behind the menu) |
+
+The blade is now an emblem inside the card (the shipped `items/sword_long` sprite as a CSS
+background, cropped by the panel), not the first-person weapon mesh — what looked like a floating
+sword PNG on the menu was the **viewmodel still rendering behind it**.
+
 ## Performance: measure, then guess
 
 `?profile=1` puts a frame-time readout on screen and prints one line every two seconds:

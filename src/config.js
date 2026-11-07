@@ -84,6 +84,11 @@ export const CFG = {
   // moves faster than the player's dot.
   minimapHz: 20,
 
+  // The menu sits in front of a real level, orbiting slowly - the Minecraft-title idea. One
+  // revolution in about 100 seconds, so the motion is felt rather than watched.
+  menuOrbitDegPerSec: 3.6,
+  menuPitchDeg: -4,
+
   // Idle monsters: a standing creature works slowly through a window of its walk cycle rather
   // than freezing on the pose the clip was generated from. Raise idleSpan for more sway,
   // idleRate for faster; set idleSpan to 2 if you want it nearly still.

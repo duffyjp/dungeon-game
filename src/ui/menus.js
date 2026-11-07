@@ -54,18 +54,16 @@ export class Menus {
       <div class="menu-card">
         <h1 class="title">STRATA</h1>
         <p class="sub">Descent</p>
-        <div class="row"><input id="seed" placeholder="seed (blank = random)" value=""></div>
-        <div class="row btns">
-          <button data-act="actNewRun">NEW RUN</button>
+        <div class="seedrow"><input id="seed" placeholder="seed — blank for a random one" value=""></div>
+        <div class="btngrid">
+          <button class="primary" data-act="actNewRun">NEW RUN</button>
           <button data-act="actSeededRun">RUN WITH SEED</button>
-        </div>
-        <div class="row btns">
           <button data-act="showSettings">SETTINGS</button>
           <button data-act="showHow">HOW TO PLAY</button>
         </div>
-        <p class="fine">${hasMusic() ? `${tracks.length} music tracks found` : 'assets/music is empty — the game runs silent'}</p>
         ${AUDIO_CREDIT_HTML}
-        <p class="fine">ComfyUI art: ${this.game.loadedAssetCount ?? 0} generated images</p>
+        <p class="fine stat">${hasMusic() ? `${tracks.length} music tracks` : 'assets/music is empty — the game runs silent'}
+          · ${this.game.loadedAssetCount ?? 0} generated images · a live depth turns behind this card</p>
       </div>`);
   }
 
@@ -75,7 +73,7 @@ export class Menus {
     this.game.startRun(v || String(Math.floor(Math.random() * 1e6)));
   }
   actRetrySameSeed() { this.game.startRun(this.game.runSeed, 1); }
-  actShowMain() { this.game.state = 'menu'; this.showMain(); }
+  actShowMain() { this.game.showMenu(); }
   actResume() { this.game.resume(); }
   actFullscreen() { this.game.toggleFullscreen(); }
 

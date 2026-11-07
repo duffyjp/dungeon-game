@@ -1292,6 +1292,37 @@ line now reports measured loop rate (`loops/s`) beside it. And `?ratio=1` was ne
 on a panel whose `devicePixelRatio` is already 2 — a factor I read wrong in the earlier pass, which
 is why the first A/B looked like fill was free.
 
+### 13.27 The menu is a live depth, slowly turning
+
+The title screen was a black page with a card, a seed field crossing the frame texture, credit text
+sitting on the panel's metal bottom rail, and what looked like a stray sword PNG. That sword was the
+**first-person viewmodel**, still rendering behind the menu because nothing hid it.
+
+The screen is now the Minecraft-title idea: a real generated depth-1 crypt is built and orbited at
+`CFG.menuOrbitDegPerSec` (one revolution in ~100 s), blurred and dimmed by a CSS filter on the
+canvas while `body.menu-view` is set. It is not a second renderer — `showMenu()` calls the same
+`loadLevel(1, 0, { menu: true })`, and the menu flag switches off only the run-only parts: state
+transition, progress card, banner, HUD, `level_start`, music cue. The loop's menu branch runs an
+ambient tick: camera orbit, `billboardAll`, `updateLights`, `updateFlames`, `updateVisibility`, and
+`tickAnimation` on each living monster, so the creatures breathe without any AI, combat or input
+ever running. Quitting to menu reuses the level you died in rather than building a new one.
+
+Layout: the card's padding now clears the frame texture's rails (the seed input and the credits sat
+on them), the 2×2 button grid gives NEW RUN the primary treatment, `letter-spacing` on the title is
+compensated with `text-indent` so the last glyph's tracking no longer pushes STRATA off centre, and
+the blade is an emblem inside the panel (`--emblem-sword`, the shipped `items/sword_long` sprite) at
+emblem opacity, cropped by the card.
+
+QA consequence, and a knob for it: a permanently animating page never "settles", which is how
+`tools/pageShot.mjs` decides it may screenshot — the menu backdrop made screenshots time out.
+`?orbit=0` holds the camera still and `?menuworld=0` skips the backdrop. Two more guards were
+worth adding because the failure was invisible from the outside: `checkBuild` now reports a
+**port clash on 4181 by name** instead of the misleading "the page did not boot" (it cost two
+false diagnoses this session), and the suite's menu checks assert a real level behind the card, that
+the camera turns the configured amount, that run chrome is hidden, and that a run brings it back.
+One check caught itself: it first asserted `hp === maxHp` on properties that do not exist, so it
+passed by comparing two `undefined`s; it now reads `health/maxHealth` and reports `100/100`.
+
 
 ---
 

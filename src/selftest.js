@@ -27,10 +27,31 @@ export async function runSelfTest(game) {
   const step = (n, dt = 1 / 60) => { for (let i = 0; i < n; i++) game.update(dt); };
 
   try {
+    // ---- the menu screen and the world behind it ---------------------------
+    {
+      if (game.menuWorld) await game.menuWorld;
+      const had = Boolean(game.level && game.levelView);
+      const yaw0 = game.menuYaw || 0;
+      for (let i = 0; i < 120; i++) game.updateMenu(1 / 60);
+      const turned = THREE.MathUtils.radToDeg((game.menuYaw || 0) - yaw0);
+      ok('the menu builds a real level behind the card', had && game.state === 'menu',
+        had ? `depth ${game.depth}: ${game.enemies.length} monsters, ${game.levelView.wallMesh.count} wall instances, ${game.levelView.torches.length} torches` : 'no backdrop built');
+      ok('the menu camera turns slowly', turned > 6 && turned < 10,
+        `${turned.toFixed(1)} degrees in 2 s (CFG.menuOrbitDegPerSec = ${CFG.menuOrbitDegPerSec})`);
+      ok('the run chrome is hidden at the menu',
+        !game.viewmodel.group.visible && document.body.classList.contains('menu-view') && game.overlay.classList.contains('no-chrome'),
+        `viewmodel visible=${game.viewmodel.group.visible}, body.menu-view=${document.body.classList.contains('menu-view')}`);
+      ok('the menu cannot hurt you', game.player.health > 0 && game.player.health === game.player.maxHealth && game.enemies.every(e => e.state !== 'hunt'),
+        `health=${game.player.health}/${game.player.maxHealth}, hunting=${game.enemies.filter(e => e.state === 'hunt').length}`);
+    }
+
     // Awaited: a run now spends time preloading the depth's art before it exists, so the suite
     // has to wait for it rather than poking at a level that is still arriving.
     await game.startRun('selftest', 1);
     step(3);
+    ok('starting a run brings the weapon and the HUD back',
+      game.viewmodel.group.visible && !document.body.classList.contains('menu-view') && !game.overlay.classList.contains('no-chrome'),
+      `viewmodel visible=${game.viewmodel.group.visible}`);
 
     ok('level built', Boolean(game.level && game.levelView));
     ok('level passes solvability contract', game.level.dist[game.level.stair.y * game.level.w + game.level.stair.x] >= 0,
