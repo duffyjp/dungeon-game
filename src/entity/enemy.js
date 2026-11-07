@@ -236,12 +236,19 @@ export class Enemy {
         }
         return;
       }
+      if (!this.body.visible) {
+        // Bound the grace period. A monster that is invisible but still swinging is the worse
+        // failure, so if the clip has not arrived within a second the body is shown anyway.
+        a.hiddenT = (a.hiddenT || 0) + dt;
+        if (a.hiddenT > 1) { a.action = null; a.idx = -1; this.applyAnimMap(null, null); }
+        return;
+      }
       if (a.action !== null || this.body.material.map !== this.baseMap) {
         a.action = null;
         a.idx = -1;
-        // Only a species with no animation at all, or one whose clip decode genuinely failed,
-        // wears the still sprite. A clip that is merely still arriving leaves the body hidden
-        // for a frame instead of flashing an illustration at the player.
+        // A species with no animation at all, or one whose clip decode genuinely failed, wears
+        // the still sprite: that is the browser-without-WebCodecs path, and an invisible
+        // monster there is worse than an illustration.
         if (!this.anim.hasWalk || a.walkResolved === false) this.applyAnimMap(null, null);
       }
       return;
@@ -279,6 +286,11 @@ export class Enemy {
     // per-clip quad is computed once per clip and shared by every creature of that kind.
     const geom = entry ? this.clipQuad(entry) : this.baseGeom;
     if (geom && this.body.geometry !== geom) this.body.geometry = geom;
+
+    // Whatever path we took, an image is now on the body - so it must be on screen. Hiding the
+    // body while a clip is still arriving is only allowed to last until the first frame lands;
+    // forgetting this line is how a level full of monsters became invisible and still attacking.
+    this.body.visible = true;
   }
 
   clipQuad(entry) {

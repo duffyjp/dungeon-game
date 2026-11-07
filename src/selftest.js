@@ -705,6 +705,29 @@ export async function runSelfTest(game) {
               `clips=${[...e.anim.clips.keys()].map(k => `${k}:${e.anim.clips.get(k).frames.length}`).join('+')},` +
               `asked=${[...e.anim.asked].join('/')},boss=${e.isBoss ? 1 : 0}]`).join(' '));
 
+          // The worse failure, and the one the check above skipped: a monster that is invisible
+          // but still walking up and hitting you. Excluding hidden bodies from the still-sprite
+          // sweep is what let that ship, so it gets its own assertion.
+          step(20);
+          const ghosts = game.enemies.filter(e => e.alive && !e.body.visible);
+          ok('no living monster on this level is invisible', ghosts.length === 0,
+            ghosts.length
+              ? `${ghosts.length}/${game.enemies.length} invisible: ` +
+                ghosts.slice(0, 6).map(e => `${(e.spriteKey || '').split('/').pop()}[clips=${e.anim.clips.size},resolved=${e.anim.walkResolved}]`).join(' ')
+              : `all ${game.enemies.length} living monsters on screen`);
+
+          // The safety net itself: a clip that never arrives must not leave a monster hidden.
+          const testSubject = game.enemies.find(e => e.alive && e.anim.hasWalk);
+          if (testSubject) {
+            testSubject.body.visible = false;
+            testSubject.anim.walkResolved = undefined;
+            testSubject.anim.clips.clear();
+            testSubject.anim.hiddenT = 0;
+            for (let i = 0; i < 90; i++) testSubject.tickAnimation(1 / 60, 0);
+            ok('a monster whose clip never arrives shows up anyway', testSubject.body.visible,
+              `after 1.5 s with no clip: visible=${testSubject.body.visible}, source=${testSubject.body.material.map === testSubject.baseMap ? 'sprite' : 'clip'}`);
+          }
+
           // A standing monster must also still be *moving*: parking on the pose the clip was
           // generated from looked exactly like the illustration, which is the complaint this
           // whole pass exists to close. Tick one with no movement and count the poses it shows.
@@ -769,6 +792,12 @@ export async function runSelfTest(game) {
       ok('every sound effect is decoded before it can be played',
         sfxState.wanted > 0 && sfxState.ready === sfxState.wanted,
         `${sfxState.ready}/${sfxState.wanted} effects decoded${sfxState.failed ? `, ${sfxState.failed} failed` : ''}`);
+      step(20);
+      const coldGhosts = game.enemies.filter(e => e.alive && !e.body.visible);
+      ok('monsters on a cold-loaded depth are visible', coldGhosts.length === 0,
+        coldGhosts.length
+          ? `${coldGhosts.length}/${game.enemies.length} invisible on depth 4`
+          : `all ${game.enemies.length} monsters on depth 4 drawn from their clips`);
       ok('a depth is preloaded before it becomes playable', cold.length === 0,
         cold.length
           ? `late requests: ${cold.slice(0, 6).join(', ')}${cold.length > 6 ? ` +${cold.length - 6} more` : ''}`

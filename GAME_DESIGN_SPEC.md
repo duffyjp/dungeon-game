@@ -1127,6 +1127,40 @@ Note for later: GitHub Pages serves assets with short cache lifetimes, so revali
 fully disappear in production either — a service worker would, and is the next lever if the
 second load of a session still feels slow.
 
+### 13.20 Standing monsters breathe, and the fix that made them invisible
+
+Parking a standing monster on frame 0 of its walk cycle fixed the wrong problem: frame 0 *is*
+the composed illustration the clip was generated from, so an orc that stopped moving looked like
+the still sprite again — which is what the owner reported. A standing creature now works through
+a window of its walk cycle in ping-pong (`CFG.idleSpan` poses at `CFG.idleRate` of the walking
+rate, default 6 poses at ~5 fps): weight shifting rather than striding in place, and every frame
+comes from the animated file. The knobs are in `config.js` because how alive this should read is
+a taste call. The honest limit: it is breathing made out of a walk cycle. Real idle clips per
+species would be the art answer, and the bake already supports a fourth action.
+
+Then my own fix broke the game. Hiding the body while a clip resolves removed the only thing
+that made it visible again — nothing set `body.visible` back on — and the owner was attacked by
+an invisible enemy on depth 1 within minutes.
+
+The suite not only missed it, it **hid** it: the sweep reporting "0 of 18 monsters on the still
+sprite" filtered on `body.visible`, so invisible monsters were excluded by construction. The
+failure I had just introduced was the one the filter skipped.
+
+Two corrections. `applyAnimMap` ends with `this.body.visible = true` — every path through it has
+just put an image on the body, so the body is on screen; and the hide is now **bounded**, not
+promise-dependent: a body that has been hidden for more than a second is shown whatever the clip
+load is doing, because a hidden monster that can still hit you is a worse bug than a one-frame
+flash. The suite gained `no living monster on this level is invisible`, `monsters on a
+cold-loaded depth are visible`, and `a monster whose clip never arrives shows up anyway`, which
+strips a real enemy's clips and ticks it for 1.5 s to prove the bound holds.
+
+The guard was validated the only way that means anything: with the visibility line commented out,
+the suite reported **18 of 18 invisible** on the warm depth and 13 of 13 on the cold one. With
+the fix restored: 86/86.
+
+The rule worth keeping: a check that filters out a broken state to reduce noise has to be paired
+with a check that asserts that state cannot exist.
+
 
 ---
 
