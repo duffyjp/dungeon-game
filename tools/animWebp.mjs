@@ -38,15 +38,33 @@ const FPS = Number(arg('fps', 16));
 const BOOM = arg('boomerang', 'true') !== 'false';
 const YES = process.argv.includes('--yes');
 const ONLY = arg('only') ? new Set(arg('only').split(',').map(s => s.trim())) : null;
+// Which actions to build. The engine only plays a cycle it has a trigger for, and the game's
+// retreat is currently spider-family behaviour, so building flee for every species would
+// spend megabytes on animation nothing can ever show.
+const ACTIONS = new Set((arg('actions', 'walk,attack,flee')).split(',').map(s => s.trim()));
 // Warn, do not silently shrink: the right cell size is a decision made by looking at the
 // sprite in the game, not by a byte count.
 const BUDGET_KB = Number(arg('budget-kb', 400));
+// Sub-sample the unique frames before the boomerang is built. A 17-frame cycle at 16 fps is
+// smoother than a 12-frame one, but not by much, and this is the cheapest lever on the
+// download when the whole roster has to fit.
+const MAXFRAMES = Number(arg('max-frames', 0));
+
+// Even sub-sample that always keeps the first and last frame, so the cycle still closes on
+// itself however few frames are kept.
+function pickEvery(n, max) {
+  if (!max || n <= max) return [...Array(n).keys()];
+  const out = [];
+  for (let k = 0; k < max; k++) out.push(Math.round(k * (n - 1) / (max - 1)));
+  return [...new Set(out)];
+}
 
 const OUT = YES ? path.join(ROOT, 'assets', 'anim') : path.join(ROOT, 'experiments', 'anim', 'webp');
 
 const list = JSON.parse(fs.readFileSync(path.join(ROOT, 'experiments', 'anim', 'list.json'), 'utf8'))
   .filter(e => e.verdict === 'ACCEPTED' && !e.id.split('__')[1].includes('_'))
-  .filter(e => !ONLY || ONLY.has(e.id));
+  .filter(e => !ONLY || ONLY.has(e.id))
+  .filter(e => ACTIONS.has(e.action));
 
 if (!list.length) { console.error('no accepted clips matched' + (ONLY ? ` --only ${[...ONLY].join(',')}` : '')); process.exit(1); }
 
@@ -89,8 +107,12 @@ for (const e of list) {
     // Boomerang order: 0..N-1 then N-2..1, so the last played frame is adjacent to the first
     // and the loop has no seam. Endpoints are not duplicated, which would hold each pose for
     // two frames and give the cycle a limp.
-    const N = keyed.length;
-    const order = BOOM ? [...Array(N).keys(), ...[...Array(N - 2).keys()].map(i => N - 2 - i)] : [...Array(N).keys()];
+    const N_all = keyed.length;
+    const chosen = pickEvery(N_all, MAXFRAMES);
+    const N = chosen.length;
+    const order = BOOM
+      ? [...chosen, ...chosen.slice(1, -1).reverse()]
+      : chosen;
 
     const stage = fs.mkdtempSync(path.join(ROOT, 'experiments', 'anim', 'seq-'));
     order.forEach((src, i) =>
@@ -148,13 +170,25 @@ for (const e of list) {
 }
 
 entries.sort((p, q) => String(p.sprite).localeCompare(String(q.sprite)) || p.action.localeCompare(q.action));
-fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify({
+
+// Merge with whatever is already published rather than replacing it, so a phase can be built
+// in batches (walk and attack for every species, flee only where the AI can use it) without
+// the last batch silently deleting the others. Entries whose file is no longer on disk drop out.
+const mine = new Set(entries.map(e => `${e.sprite}|${e.action}`));
+const mPath = path.join(OUT, 'manifest.json');
+const prior = fs.existsSync(mPath) ? (JSON.parse(fs.readFileSync(mPath, 'utf8')).entries || []) : [];
+const all = [...prior.filter(e => !mine.has(`${e.sprite}|${e.action}`) && fs.existsSync(path.join(OUT, e.file))), ...entries]
+  .sort((p, q) => String(p.sprite).localeCompare(String(q.sprite)) || p.action.localeCompare(q.action));
+fs.writeFileSync(mPath, JSON.stringify({
   generatedAt: new Date().toISOString(), cell: CELL, quality: QUALITY, fps: FPS,
   loop: BOOM ? 'boomerang-baked' : 'forward',
   note: 'animated WebP, forward then reverse inside the file so the loop has no seam',
-  entries
+  entries: all
 }, null, 2));
 
-console.log(`\n${entries.length} animated WebP(s), ${(total / 1024).toFixed(0)} KB total` + (held ? `, ${held} held back` : ''));
+const allBytes = all.reduce((s, e) => s + (e.bytes || 0), 0);
+console.log(`\nthis run: ${entries.length} animated WebP(s), ${(total / 1024).toFixed(0)} KB` +
+  (held ? `, ${held} held back` : ''));
+console.log(`published manifest: ${all.length} clips, ${(allBytes / 1024 / 1024).toFixed(1)} MB total`);
 console.log(`wrote ${path.relative(ROOT, OUT)}${YES ? '' : '   (dry run: assets/anim untouched — add --yes to publish)'}`);
 if (!entries.length) process.exit(1);

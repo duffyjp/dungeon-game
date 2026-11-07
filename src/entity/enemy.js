@@ -64,8 +64,9 @@ export class Enemy {
     this.body = makeBillboard(spriteKey, [this.height * 0.75, this.height], this.x, this.z, this.height / 2);
     this.baseMap = this.body.material.map;
     // Frame animation state. The offset is random per creature so a room of the same species
-    // does not step in lockstep, which is the detail that makes a crowd read as alive.
-    this.anim = { entry: null, frames: null, requested: false, t: 0, offset: Math.random() * 8, idx: -1, action: null };
+    // does not step in lockstep. Clips are decoded once per (sprite, action) and shared by
+    // every creature of that kind.
+    this.anim = { t: 0, offset: Math.random() * 8, idx: -1, action: null, clips: new Map(), asked: new Set() };
     this.group.add(this.body);
 
     // Contact shadow follows the same tier ramp as the silhouette, so a knee-high wisp
@@ -169,38 +170,52 @@ export class Enemy {
   }
 
   // ---- sprite animation ----
-  // Walk frames play while the body is actually covering ground — measured from the position
-  // change, not from the AI's state, for the same reason the ghost trail is: a creature that
-  // shuffled while "hunting" and a creature that stood still in the same state should not
-  // look the same. Anything else falls back to the still sprite, so a species with no clip,
-  // or a browser without WebCodecs, behaves exactly as it did before this existed.
+  // Which cycle to play, from what the creature is actually doing: the telegraph before a
+  // hit is the attack, a spider's back-off is the flee, and anything else that covers ground
+  // is the walk. Movement is measured from the position change rather than read from the AI's
+  // state — the same reason the ghost trail is measured — so a creature that shuffled while
+  // "hunting" and one that stood still in the same state do not look identical.
+  //
+  // A sprite with no clip for the current action, or a browser without WebCodecs, falls back
+  // to the still sprite and behaves exactly as it did before this existed.
   tickAnimation(dt, moved) {
     const a = this.anim;
-    const action = moved > 0.004 ? 'walk' : null;
-    if (!action) {
-      if (a.action !== null) {
-        a.action = null; a.idx = -1;
-        if (a.frames) { this.body.material.map = this.baseMap; this.body.material.needsUpdate = true; }
+    const retreating = Boolean(this.retreatUntil) && this.game.time < this.retreatUntil;
+    const action = this.tell > 0 ? 'attack' : retreating ? 'flee' : moved > 0.004 ? 'walk' : null;
+
+    if (action && !a.asked.has(action) && !a.clips.has(action)) {
+      a.asked.add(action);                       // ask once, whether or not a clip exists
+      const entry = animationFor(this.spriteKey, action);
+      if (entry) {
+        loadFrames(entry).then(tex => { if (tex) a.clips.set(action, { entry, frames: tex }); });
+      }
+    }
+
+    if (action && action === a.action) {
+      const clip = a.clips.get(action);
+      if (!clip) return;
+      a.t += dt;
+      const i = frameIndex(clip.entry, a.t, a.offset);
+      if (i !== a.idx) {
+        a.idx = i;
+        this.applyAnimMap(clip.frames[i]);
       }
       return;
     }
-    if (!a.requested) {
-      a.requested = true;
-      const entry = animationFor(this.spriteKey, 'walk');
-      if (entry) loadFrames(entry).then(tex => { a.frames = tex; a.entry = entry; });
-    }
-    if (!a.frames || !a.entry) return;
+
     a.action = action;
-    a.t += dt;
-    const i = frameIndex(a.entry, a.t, a.offset);
-    if (i !== a.idx) {
-      const prev = a.idx;
-      a.idx = i;
-      this.body.material.map = a.frames[i];
-      // needsUpdate forces a shader rebuild; only needed when a map appears or disappears,
-      // not when one texture replaces another.
-      if (prev < 0) this.body.material.needsUpdate = true;
-    }
+    a.idx = -1;
+    a.t = 0;
+    const clip = action ? a.clips.get(action) : null;
+    this.applyAnimMap(clip ? clip.frames[0] : null);
+  }
+
+  applyAnimMap(tex) {
+    const before = this.body.material.map;
+    this.body.material.map = tex || this.baseMap;
+    // A material rebuild is only needed when a map appears or disappears; swapping one
+    // texture for another does not need one, and this runs on every frame of every monster.
+    if (!before !== !this.body.material.map) this.body.material.needsUpdate = true;
   }
 
   // ---- movement helpers ----

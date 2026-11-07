@@ -351,6 +351,26 @@ export async function runSelfTest(game) {
     const entry = animationFor(animKey, 'walk');
     ok('an animated clip is registered for a tier-1 enemy', Boolean(entry),
       entry ? `${entry.frames} frames (boomerang of ${entry.uniqueFrames}), ${Math.round(entry.bytes / 1024)} KB` : 'none found');
+
+    // Every species in the data should have a cycle, not just the one that happens to be on
+    // screen. Reading the roster rather than a hand-listed key is what turns "the spider
+    // animates" into "all enemies animate", and it catches a tier quietly missing from a build.
+    const roster = [...new Set((() => {
+      const all = [];
+      for (const fam of enemiesData.families) for (const key of Object.values(fam.sprites || {})) all.push(key);
+      return all;
+    })())];
+    // 24 sprite slots across the families but 23 distinct drawings: the spider family's
+    // tier-4 slot reuses the tier-3 art, which is exactly the kind of thing a count without a
+    // Set would report as a missing animation.
+    const noWalk = roster.filter(k => !animationFor(k, 'walk'));
+    ok('every enemy in the data has a walk cycle', noWalk.length === 0,
+      `${roster.length - noWalk.length}/${roster.length} distinct sprites animated` +
+      (noWalk.length ? ` — missing: ${noWalk.join(', ')}` : ''));
+    const withFlee = roster.filter(k => animationFor(k, 'flee'));
+    ok('flee cycles exist only where the AI can retreat', withFlee.length === 3,
+      `${withFlee.length} flee cycles — spiders back off in the AI, nothing else runs`);
+
     if (entry) {
       ok('this browser can decode animated frames', animationSupported(),
         animationSupported() ? 'ImageDecoder present' : 'no WebCodecs: billboards stay static by design');
@@ -379,15 +399,31 @@ export async function runSelfTest(game) {
 
         const spider = game.enemies.find(e => e.spriteKey === animKey) || game.enemies[0];
         if (spider) {
-          spider.anim.requested = true; spider.anim.frames = tex; spider.anim.entry = entry; spider.anim.idx = -1;
+          spider.anim.clips.set('walk', { entry, frames: tex });
+          spider.anim.idx = -1; spider.anim.action = null; spider.anim.t = 0;
           spider.tickAnimation(0.09, 0.6);
           const first = spider.anim.idx;
           spider.tickAnimation(0.09, 0.6);
-          ok('a creature covering ground advances frames', spider.anim.idx !== first,
-            `frame ${first} -> ${spider.anim.idx}`);
+          ok('a creature covering ground advances frames',
+            spider.anim.idx !== first && spider.anim.action === 'walk',
+            `frame ${first} -> ${spider.anim.idx} while ${spider.anim.action}`);
           spider.tickAnimation(0.016, 0);
           ok('a creature standing still goes back to the still sprite',
-            spider.body.material.map === spider.baseMap);
+            spider.anim.action === null && spider.body.material.map === spider.baseMap);
+
+          // The cycle chosen has to follow what the creature is doing, not merely whether it
+          // is moving — otherwise an attack and a walk are the same animation.
+          const tell0 = spider.tell, retreat0 = spider.retreatUntil;
+          spider.tell = 0.2;
+          spider.tickAnimation(0.09, 0.6);
+          ok('a striking creature selects the attack cycle', spider.anim.action === 'attack',
+            `action ${spider.anim.action}`);
+          spider.tell = 0;
+          spider.retreatUntil = (game.time || 0) + 1;
+          spider.tickAnimation(0.09, 0.6);
+          ok('a backing-off creature selects the flee cycle', spider.anim.action === 'flee',
+            `action ${spider.anim.action}`);
+          spider.tell = tell0; spider.retreatUntil = retreat0;
         }
       }
     }

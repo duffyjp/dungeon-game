@@ -332,10 +332,14 @@ npm run qa:animprobe                                   # what the browser can an
   animated WebP and `webpmux` is not installed.
 - **Verified before kept:** animation flag, loop-forever count, frame count, canvas size and a
   per-frame alpha plane. A file that fails any of those is deleted, not shipped.
-- **Cost:** one enemy's walk cycle, 32 frames at 192×147 = **326 KB**, payload 37.6 → 38.0 MB.
-  A static WebP frame is 7.5 KB where the PNG is 51.8 KB with identical alpha measurements, so
-  the format is worth ~7×; 18 clips project near 2 MB. GIF is excluded on quality grounds —
-  one bit of transparency against sprites whose edges are deliberately soft.
+- **Cost, whole roster:** 49 clips = **4.6 MB**, payload 38.0 → 42.2 MB. Walk and attack for
+  all 23 distinct enemy drawings, flee only for the three spiders — retreating is spider-only
+  AI, so flee animations for the rest could never be seen. Each clip is 10 unique frames
+  boomeranged to 18, at 152 px, quality 70. The same roster at 192 px with every frame
+  projects near 18 MB, which is why the settings are arguments rather than constants.
+- **8-bit indexed WebP was tried and rejected on measurement:** palette encoding came out 3×
+  larger lossless and no smaller lossy than plain RGBA at quality 60, because ffmpeg
+  re-expands it internally. Frame count and cell size are the levers that actually work.
 - The build check's browser budget had to rise (220 s → 420 s): decoding 32 frames is real work
   that virtual time does not fast-forward, and the failure mode was a misleading "page did not
   boot".

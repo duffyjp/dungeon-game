@@ -715,11 +715,17 @@ flag, loop count, frame count, canvas size and a per-frame alpha plane are all a
 a file is kept. GIF is ruled out on quality grounds rather than support — its transparency is
 one bit per pixel, and every sprite here has soft feathered edges.
 
-Measured cost, one tier-1 enemy (cellar spider, walk): 32 frames at 192×147, **326 KB**,
-site payload 37.6 → 38.0 MB. A static WebP of the same frame is 7.5 KB against 51.8 KB as PNG
-with byte-identical alpha measurements, so the format choice is worth roughly 7× at any frame
-count; the whole 18-clip phase is projected near 2 MB. Colour depth is not a constraint yet —
-the 8-bit-indexed fallback the brief allowed has not been needed.
+Measured cost, full enemy roster: **49 clips, 4.6 MB**, site payload 38.0 → 42.2 MB. That is
+walk and attack for every species (23 distinct drawings across four tiers — the spider
+family's tier-4 slot reuses the tier-3 art) plus flee for the three spiders, because
+retreating is currently spider-only AI and an animation with no trigger is dead weight in the
+download. Each clip is 10 unique frames boomeranged to 18 at 152 px, quality 70. A static
+WebP of one frame is 7.5 KB against 51.8 KB as PNG with byte-identical alpha measurements, so
+the format is worth roughly 7× at any frame count. **The 8-bit indexed fallback was measured
+and rejected**: palette WebP came out 3× larger lossless and no smaller lossy than plain RGBA,
+because ffmpeg re-expands it internally — cell size and frame count are the levers that work.
+Full-resolution settings are on disk for anyone who wants them: the same roster at 192 px with
+all frames projects near 18 MB.
 
 
 ---

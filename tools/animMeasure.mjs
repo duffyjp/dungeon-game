@@ -72,8 +72,12 @@ function findSprite(base) {
   return null;
 }
 
+// Only directories that actually hold a rendered clip. The atlas builder, the WebP builder and
+// the verification scratch folders all write under experiments/anim as well, and skipping
+// them is correct rather than an error to work around.
+const isClip = (d) => fs.existsSync(path.join(ANIM, d, 'frames'));
 const dirs = fs.existsSync(ANIM)
-  ? fs.readdirSync(ANIM).filter(d => fs.statSync(path.join(ANIM, d)).isDirectory() &&
+  ? fs.readdirSync(ANIM).filter(d => fs.statSync(path.join(ANIM, d)).isDirectory() && isClip(d) &&
     (!only.length || only.some(o => d === o || d.startsWith(o))))
   : [];
 if (!dirs.length) { console.log('no clips under experiments/anim'); process.exit(0); }
@@ -125,8 +129,17 @@ for (const d of dirs) {
   // it is reported every time, so a decision made months ago is still visible on the surface
   // instead of buried in a threshold nobody remembers setting.
   const waivers = Array.isArray(meta.waivers) ? meta.waivers : [];
-  const waivedNames = waivers.map(w => w.gate);
-  const bogusWaivers = waivers.filter(w => scored.gates.some(([n, h]) => h && n === w.gate));
+  // Waivers passed on this command line apply to *this* verdict as well as being recorded;
+  // otherwise the run that files the decision still reports the old one, which reads as the
+  // waiver having been ignored. A waiver may only name a gate that actually failed here.
+  const failingGates = scored.gates.filter(g => !g[1]).map(g => g[0]);
+  const badWaiver = cliWaivers.find(w => !failingGates.includes(w.gate));
+  if (badWaiver) {
+    console.error(`${d}: refusing to waive "${badWaiver.gate}" — it did not fail. Failures were: ${failingGates.join(', ') || 'none'}`);
+    process.exit(2);
+  }
+  const waivedNames = [...new Set([...waivers.map(w => w.gate), ...cliWaivers.map(w => w.gate)])];
+  const bogusWaivers = waivers.filter(w => scored.gates.some(([n, h]) => h && n === w.gate) && !cliWaivers.some(x => x.gate === w.gate));
   const failed = scored.gates.filter(g => !g[1] && !waivedNames.includes(g[0])).map(g => g[0]);
   rows.push({
     id: d, meta, frames: aligned, scored, failed,
@@ -159,9 +172,15 @@ for (const d of dirs) {
 }
 
 // Refresh the index the review page reads, so the verdicts shown on screen are the current
-// rules rather than the rules in force when each clip happened to be rendered.
+// rules rather than the rules in force when each clip happened to be rendered. Measuring one
+// clip must not throw away the rest: the index is merged, and entries are kept only while the
+// folder they describe still exists.
 if (write && rows.length) {
-  const list = rows.map(r => ({
+  const listPath = path.join(ANIM, 'list.json');
+  const measured = new Map(rows.map(r => [r.id, r]));
+  const prior = fs.existsSync(listPath) ? JSON.parse(fs.readFileSync(listPath, 'utf8')) : [];
+  const merged = prior.filter(e => !measured.has(e.id) && fs.existsSync(path.join(ANIM, e.id, 'frames')));
+  const list = [...merged, ...rows.map(r => ({
     id: r.id,
     sprite: r.meta.sprite || `enemies/?/${r.id.split('__')[0]}`,
     action: r.meta.action || r.id.split('__')[1],
@@ -180,10 +199,10 @@ if (write && rows.length) {
     loopMove: r.scored.rows.at(-1).loopMoved,
     worstCoverage: +r.scored.summary.minCov.toFixed(1),
     seconds: r.meta.generatedIn
-  }));
+  }))];
   list.sort((p, q) => p.id.localeCompare(q.id));
-  fs.writeFileSync(path.join(ANIM, 'list.json'), JSON.stringify(list, null, 2));
-  console.log('\nrewrote experiments/anim/list.json');
+  fs.writeFileSync(listPath, JSON.stringify(list, null, 2));
+  console.log(`\nupdated experiments/anim/list.json (${list.length} entries: ${rows.length} measured now, ${merged.length} carried over)`);
 }
 
 const accepted = rows.filter(r => !r.failed.length).length;
