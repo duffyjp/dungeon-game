@@ -1,0 +1,88 @@
+{
+  "name": "stable_audio_3_sfx",
+  "model": "stabilityai/stable-audio-3-medium (Comfy-Org repackaged: stable_audio_3_medium.safetensors), text encoder t5gemma_b_b_ul2",
+  "licence": "Tagged on Hugging Face as license:other / license_name: stable-audio-community, with the licence link pointing at Stability AI's community licence for stable-audio-open-1.0. The upstream stabilityai repositories are gated, so the weights were obtained by accepting Stability's terms. THE REPOSITORY OWNER MUST CONFIRM these terms before generated audio is shipped: Stability's community licences have historically been conditioned on the licensee's annual revenue, which is a fact only the owner can assert. Do not treat this file as licence advice.",
+  "server": "http://10.1.1.1:8188 (RTX 5070 Ti)",
+  "purpose": "Game sound effects. src/audio/sfx.js already names 37 events and prefers a file in assets/audio/sfx/<name> over its synthesised recipe, so shipping audio is a naming job, not a code change.",
+  "derived_from": "The owner's graph audio_stable_audio_3_medium_mcp.json. Node ids are kept where they mean the same thing. The LLM reprompt chain (TextGenerate on qwen3.5_2b, the JsonExtractString prompt-library, the StringReplace/AUDIO_LENGTH plumbing and the category switch) has been removed: an enhancer at temperature 0.7 would rewrite each sound description differently on every run, and the whole point of the sound list is that a prompt can be reviewed, replayed and improved. This is the same decision already made for the image boxes, where the enhancer is switched off for the same reason.",
+  "patch_only": {
+    "52:31": "PrimitiveStringMultiline.value — the sound description, sent verbatim to the text encoder",
+    "52:36": "PrimitiveFloat.value — duration in seconds (EmptyLatentAudio accepts 1 to 1000)",
+    "52:3": "KSampler.seed and steps",
+    "57": "SaveAudioAdvanced.filename_prefix — one prefix per sound so the download is unambiguous"
+  },
+  "do_not_touch": "52:25 and 52:26 (checkpoint and text encoder), 52:7 (the empty negative prompt: cfg is 1, so the negative branch is not used by the sampler but the graph requires the socket), 52:3 sampler_name lcm / scheduler simple / denoise 1, 52:12 VAE index, 57 format.",
+  "notes": {
+    "sampler": "steps 8 with the lcm sampler and cfg 1 is the model's fast path, matching ComfyUI's shipped template. Raising cfg on this graph is not equivalent to raising it on an image model: the checkpoint was trained this way.",
+    "duration": "Length is a graph input, not a hint, and the model is told the target length in the prompt as well (the official prompt style ends with 'Length: N seconds'). Both must agree or the clip truncates with a hard cut.",
+    "looping": "Ambient beds (distant_drip, distant_stone) are meant to be short and quiet; they are not loop points and the game plays them as one-shots with a long gap."
+  },
+  "graph": {
+    "52:25": {
+      "inputs": { "ckpt_name": "stable_audio_3_medium.safetensors" },
+      "class_type": "CheckpointLoaderSimple",
+      "_meta": { "title": "Load Checkpoint" }
+    },
+    "52:26": {
+      "inputs": { "clip_name": "t5gemma_b_b_ul2.safetensors", "type": "stable_audio", "device": "default" },
+      "class_type": "CLIPLoader",
+      "_meta": { "title": "Load CLIP (T5-Gemma)" }
+    },
+    "52:31": {
+      "inputs": { "value": "Sword blade whooshing through air, fast metallic swish with a slight resonant ring, dry close perspective inside a stone corridor, sharp attack and quick decay." },
+      "class_type": "PrimitiveStringMultiline",
+      "_meta": { "title": "User: sound description" }
+    },
+    "52:6": {
+      "inputs": { "text": ["52:31", 0], "clip": ["52:26", 0] },
+      "class_type": "CLIPTextEncode",
+      "_meta": { "title": "CLIP Text Encode (Prompt)" }
+    },
+    "52:7": {
+      "inputs": { "text": "", "clip": ["52:26", 0] },
+      "class_type": "CLIPTextEncode",
+      "_meta": { "title": "CLIP Text Encode (Empty negative)" }
+    },
+    "52:36": {
+      "inputs": { "value": 2 },
+      "class_type": "PrimitiveFloat",
+      "_meta": { "title": "Duration (seconds)" }
+    },
+    "52:11": {
+      "inputs": { "seconds": ["52:36", 0], "batch_size": 1 },
+      "class_type": "EmptyLatentAudio",
+      "_meta": { "title": "Empty Latent Audio" }
+    },
+    "52:3": {
+      "inputs": {
+        "seed": 46001,
+        "steps": 8,
+        "cfg": 1,
+        "sampler_name": "lcm",
+        "scheduler": "simple",
+        "denoise": 1,
+        "model": ["52:25", 0],
+        "positive": ["52:6", 0],
+        "negative": ["52:7", 0],
+        "latent_image": ["52:11", 0]
+      },
+      "class_type": "KSampler",
+      "_meta": { "title": "KSampler" }
+    },
+    "52:12": {
+      "inputs": { "samples": ["52:3", 0], "vae": ["52:25", 2] },
+      "class_type": "VAEDecodeAudio",
+      "_meta": { "title": "VAE Decode Audio" }
+    },
+    "57": {
+      "inputs": {
+        "filename_prefix": "audio/stable_audio_3",
+        "format": "mp3",
+        "format.quality": "V0",
+        "audio": ["52:12", 0]
+      },
+      "class_type": "SaveAudioAdvanced",
+      "_meta": { "title": "Save Audio (Advanced)" }
+    }
+  }
+}
