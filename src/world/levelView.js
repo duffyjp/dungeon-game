@@ -4,7 +4,7 @@
 
 import * as THREE from 'three';
 import { CFG } from '../config.js';
-import { getTexture, getMirroredTexture, hasAsset } from '../render/assets.js';
+import { getTexture, getMirroredTexture, hasAsset, hasNormalFor, getMirroredNormalTexture } from '../render/assets.js';
 import { makeProp, makePillar, makeStaircase, makeTorch } from './propMeshes.js';
 import { isOpen } from '../util/grid.js';
 
@@ -23,6 +23,19 @@ export function isWallWorld(level, wx, wz) {
 // Repeat is halved because the composite already contains 2x2 copies of the source.
 function tileTex(key, repeat) {
   const t = getMirroredTexture(key);
+  t.repeat.set(repeat[0] / 2, repeat[1] / 2);
+  return t;
+}
+
+// Bump: an optional tangent-space normal map paired with a tile by name
+// (textures/wall_crypt -> normals/wall_crypt). Absent a normal, the material is built
+// exactly as before, so the feature can be rolled out tile by tile. The scale is a taste
+// knob: below ~0.4 the relief disappears under torch light, above ~1.2 the mortar joints
+// start casting their own shadow and read as carved rather than weathered.
+const BUMP_SCALE = 0.85;
+function tileNormal(key, repeat) {
+  if (!hasNormalFor(key)) return null;
+  const t = getMirroredNormalTexture(key);
   t.repeat.set(repeat[0] / 2, repeat[1] / 2);
   return t;
 }
@@ -63,7 +76,12 @@ export function buildLevelView(level, biome) {
   const floorTex = tileTex(`textures/${biome.floor}`, [level.w, level.h]);
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(wUnits, hUnits),
-    new THREE.MeshStandardMaterial({ map: floorTex, roughness: 0.92, metalness: 0.04 })
+    new THREE.MeshStandardMaterial({
+      map: floorTex,
+      normalMap: tileNormal(`textures/${biome.floor}`, [level.w, level.h]),
+      normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE),
+      roughness: 0.92, metalness: 0.04
+    })
   );
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(wUnits / 2, 0, hUnits / 2);
@@ -75,7 +93,12 @@ export function buildLevelView(level, biome) {
   const ceilTex = tileTex(ceilKey, [level.w, level.h]);
   const ceil = new THREE.Mesh(
     new THREE.PlaneGeometry(wUnits, hUnits),
-    new THREE.MeshStandardMaterial({ map: ceilTex, roughness: 0.98, metalness: 0 })
+    new THREE.MeshStandardMaterial({
+      map: ceilTex,
+      normalMap: tileNormal(ceilKey, [level.w, level.h]),
+      normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE),
+      roughness: 0.98, metalness: 0
+    })
   );
   ceil.rotation.x = Math.PI / 2;
   ceil.position.set(wUnits / 2, CFG.wallH, hUnits / 2);
@@ -101,7 +124,12 @@ export function buildLevelView(level, biome) {
   const wallTex = tileTex(`textures/${biome.wall}`, [1, CFG.wallH / CFG.cell]);
   const wallMesh = new THREE.InstancedMesh(
     new THREE.BoxGeometry(CFG.cell, CFG.wallH, CFG.cell),
-    new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.88, metalness: 0.08 }),
+    new THREE.MeshStandardMaterial({
+      map: wallTex,
+      normalMap: tileNormal(`textures/${biome.wall}`, [1, CFG.wallH / CFG.cell]),
+      normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE),
+      roughness: 0.88, metalness: 0.08
+    }),
     instances.length
   );
   const m = new THREE.Matrix4();

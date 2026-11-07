@@ -3,11 +3,12 @@
 // armour math, auto-equip, salvage, descent, and death. Results are written into
 // the DOM so a headless browser run can read them.
 
+import * as THREE from 'three';
 import { CFG } from './config.js';
 import enemiesData from '../data/enemies.json';
 import { makeProp } from './world/propMeshes.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
-import { hasAsset, hasRealAlpha } from './render/assets.js';
+import { hasAsset, hasRealAlpha, hasNormalFor, getMirroredNormalTexture } from './render/assets.js';
 import { animationFor, loadFrames, animationSupported, animationDiagnostic } from './render/animation.js';
 
 export async function runSelfTest(game) {
@@ -370,6 +371,65 @@ export async function runSelfTest(game) {
     const withFlee = roster.filter(k => animationFor(k, 'flee'));
     ok('flee cycles exist only where the AI can retreat', withFlee.length === 3,
       `${withFlee.length} flee cycles — spiders back off in the AI, nothing else runs`);
+
+    // ---- environment surfaces --------------------------------------------
+    // Bump mapping has one failure mode that "does it load" cannot see: mirroring a normal
+    // map must negate the direction channels, or the relief points the wrong way at every
+    // seam and the wall appears to change shape as the player walks past it. So the composite
+    // is sampled and the sign flip is asserted.
+    // The roster of surfaces is rolled out tile by tile, so the meaningful assertions are
+    // "the tile that has a normal is wired correctly" and "a tile that has none still
+    // renders, exactly as before" — not "every biome has one", which would fail mid-rollout.
+    const NORMAL_KEYS = ['textures/wall_crypt'];
+    const missingNormals = NORMAL_KEYS.filter(k => !hasNormalFor(k));
+    ok('expected wall tiles ship a normal map', missingNormals.length === 0,
+      NORMAL_KEYS.join(', ') + (missingNormals.length ? ` — missing: ${missingNormals.join(', ')}` : ''));
+    if (hasNormalFor('textures/wall_crypt')) {
+      const cv = getMirroredNormalTexture('textures/wall_crypt').image;
+      const g2 = cv.getContext('2d', { willReadFrequently: true });
+      const s = cv.width / 2;
+      const px = (x, y) => { const d = g2.getImageData(x, y, 1, 1).data; return [d[0], d[1], d[2]]; };
+      // The invariant mirroring has to deliver is continuity across the seam: the two texels
+      // either side of the boundary describe the same surface point seen from opposite sides,
+      // so the direction channel must negate and the other must agree. Sampling an arbitrary
+      // pair proves nothing; picking a texel where the slope is actually strong is what makes
+      // the assertion capable of failing.
+      const seamPair = (axis) => {
+        for (let k = 0; k < s; k += 3) {
+          const a = axis === 'x' ? px(s - 1, k) : px(k, s - 1);
+          const b = axis === 'x' ? px(s, k) : px(k, s);
+          const strong = axis === 'x' ? Math.abs(a[0] - 128) : Math.abs(a[1] - 128);
+          if (strong > 22) return { a, b, strong };
+        }
+        return null;
+      };
+      // how far the pair departs from what continuity requires: the negated channel must
+      // match 255-value, the other must match itself
+      const err = (pair, axis) => {
+        if (!pair) return { neg: 999, same: 999 };
+        const { a, b } = pair;
+        return axis === 'x'
+          ? { neg: Math.abs(b[0] - (255 - a[0])), same: Math.abs(b[1] - a[1]) }
+          : { neg: Math.abs(b[1] - (255 - a[1])), same: Math.abs(b[0] - a[0]) };
+      };
+      const hx = seamPair('x'), ex = err(hx, 'x');
+      ok('normals stay continuous across the vertical seam (red negates)',
+        Boolean(hx) && ex.neg <= 6 && ex.same <= 4,
+        hx ? `rgb(${hx.a}) next to rgb(${hx.b}), slope ${hx.strong}, error ${ex.neg}/${ex.same}`
+          : 'no strongly sloped texel on the seam');
+      const vy = seamPair('y'), ey = err(vy, 'y');
+      ok('normals stay continuous across the horizontal seam (green negates)',
+        Boolean(vy) && ey.neg <= 6 && ey.same <= 4,
+        vy ? `rgb(${vy.a}) next to rgb(${vy.b}), slope ${vy.strong}, error ${ey.neg}/${ey.same}`
+          : 'no strongly sloped texel on the seam');
+      ok('the normal map is linear data, not colour-managed',
+        getMirroredNormalTexture('textures/wall_crypt').colorSpace === THREE.NoColorSpace,
+        `colorSpace ${getMirroredNormalTexture('textures/wall_crypt').colorSpace}`);
+    }
+    const wm = game.levelView && game.levelView.wallMesh && game.levelView.wallMesh.material;
+    const wantNormal = wm && Boolean(wm.normalMap) === hasNormalFor(`textures/${(game.biome && game.biome.wall) || ''}`);
+    ok('a surface without a normal map is built exactly as before', Boolean(wantNormal),
+      `biome wall ${(game.biome && game.biome.wall)} hasNormal=${hasNormalFor(`textures/${game.biome && game.biome.wall}`)} materialHasNormal=${Boolean(wm && wm.normalMap)}`);
 
     // Decode a sample across the tiers, not just the one sprite: a corrupt or mis-encoded
     // file at tier 4 should fail here rather than show up as a motionless monster three

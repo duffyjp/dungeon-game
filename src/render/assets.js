@@ -13,14 +13,19 @@ import { chromaKeyCanvas } from './chromaKey.js';
 // keeps every superseded photographic pass for reference, and globbing them in would ship
 // 57 images nobody displays — the built site would be twice the download for a visitor. A
 // negated pattern keeps them out of the build entirely, not just out of the registry.
+// WebP is accepted alongside PNG. For opaque ground and wall tiles it is not a cosmetic
+// choice: the same gritty 512 px surface costs 82 KB as WebP against 583 KB as PNG, and the
+// measured alpha behaviour of WebP in this browser was checked before the animated sprites
+// shipped on it. Keys drop the extension, so `textures/wall_crypt` resolves to whichever
+// container the art happens to be stored in.
 const found = import.meta.glob(
-  ['../../assets/images/**/*.png', '!../../assets/images/_*/**'],
+  ['../../assets/images/**/*.{png,webp}', '!../../assets/images/_*/**'],
   { eager: true, query: '?url', import: 'default' }
 );
 
 const URLS = {};
 for (const [path, url] of Object.entries(found)) {
-  const key = path.replace(/^.*assets\/images\//, '').replace(/\.png$/i, '').replace(/\\/g, '/');
+  const key = path.replace(/^.*assets\/images\//, '').replace(/\.(png|webp)$/i, '').replace(/\\/g, '/');
   URLS[key] = url;
 }
 
@@ -230,6 +235,70 @@ export function getMirroredTexture(key) {
 export async function loadMirroredTexture(key) {
   await loadTexture(key);
   return getMirroredTexture(key);
+}
+
+// Normal maps get the same mirror composite, with one difference that matters: mirroring a
+// normal map is not mirroring a picture. The stored colour *is* a direction — red is slope
+// along U, green slope along V — so a horizontally mirrored quadrant must have its red
+// channel negated, a vertically mirrored one its green, and the corner both. Skipping that
+// leaves the relief pointing the wrong way at every seam, which reads as the wall changing
+// shape as you walk past it. Colour space is linear: a normal map is data, not an image.
+const normalMirrorCache = new Map();
+
+export function hasNormalFor(key) {
+  return hasAsset(`normals/${key.split('/').pop()}`);
+}
+
+export function getMirroredNormalTexture(key) {
+  const nkey = `normals/${key.split('/').pop()}`;
+  if (normalMirrorCache.has(nkey)) return normalMirrorCache.get(nkey);
+  const src = getTexture(nkey);
+  const img = src.image;
+  if (!img || !img.width) return src;
+  const s = Math.min(img.width, 512);
+  const c = document.createElement('canvas');
+  c.width = c.height = s * 2;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  const one = document.createElement('canvas');
+  one.width = one.height = s;
+  const oneG = one.getContext('2d', { willReadFrequently: true });
+  oneG.drawImage(img, 0, 0, s, s);
+  const base = oneG.getImageData(0, 0, s, s);
+  const out = g.createImageData(s * 2, s * 2);
+  for (let ty = 0; ty < 2; ty++) {
+    for (let tx = 0; tx < 2; tx++) {
+      const flipX = tx === 1, flipY = ty === 1;
+      for (let y = 0; y < s; y++) {
+        const sy = flipY ? s - 1 - y : y;
+        for (let x = 0; x < s; x++) {
+          const sx = flipX ? s - 1 - x : x;
+          const i = (sy * s + sx) * 4, o = ((ty * s + y) * (s * 2) + (tx * s + x)) * 4;
+          let r = base.data[i], grn = base.data[i + 1];
+          if (flipX) r = 255 - r;
+          if (flipY) grn = 255 - grn;
+          out.data[o] = r;
+          out.data[o + 1] = grn;
+          out.data[o + 2] = base.data[i + 2];
+          out.data[o + 3] = 255;
+        }
+      }
+    }
+  }
+  g.putImageData(out, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.NoColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = 4;
+  tex.needsUpdate = true;
+  normalMirrorCache.set(nkey, tex);
+  return tex;
+}
+
+export async function loadMirroredNormalTexture(key) {
+  const nkey = `normals/${key.split('/').pop()}`;
+  if (!hasAsset(nkey)) return null;
+  await loadTexture(nkey, { keyed: false });
+  return getMirroredNormalTexture(key);
 }
 
 export async function preloadAll(keys) {

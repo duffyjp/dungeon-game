@@ -1,0 +1,21 @@
+{
+  "note": "Per-tile restyle instructions for the gritty environment pass. Sent to Qwen-Image-2.1 in edit mode (the graph conditions on the existing tile, so the composition is preserved) with the prompt enhancer switched off, so these strings reach the image model verbatim. Kept next to the other reviewed graphs rather than embedded in a script, because the wording is the thing that has to be reviewable.",
+  "common": "Repaint this game texture as a gritty, weathered, photoreal dungeon surface with high micro-detail, physically plausible wear concentrated where a creature or the player would contact it, cold diffuse torch light, desaturated palette, fine grain and micro-contrast throughout",
+  "tiles": {
+    "wall_vault": "smooth fitted ashlar blocks with crisp tooling marks, faint veins through pale grey marble, powder in the joints, dark iron clamps and pin holes, chipped arrises",
+    "wall_foundry": "soot-blackened brick against riveted iron plate, heat-blistered and scaled surfaces, rust bloom at the seams, oil staining, ember-darkened mortar",
+    "wall_cavern": "rough hewn cavern rock face with wet mineral streaks, calcite crust in the cracks, coarse chisel cuts, loose gravel lodged in the crevices",
+    "floor_crypt": "uneven flagstone floor worn into shallow hollows along the walking line, grit and dust packed in the joints, damp patches, moss in the crevices",
+    "floor_cavern": "broken cave floor of fractured rock and packed gravel, scattered pebbles and scree, wet veins of pale mineral, tool scars across the high points",
+    "floor_foundry": "iron-plated foundry floor with domed rivets, cooled slag spills welded to the plate, heat discolouration and blue temper colours, soot and an oily sheen in the wear path",
+    "floor_vault": "cracked polished marble tile with a brass inlay border, dust in the joints, chips along the edges, faint dark stains worn through the polish",
+    "ceiling_crypt": "damp stone slab ceiling with soot staining above the torch line, flaking mortar, water-run mineral streaks, fine dusting of cobweb in the angles",
+    "ceiling_cavern": "rough cavern ceiling of wet rock with hanging rootlets and pale mineral crust, loose scree clinging to the underside, drip marks",
+    "pillar": "weathered stone column drum with chipped edges, fluting worn smooth where hands and ropes have passed, moss and water staining toward the base",
+    "door_oak": "aged oak door of vertical planks with forged iron bands, rusted studs and a strap hinge, splintered open grain, wear polished dark at the handle height",
+    "rubble": "heap of broken masonry with mortar chunks, spalled stone and splintered timber, fine grit and dust settled in the hollows",
+    "cobweb": "dusty cobweb sagging across a corner, strands heavy with trapped grit, breaks and gaps where it has been brushed through",
+    "blood_splatter": "dark dried blood on stone, brown-black and matte where thick, translucent at the edges, spatter droplets and a smear where it was dragged",
+    "scorch": "blackened scorch mark on stone, cracked soot flaking away, an ember-darkened rim and heat-discoloured grain radiating outward"
+  }
+}
