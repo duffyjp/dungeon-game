@@ -250,6 +250,26 @@ export function alignFrames(frames, W, H) {
   return { aligned, anchor: [ax, ay] };
 }
 
+// Union bounding box of a clip's silhouettes, padded. One window for the whole clip:
+// cropping frame by frame would re-centre each cell and the animation would shiver as it
+// played, which is a defect no measurement on a single frame can see.
+export function unionBox(frames, W, H, pad = 3) {
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (const f of frames) {
+    for (let y = 0; y < H; y++) {
+      const row = y * W;
+      for (let x = 0; x < W; x++) {
+        if (f[(row + x) * 4 + 3] < 8) continue;
+        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) return null;
+  x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad);
+  x1 = Math.min(W - 1, x1 + pad); y1 = Math.min(H - 1, y1 + pad);
+  return [x0, y0, x1 - x0 + 1, y1 - y0 + 1];
+}
+
 // Contact sheet: every frame of a clip in one image, over a checkerboard so holes in the
 // matte are visible instead of hiding behind black.
 export function contactSheet(frames, w, h, cell = 128, cols = 6) {

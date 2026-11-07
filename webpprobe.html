@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>img decode probe</title>
+<style>
+  body { margin: 0; background: #0b0d10; color: #e6e8ea; font: 14px/1.6 ui-monospace, monospace; padding: 16px; }
+  h1 { font-size: 16px; margin: 0 0 8px; }
+  .ok { color: #7fd08a; } .bad { color: #e08040; } .dim { color: #9aa0a6; }
+  canvas { border: 1px solid #333; margin-top: 8px; image-rendering: pixelated; }
+  div.entry { margin-bottom: 14px; }
+</style></head>
+<body>
+<h1>can this browser load a WebP through the same path three.js uses?</h1>
+<p class="dim">The engine turns a texture URL into an &lt;img&gt; and uploads that. So the test is exactly that: an &lt;img&gt; whose src is the file, drawn to a canvas, and counted. If alpha survives here it survives in the game.</p>
+<div id="out">working…</div>
+<script>
+const FILES = [
+  ['PNG reference (what the game ships today)', 'experiments/anim/probe/k001.png'],
+  ['static WebP, lossy + alpha', 'experiments/anim/probe/w_lossy80.webp'],
+  ['static WebP, lossless alpha', 'experiments/anim/probe/w_bgra80.webp'],
+  ['animated WebP, first frame', 'experiments/anim/webp/enemies_t1_slime__walk.webp']
+];
+
+function count(img) {
+  const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height).data;
+  let clear = 0, soft = 0, opaque = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const a = d[i + 3];
+    if (a < 40) clear++; else if (a < 216) soft++; else opaque++;
+  }
+  const n = d.length / 4 || 1;
+  return { w: c.width, h: c.height, clear: +(100 * clear / n).toFixed(1), soft: +(100 * soft / n).toFixed(1), opaque: +(100 * opaque / n).toFixed(1) };
+}
+
+(async () => {
+  const out = document.getElementById('out');
+  const results = [];
+  for (const [name, url] of FILES) {
+    const bytes = (await (await fetch(url)).arrayBuffer()).byteLength;
+    const el = document.createElement('div'); el.className = 'entry';
+    const img = new Image();
+    img.src = url;
+    let m = null, err = '';
+    try {
+      await new Promise((res, rej) => {
+        const t = setTimeout(() => rej(new Error('decode timed out')), 9000);
+        img.onload = () => { clearTimeout(t); res(); };
+        img.onerror = () => { clearTimeout(t); rej(new Error('the browser refused to decode this file')); };
+      });
+      m = count(img);
+    } catch (e) { err = e.message; }
+    const good = m && m.clear > 5 && (m.soft + m.opaque) > 5;
+    el.innerHTML = `<div class="${good ? 'ok' : 'bad'}">${name} — ${(bytes / 1024).toFixed(1)} KB</div>` +
+      (m ? `<div class="dim">     ${m.w}x${m.h}  clear ${m.clear}%  soft ${m.soft}%  opaque ${m.opaque}%` +
+        `  ${good ? '— alpha intact' : '— NO USABLE ALPHA'}</div>`
+        : `<div class="bad">     ${err}</div>`);
+    if (m) { const c = document.createElement('canvas'); c.width = m.w; c.height = m.h; c.getContext('2d').drawImage(img, 0, 0); el.appendChild(c); }
+    out.appendChild(el);
+    results.push({ name, bytes, good });
+  }
+  const png = results[0], w = results[1];
+  if (png.good && w.good) {
+    const el = document.createElement('div');
+    el.className = 'ok';
+    el.textContent = `verdict: WebP loads here with alpha and costs ${(w.bytes / png.bytes * 100).toFixed(0)}% of the same frame as PNG.`;
+    out.appendChild(el);
+  } else {
+    const el = document.createElement('div');
+    el.className = 'bad';
+    el.textContent = 'verdict: WebP did not come through this browser path — stay on PNG.';
+    out.appendChild(el);
+  }
+})();
+</script>
+</body>
+</html>
