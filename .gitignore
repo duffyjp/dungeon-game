@@ -8,3 +8,5 @@ experiments/
 
 devserver.out.log
 devserver.err.log
+
+music_sources/

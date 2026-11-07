@@ -489,8 +489,8 @@ export async function runSelfTest(game) {
       `${cues.length} cues (${cues.join(', ')})${uncovered.length ? ` — no cue for: ${uncovered.join(', ')}` : ''}`);
     ok('a boss cue and a title cue exist', cues.some(t => cueMatches(t, 'boss')) && cues.some(t => cueMatches(t, 'title')),
       cues.join(', '));
-    ok('the music licence credit names the model in the interface',
-      /MiniMax-Music3/.test(AUDIO_CREDIT_HTML),
+    ok('the audio credit names the models and says the content is machine-generated',
+      /ACE-Step/.test(AUDIO_CREDIT_HTML) && /Stable Audio/.test(AUDIO_CREDIT_HTML) && /machine-generated/i.test(AUDIO_CREDIT_HTML),
       AUDIO_CREDIT_HTML.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
 
     // "Is bump mapping active?" has two parts, and only the second is interesting. The

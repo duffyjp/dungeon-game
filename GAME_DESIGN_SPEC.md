@@ -851,9 +851,15 @@ a code change.
   clip is unreferenced, because a missing clip falls back to the synthesised placeholder and
   would otherwise survive the whole suite sounding merely thin.
 
-### 13.13 The soundtrack (MiniMax-Music3)
+### 13.13 The soundtrack, first attempt (MiniMax-Music3)
 
-Six cues in `assets/music/`: one per biome plus a boss cue and a title theme. The owner
+**Outcome first: the owner listened to all six cues and rejected every one**, then supplied
+tracks from their own backlog instead — see §13.13.1. Nothing from this pass ships, so the
+UI-naming obligation described below was removed again with it. The pass is still recorded
+because the graph, the gates and the discovery about cue length are reusable and were not
+wasted.
+
+Six cues: one per biome plus a boss cue and a title theme. The owner
 planned to compose these themselves and had better luck with MiniMax and Ace Step than with
 Stable Audio for music, so their MCP graph became `workflows/minimax_music3.json` with node
 ids preserved — the only change being the default caption and lyrics, since their example is a
@@ -903,6 +909,53 @@ prefers the boss cue, with a shuffle bag over everything as the fallback — a s
 covering three biomes still plays something everywhere. The self-test asserts every biome in
 `biomes.order` has a cue, that a boss and title cue exist, and that the licence credit names
 the model.
+
+### 13.13.1 The soundtrack that shipped: the owner's own ACE-Step 1.5 cues
+
+Eight ambient tracks from the owner's backlog, dropped into `assets/music/` at 78 MB — more
+than double the rest of the site. `tools/musicPack.mjs` re-encodes to 128 kbps MP3 (the owner
+asked for 128k MP3 or Ogg; MP3 won because Safari cannot play Ogg Vorbis and the game plays
+music through `new Audio(url)`), level-matches every cue to a −20 dBFS mean, and writes to
+`experiments/` for review before anything lands in the game. **78 MB became 30.3 MB**, and the
+originals moved to `music_sources/`, which git ignores, so the masters survive.
+
+One cue had 23.9 s of near-silence before the first note — lovely on an album, a bug when it is
+the first thing a fresh depth plays — so `--map "name = cavern@auto"` trims the measured
+lead-in with a short fade. Every cue now sits between −19.9 and −20.5 dBFS mean, gains of
+−2.6 to −5.3 dB, so descending never changes the volume.
+
+**Biome assignment was measured, and the measurement had a bug.** The first profiler labelled
+four low-pass filters as four bands, so it reported a darkness of 0.47–0.49 for every track —
+a low-pass at 4 kHz is nearly the whole signal, so those were cumulative energies, not bands.
+Had I trusted it, the soundtrack would have been named by a meter that could not tell a bass
+drone from a bright lead. Bands are now differences of cumulative low-pass energy, and
+`tools/audioProfileSelftest.mjs` checks them against pure tones (60/90/300/900/1500/5000 Hz
+each landing in the right band, darkness 0.98 at 80 Hz against 0.007 at 5 kHz) — 7 passed,
+with the onset self-test skipped because this ffmpeg build has no `atremolo` filter.
+
+What the corrected profiler says, and how each cue was placed:
+
+| source | darkness | onsets/s | placed as | why |
+|---|---|---|---|---|
+| ACE…00018 | 0.864 | 0.50 | crypt | lowest and stillest: oppressive and patient |
+| ACE…00002 | 0.822 | 1.85 | cavern | mid-dark with movement, 23 s of silence trimmed |
+| Funky Upbeat | 0.877 | 2.40 | foundry | the most rhythmic of the mid-energy pieces |
+| ACE…00025 | 0.819 | 0.92 | vault | broadest spectrum, slow, densest level |
+| soundblaster_00002 | 0.782 | 2.82 | boss | brightest and most driven of the set |
+| really_nice | 0.848 | 2.14 | title | moderate energy, welcoming enough for a menu |
+| soundblaster_00001 | 0.812 | 0.38 | vault_02 | the stillest cue, paired with the vault |
+| Nice mello tune | 0.801 | 3.02 | cavern_02 | brighter, busiest — variety for the caverns |
+
+That table is honest about its limits: darkness, brightness and onset rate correlate with mood,
+but they are not mood. The owner has heard these tracks and I have not, so the mapping is
+offered as a first draft — swapping any two is one `musicPack` invocation.
+
+**Licence**: ACE-Step's repository is MIT, while the Ace-Step 1.5 weights repo had an open
+request for a LICENSE file, and hosted ACEMusic.ai output may carry separate service terms.
+These are the owner's own tracks from their backlog, so the rights position is theirs; the
+question is recorded in `assets/music/credits.json` rather than assumed away. The credit line
+in the UI now names ACE-Step 1.5 for music and Stable Audio 3 for effects, and still states
+that the audio is machine-generated.
 
 
 ---

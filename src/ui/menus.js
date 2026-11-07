@@ -5,11 +5,13 @@ import { hasMusic, trackList, playTrack, stopMusic } from '../audio/music.js';
 import { saveSettings, bestRuns } from '../util/storage.js';
 import * as sfx from '../audio/sfx.js';
 
-// The MiniMax-Music3 community licence requires the model name to be displayed on the user
-// interface of a product using it, and its acceptable-use policy requires machine-generated
-// content shared publicly to be disclosed as such. This is that credit — kept as one exported
-// constant so the test can assert it exists and no screen can quietly drop it.
-export const AUDIO_CREDIT_HTML = `<p class="fine">Soundtrack generated with <b>MiniMax-Music3</b>; sound effects with Stable Audio 3. Music and audio are machine-generated.</p>`;
+// Music and effects in this game are machine-generated, and the models are named here because
+// the licences say so: the MiniMax-Music3 community licence requires the model name to appear
+// in the product UI (that pass was rejected by the owner and is no longer shipped, so the
+// obligation went away with it), and Stability's community licence is the same kind of terms
+// plus an owner-supplied ACE-Step credit for the soundtrack. Kept as one exported constant so
+// the test can assert it exists and no screen can quietly drop it.
+export const AUDIO_CREDIT_HTML = `<p class="fine">Soundtrack by the project owner, generated with <b>ACE-Step 1.5</b>; sound effects with Stable Audio 3. Music and audio are machine-generated.</p>`;
 
 export class Menus {
   constructor(game) {

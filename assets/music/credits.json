@@ -1,66 +1,15 @@
 {
-  "credit": "Music generated with MiniMax-Music3 (MiniMax-Music3 Community License). All cues are machine-generated.",
-  "attribution": "MiniMax-Music3 is fine-tuned from Qwen3-8B (Apache 2.0); its DiT derives from Stability AI stable-audio-tools (MIT) and its VAE from Descript Audio Codec (MIT).",
+  "credit": "Music by the project owner, selected from their own backlog of ambient cues generated with ACE-Step 1.5. Re-encoded for the web at 128 kbps MP3 and level-matched. The music is machine-generated.",
+  "attribution": "ACE-Step is open source (the ace-step/ACE-Step repository is MIT); the Ace-Step 1.5 weights repository had an outstanding request for a LICENSE file at the time of writing, and hosted ACEMusic.ai API output may carry separate service terms. The owner supplied these tracks from their own backlog, so the rights question is theirs rather than inferred here - worth confirming if the game ever becomes commercial. Earlier MiniMax-Music3 cues from the first music pass are not shipped and were removed, so that model's UI-naming condition no longer applies to this product.",
+  "note": "The 'model' field records the owner's recollection of which tool produced each cue, taken from the original filenames. soundblaster_* is a filename stem, not a confirmed model name.",
   "tracks": [
-    {
-      "name": "boss",
-      "biome": "boss",
-      "seed": 47401,
-      "seconds": 50,
-      "model": "MiniMax-Music3",
-      "licence": "MiniMax-Music3 Community License",
-      "machineGenerated": true,
-      "loudnessDb": -20
-    },
-    {
-      "name": "caverns",
-      "biome": "cavern",
-      "seed": 47301,
-      "seconds": 60,
-      "model": "MiniMax-Music3",
-      "licence": "MiniMax-Music3 Community License",
-      "machineGenerated": true,
-      "loudnessDb": -20
-    },
-    {
-      "name": "crypt",
-      "biome": "crypt",
-      "seed": 47500,
-      "seconds": 60,
-      "model": "MiniMax-Music3",
-      "licence": "MiniMax-Music3 Community License",
-      "machineGenerated": true,
-      "loudnessDb": -20
-    },
-    {
-      "name": "foundry",
-      "biome": "foundry",
-      "seed": 47302,
-      "seconds": 60,
-      "model": "MiniMax-Music3",
-      "licence": "MiniMax-Music3 Community License",
-      "machineGenerated": true,
-      "loudnessDb": -20
-    },
-    {
-      "name": "title",
-      "biome": "menu",
-      "seed": 47006,
-      "seconds": 75,
-      "model": "MiniMax-Music3",
-      "licence": "MiniMax-Music3 Community License",
-      "machineGenerated": true,
-      "loudnessDb": -20
-    },
-    {
-      "name": "vault",
-      "biome": "vault",
-      "seed": 47303,
-      "seconds": 60,
-      "model": "MiniMax-Music3",
-      "licence": "MiniMax-Music3 Community License",
-      "machineGenerated": true,
-      "loudnessDb": -21
-    }
+    { "name": "title", "source": "really_nice.mp3", "model": "ACE-Step 1.5", "biome": "menu", "seconds": 120, "machineGenerated": true, "gainDb": -3.3, "levelDbfs": -20.5 },
+    { "name": "crypt", "source": "ACE_Step1.5_xl_turbo_00018_.mp3", "model": "ACE-Step 1.5 xl-turbo", "biome": "crypt", "seconds": 360, "machineGenerated": true, "gainDb": -5.2, "levelDbfs": -20.4 },
+    { "name": "cavern", "source": "ACE_Step1.5_xl_turbo_00002_.mp3", "model": "ACE-Step 1.5 xl-turbo", "biome": "cavern", "seconds": 337, "machineGenerated": true, "gainDb": -4.1, "levelDbfs": -19.9, "trimStartSec": 23.1 },
+    { "name": "cavern_02", "source": "Nice mello tune.mp3", "model": "ACE-Step 1.5", "biome": "cavern", "seconds": 120, "machineGenerated": true, "gainDb": -4.1, "levelDbfs": -20.4 },
+    { "name": "foundry", "source": "Funky Upbeat Not too Loud.mp3", "model": "ACE-Step 1.5", "biome": "foundry", "seconds": 120, "machineGenerated": true, "gainDb": -3.8, "levelDbfs": -20.4 },
+    { "name": "vault", "source": "ACE_Step1.5_xl_turbo_00025_.mp3", "model": "ACE-Step 1.5 xl-turbo", "biome": "vault", "seconds": 360, "machineGenerated": true, "gainDb": -5.3, "levelDbfs": -20.4 },
+    { "name": "vault_02", "source": "soundblaster_00001_.mp3", "model": "ACE-Step 1.5 (from filename stem, unconfirmed)", "biome": "vault", "seconds": 300, "machineGenerated": true, "gainDb": -4.7, "levelDbfs": -20.4 },
+    { "name": "boss", "source": "soundblaster_00002_.mp3", "model": "ACE-Step 1.5 (from filename stem, unconfirmed)", "biome": "boss", "seconds": 260, "machineGenerated": true, "gainDb": -2.6, "levelDbfs": -20.4 }
   ]
 }

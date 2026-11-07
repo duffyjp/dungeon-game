@@ -75,11 +75,16 @@ const html = readFileSync(join(ROOT, 'index.html'), 'utf8');
 if (/(src|href)="\//.test(html)) problems.push('index.html references an absolute path (src="/..." or href="/...")');
 if (!existsSync(join(ROOT, '.nojekyll'))) problems.push('dist/.nojekyll missing — Jekyll would process the site');
 if (!existsSync(join(ROOT, 'music/manifest.json'))) problems.push('dist/music/manifest.json missing — music pinning would 404 when hosted');
-// Music provenance and the licence credit have to be in the shipped site, not just the repo.
+// Music provenance and the audio credit have to be in the shipped site, not just the repo.
 if (existsSync(join(ROOT, 'music/credits.json'))) {
   const c = JSON.parse(readFileSync(join(ROOT, 'music/credits.json'), 'utf8'));
-  if (!/MiniMax-Music3/.test(c.credit || '')) problems.push('dist/music/credits.json does not name MiniMax-Music3, which its licence requires');
-  else console.log(`music credits in dist: ${c.tracks.length} tracks credited to MiniMax-Music3`);
+  if (!/machine-generated/i.test(c.credit || '')) problems.push('dist/music/credits.json does not disclose that the music is machine-generated');
+  if (!Array.isArray(c.tracks) || !c.tracks.length) problems.push('dist/music/credits.json records no tracks');
+  const cues = [];
+  const walk = (dir) => { for (const e of readdirSync(dir, { withFileTypes: true })) { if (e.isDirectory()) walk(join(dir, e.name)); else if (/\.(mp3|ogg|wav)$/.test(e.name)) cues.push(e.name); } };
+  walk(join(ROOT, 'assets'));
+  console.log(`music credits in dist: ${c.tracks.length} cues recorded; ${cues.length} audio files served, ${(cues.length ? '' : 'none - the soundtrack did not ship')}`);
+  if (!cues.length) problems.push('no music files found in dist/assets — the soundtrack did not make it into the build');
 }
 // Sprite animation is addressed by path, so a hosted build must actually contain the files
 // the manifest names — a missing clip would show up as a motionless monster, not an error.

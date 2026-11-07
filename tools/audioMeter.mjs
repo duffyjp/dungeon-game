@@ -73,6 +73,56 @@ export function measure(file, frameMs = 20) {
   };
 }
 
+// Band profile and a tempo proxy, for judging what a cue is *for* without listening to it.
+//
+// The first version of this labelled four low-pass filters as four bands, which made every
+// track look spectrally identical: a low-pass at 4 kHz is nearly the whole signal, so the
+// "bands" were cumulative energies, not bands. Bands are now differences of cumulative
+// low-pass energy, and tools/audioProfileSelftest.mjs checks the result against pure tones,
+// because a naming decision that rests on a broken meter is worse than guessing honestly.
+export function profile(file) {
+  const { s, rate } = pcm(file);
+  const lpEnergy = (f0) => {
+    const w = 2 * Math.PI * f0 / rate;
+    const Q = 0.707, cw = Math.cos(w), sw = Math.sin(w), alpha = sw / (2 * Q);
+    const b0 = (1 - cw) / 2, b1 = 1 - cw, b2 = b0, a0 = 1 + alpha, a1 = -2 * cw, a2 = 1 - alpha;
+    let x1 = 0, x2 = 0, y1 = 0, y2 = 0, acc = 0;
+    for (let i = 0; i < s.length; i++) {
+      const x = s[i];
+      const y = (b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2) / a0;
+      x2 = x1; x1 = x; y2 = y1; y1 = y;
+      acc += y * y;
+    }
+    return acc / s.length;
+  };
+  const e110 = lpEnergy(110), e500 = lpEnergy(500), e2000 = lpEnergy(2000), eAll = lpEnergy(Math.min(9000, rate / 2 - 100));
+  const band = {
+    sub: Math.max(e110, 0),
+    low: Math.max(e500 - e110, 0),
+    mid: Math.max(e2000 - e500, 0),
+    high: Math.max(eAll - e2000, 0)
+  };
+  const e = { sub: Math.sqrt(band.sub), low: Math.sqrt(band.low), mid: Math.sqrt(band.mid), high: Math.sqrt(band.high) };
+  // Onset proxy: 20 ms frames whose energy rises more than 4 dB over the previous frame.
+  const win = Math.floor(rate * 0.02);
+  let prev = 0, onsets = 0, frames = 0;
+  for (let f = 0; f + win <= s.length; f += win) {
+    let acc = 0;
+    for (let i = f; i < f + win; i++) acc += s[i] * s[i];
+    const rms = Math.sqrt(acc / win);
+    frames++;
+    if (prev > 1e-5 && rms > prev * 1.58) onsets++;
+    prev = Math.max(rms, prev * 0.9);
+  }
+  const total = e.sub + e.low + e.mid + e.high || 1;
+  return {
+    bandDb: { sub: db(e.sub), low: db(e.low), mid: db(e.mid), high: db(e.high) },
+    darkness: Number(((e.sub + e.low) / total).toFixed(3)),
+    brightness: Number(((e.mid + e.high) / total).toFixed(3)),
+    onsetRate: Number((onsets / (frames * 0.02)).toFixed(2))   // events per second
+  };
+}
+
 // A perceptual-ish loudness: mean of frame log-loudness, closer to how a change in level
 // reads than an overall RMS, and used to keep the soundtrack at a consistent volume.
 export function loudness(file, frameMs = 50) {

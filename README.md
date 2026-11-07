@@ -346,36 +346,33 @@ npm run qa:animprobe                                   # what the browser can an
 
 ## Music
 
-`assets/music/` holds six generated cues: one per biome (`crypt`, `caverns`, `foundry`,
-`vault`), a `boss` cue that takes over on a boss depth, and a `title` theme. They are composed
-with **MiniMax-Music3** on the 5070 Ti box.
+`assets/music/` holds eight ambient cues from the project owner's own backlog, generated with
+**ACE-Step 1.5**, re-encoded to 128 kbps MP3 and level-matched: one per biome (`crypt`,
+`cavern`, `foundry`, `vault`), a `boss` cue, a `title` theme, and two extra cues for variety.
+30.3 MB of music for 33 minutes of playing time; the 78 MB originals live in `music_sources/`,
+which git ignores, so the masters survive the re-encode.
 
-```
-node tools/graphCheck.mjs workflows/minimax_music3.json http://10.1.1.1:8188
-npm run music:batch -- --all
-npm run music:batch -- --only vault --force --seeds-from 47200
-```
-
-The game picks by filename prefix: `caverns.mp3` plays in The Caverns, and a depth with a
+The game picks by filename prefix: `cavern_02.mp3` belongs to The Caverns and a depth with a
 boss prefers the boss cue. Nothing matches a biome, or there is no manifest, and it falls back
-to a shuffle bag over everything in the folder — so a partial soundtrack still plays
-something. `manifest.json` can pin the order; `credits.json` is provenance and ships with the
-build.
+to a shuffle bag over everything in the folder. Cues do not hard-loop — one ends and the next
+starts through a 1.2 s crossfade — because a measured start/end level difference of more than
+a few dB makes a hard loop click.
 
-Cues loop, so the briefs ask for a seamless ending that matches the opening. That instruction
-is also what fixed the length: on the first pass five of six cues came back at 17–35 s of a
-60–75 s request, because their briefs described layers fading into silence and the model heard
-"the end". `tools/musicBatch.mjs` measures every cue (level in four quarters, clipping, dead
-air at the start, silence at the end) and rejects what you would otherwise notice while
-playing rather than while reviewing.
+```
+npm run music:pack -- --map "ACE_Step1.5_xl_turbo_00018_ = crypt" --map "long_track = cavern@auto"
+node tools/audioProfileSelftest.mjs
+```
 
-Licence: MiniMax-Music3 is under the **MiniMax-Music3 Community License**, which requires the
-model name to appear in the product's UI and machine-generated content to be disclosed as
-such. Both are on the main menu and in How to Play, and the notice plus upstream attributions
-(Qwen3-8B Apache-2.0, stable-audio-tools MIT, Descript Audio Codec MIT) live in
-`assets/music/credits.json`. It also requires separate written authorisation from MiniMax above
-$20M aggregate yearly revenue — irrelevant here, worth knowing if it ever stops being
-irrelevant.
+`tools/musicPack.mjs` re-encodes, level-matches to a −20 dBFS mean, and can trim silence off
+the front of a cue (`@auto` cuts the measured lead-in, `@24` cuts 24 seconds). It writes to
+`experiments/` first, so you check the names before anything lands in the game. The slot names
+matter because biome selection is by prefix; `tools/audioMeter.mjs` also profiles a track's
+darkness, brightness and onset rate, and `tools/audioProfileSelftest.mjs` checks that profiler
+against pure tones — which is how a bad version of it got caught before it decided the
+soundtrack.
+
+`credits.json` records where each cue came from and ships inside the build; `manifest.json` is
+optional and only pins play order or excludes tracks.
 
 ## Sound effects
 
