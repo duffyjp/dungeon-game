@@ -45,8 +45,9 @@ Health comes back only from potions.
 ## Tests
 
 ```
-npm test              # levels + loot + movement + file-name case (headless Node, ~30 s)
+npm test              # levels + loot + movement + file-name case + sprite-animation keying (Node, ~35 s)
 npm run test:case     # every asset key the code names matches the spelling on disk
+npm run test:video    # the animation keyer: compose a sprite on a measured backdrop, key it back out
 npm run test:game     # boots the real game in headless Edge, 42 integration checks
 npm run test:keys     # chroma-key QA: measures every generated sprite, non-zero exit if one keys badly
 npm run build && npm run check:build   # the built site, served as plain static files, not the dev server
@@ -76,6 +77,7 @@ npm run qa:props:one -- "?only=staircase"   # one prop, framed from standing eye
 npm run qa:props:one -- "?only=torch"         # in that mode the lighting is copied from the game
 npm run qa:fx         # fxcheck.png — every effect composited the way the engine draws it
 npm run qa:alpha      # alphacheck.png — keyed sprites vs RGBA ones, with alpha measurements
+npm run qa:anim       # animreview.png — every clip rendered so far: frames, numbers, verdicts
 npm run qa:arrow      # an archer's arrow frozen in flight, coming at the camera
 npm run qa:bow        # the player's own arrow frozen in flight down the corridor
 npm run qa:art        # which manifest assets nothing in the source references
@@ -248,6 +250,64 @@ npm run qa:alpha
   promoting an experiment means moving it into `assets/images/` and recording the model and
   licence in the manifest in the same change. Graphs live in `workflows/` with their patch
   rules written beside them — same discipline as `z_image_turbo`, different model.
+
+## Animating sprites: Wan 2.2 image-to-video
+
+Sprite animation runs on the 5070 Ti box, and it runs on **Wan 2.2 because of its licence** —
+Apache 2.0, no revenue or field-of-use clauses — rather than the LTX-2 community licence or
+MiniMax's proprietary terms, which would put shipped assets under conditions we have not
+agreed to. See `GAME_DESIGN_SPEC.md` 13.8 for the full reasoning.
+
+```bash
+npm run anim:check                          # validate the graph against the server, before queueing
+npm run anim:clip -- --sprite enemies/t1/slime --action walk
+npm run anim:phase                          # the whole phase, strictly one clip at a time
+npm run anim:measure                        # re-judge every clip on disk under today's gates: no GPU
+npm run test:video                          # the keying/motion maths, tested on shipped sprites
+npm run qa:anim                             # animreview.png — contact sheets and verdicts
+```
+
+What the measurements taught us, in the order they arrived:
+
+- **Check the graph against the server before spending a queue slot.** `tools/graphCheck.mjs`
+  reads `object_info` and confirms every node class, every input name — including ComfyUI's
+  flattened `values.a` / `format.codec` sub-widgets — and that every model file the graph names
+  is actually in that loader's list. It found that this graph is structurally invalid on the
+  2060 art box, whose `CreateVideo` predates four of its inputs.
+- **Frame counts must be 4n+1**, because Wan's video VAE compresses time by 4. The graph
+  derives its length from `floor(duration * fps + 1)`, so the tool sets duration to
+  `(frames − 1) / fps` and asks for exactly the count it wants: 17 for a step cycle, 13 for a
+  single strike.
+- **The backdrop is measured per sprite, never chosen by hand.** `tools/videoKit.mjs` projects
+  each sprite's own opaque pixels onto every candidate backdrop's hue axis and takes the 95th
+  percentile as a collision score. Green loses to blue on the slimes (0.52 against −0.15) and
+  wins for the spiders (−0.01): a hand-picked chroma colour would eat the slime's body and
+  survive on the spider, backwards. Keying uses the same rule as the runtime keyer, generalised
+  from magenta to an arbitrary hue axis, and `npm run test:video` proves the compose-then-key
+  round trip on shipped art before a GPU minute is spent.
+- **Wording beat the sampler.** The 4-step lightx2v LoRA path at CFG 1 took 15 s and looked as
+  good as the 20-step CFG 3.5 path at 57 s from the same start frame; what changed the result
+  was asking for large exaggerated steps instead of a "steady rhythm". A whole phase is
+  therefore minutes, not hours — and prompts stay anatomy-free, because naming a body part the
+  sprite does not have makes the model grow it.
+- **A clip can pass every consistency gate and still be a still photograph.** So movement is
+  measured on its own terms — how much of the silhouette's coverage changes per step — and a
+  frame compared with itself scores zero. Floor: 0.6%.
+- **The first clips did not fail by going still; they failed by turning.** One clip rotated the
+  creature sideways while its centroid sat perfectly still, so "camera stayed put" said nothing.
+  The silhouette's bounding box gives it away: the turning clip bottoms out at 0.82 of the first
+  frame, clips that stepped in place stay above 0.87, hence a 0.85 floor — exempt for `flee`,
+  whose job is to shrink. It is a proxy, which is why every clip also gets a contact sheet.
+- **Motion is bought with identity.** As movement rose from 0.94% to 1.36% of the frame per
+  step, worst silhouette overlap against the still fell from 0.80 to 0.64. Both ends are gated.
+- **Gates can be tightened after the fact.** `tools/animMeasure.mjs` re-scores clips already on
+  disk and rewrites their verdicts, so a rule learned late re-judges the whole phase instead of
+  leaving stale ACCEPTED stamps behind.
+- **One generation in flight at a time**, always: `tools/animBatch.mjs` is a serial loop, and
+  clips already accepted are skipped, so an interrupted phase resumes where it stopped.
+- **Nothing promotes itself.** Clips land in `experiments/anim/<sprite>__<action>/` with the raw
+  clip, per-frame keyed PNGs, a contact sheet and measured `results.json`; moving animation into
+  the game is a separate, deliberate step.
 
 ## Adding music
 
