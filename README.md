@@ -171,6 +171,14 @@ runner and Pages do not, and a mis-cased reference arrives as a 404 that the gam
 over with a grey placeholder. `tools/caseCheck.mjs` compares every asset key the source and
 data name against the exact spelling on disk and fails the build on a mismatch.
 
+**A test may not require a machine-local tool.** `npm run test:video` decodes shipped sprites,
+which means ffmpeg for the WebP ones — and a GitHub runner has no ffmpeg (and no `git`-ignored
+`sprite_sources/` masters either). It probes `FFMPEG`, then `PATH`, then the Windows location, and
+reports anything it cannot read as a skip: `16 passed / 0 failed / 7 skipped: ffmpeg not
+installed`. `FFMPEG=off` forces that path so it can be tested on a machine that does have it. A
+hard-coded `C:\ffmpeg\bin\ffmpeg.exe` in that suite took the Pages deploy down for an hour, which
+is how this rule got written.
+
 ## ComfyUI boxes, and which model may be used at all
 
 Three probes, because model advice is worthless without the hardware and the licence:

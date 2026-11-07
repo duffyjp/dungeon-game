@@ -27,8 +27,11 @@ const loose = new Map();
 for (const f of walk(IMAGE_DIR)) {
   const rel = f.slice(IMAGE_DIR.length + 1).replace(/\\/g, '/');
   if (rel.split('/').some(seg => seg.startsWith('_'))) continue;
-  if (!/\.png$/i.test(rel)) continue;
-  const key = rel.replace(/\.png$/i, '');
+  // Art moves between containers: opaque sprites became WebP and their PNG masters were
+  // archived out of the site. Only .png here made 41 perfectly good assets look missing.
+  const ext = rel.match(/\.(png|webp|jpg|jpeg)$/i);
+  if (!ext) continue;
+  const key = rel.slice(0, rel.length - ext[0].length);
   exact.add(key);
   loose.set(key.toLowerCase(), key);
 }

@@ -9,6 +9,7 @@
 // on files already in the repo, so a regression here fails in seconds, not after a
 // twenty-minute clip.
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -17,13 +18,24 @@ import { pickBackdrop, composeStartFrame, keyFrame, frameStats, silhouetteIoU, s
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const IMG = path.join(ROOT, 'assets', 'images');
-const FFMPEG = process.env.FFMPEG || 'C:\\ffmpeg\\bin\\ffmpeg.exe';
 
-let pass = 0, fail = 0;
-const ok = (name, cond, detail = '') => {
-  if (cond) { pass++; console.log(`  ok    ${name}${detail ? '  — ' + detail : ''}`); }
-  else { fail++; console.log(`  FAIL  ${name}${detail ? '  — ' + detail : ''}`); }
-};
+// ffmpeg is a local art-pipeline dependency, not something a CI runner or a fresh clone has.
+// Find it where it actually is - FFMPEG env, PATH, then the Windows install location - and if it
+// is not there, sprites that only exist as WebP are skipped rather than crashing the suite. This
+// script gates the animation bake, not the deploy; a missing optional tool must not take the
+// site down.
+function findFfmpeg() {
+  // FFMPEG=off is how the skip path is tested on a machine that does have ffmpeg installed.
+  if (process.env.FFMPEG === 'off') return null;
+  for (const c of [process.env.FFMPEG, 'ffmpeg', 'C:\\ffmpeg\\bin\\ffmpeg.exe']) {
+    if (!c) continue;
+    try { execFileSync(c, ['-version'], { stdio: 'ignore' }); return c; } catch (e) { /* try the next candidate */ }
+  }
+  return null;
+}
+const FFMPEG = findFfmpeg();
+let skipped = 0;
+const SKIP = { reason: FFMPEG ? 'no file' : 'ffmpeg not installed (WebP sprites cannot be decoded)' };
 
 function load(key) {
   // Sprites move between containers - the enemy stills became WebP fallbacks and their PNG
@@ -34,14 +46,22 @@ function load(key) {
   const master = path.join(ROOT, 'sprite_sources', `${path.basename(path.dirname(key))}_${path.basename(key)}.png`);
   if (fs.existsSync(master)) return decodePng(fs.readFileSync(master));
   const web = path.join(IMG, `${key}.webp`);
-  if (!fs.existsSync(web)) throw new Error(`no sprite for ${key}: no png, archived master or webp`);
-  const tmp = path.join(ROOT, 'experiments', 'videokit-frame.png');
-  fs.mkdirSync(path.dirname(tmp), { recursive: true });
+  if (!fs.existsSync(web)) return null;
+  if (!FFMPEG) return null;
+  const tmp = path.join(os.tmpdir(), `strata-videokit-${path.basename(key)}.png`);
   execFileSync(FFMPEG, ['-y', '-loglevel', 'error', '-i', web, '-pix_fmt', 'rgba', tmp], { stdio: ['ignore', 'pipe', 'pipe'] });
   const d = decodePng(fs.readFileSync(tmp));
   fs.rmSync(tmp, { force: true });
   return d;
 }
+
+let pass = 0, fail = 0;
+const ok = (name, cond, detail = '') => {
+  if (cond) { pass++; console.log(`  ok    ${name}${detail ? '  — ' + detail : ''}`); }
+  else { fail++; console.log(`  FAIL  ${name}${detail ? '  — ' + detail : ''}`); }
+};
+
+// (the sprite loader lives above, next to the ffmpeg probe)
 
 // The source sprite's silhouette, laid out exactly the way composeStartFrame lays it out,
 // so the keyed result can be compared against it pixel for pixel.
@@ -64,9 +84,18 @@ function silhouettedSource(d, W, H, scale) {
 const sprites = ['enemies/t1/slime', 'enemies/t1/orc_grunt', 'enemies/t1/cellar_spider',
   'items/sword_long', 'items/bow_long', 'vfx/slash_arc', 'enemies/t2/wraith'];
 
+// A sprite we cannot read is a skip, never a failure: this suite gates the animation bake, and
+// a fresh clone or a CI runner without ffmpeg has no way to decode WebP art.
+function need(key) {
+  const d = load(key);
+  if (!d) { skipped++; console.log(`  skip  ${key} — ${SKIP.reason}`); }
+  return d;
+}
+
 console.log('backdrop choice + key round-trip on shipped sprites');
 for (const key of sprites) {
-  const d = load(key);
+  const d = need(key);
+  if (!d) continue;
   const pick = pickBackdrop(d.px, d.w, d.h, d.channels);
   const bg = pick.choice.rgb;
   const canvas = composeStartFrame(d.px, d.w, d.h, d.channels, { w: 640, h: 640 }, bg, 0.8);
@@ -96,7 +125,7 @@ for (const key of sprites) {
 // ---------------------------------------------------------------- a green subject
 // Slime art is green, so a green backdrop has to lose to something else. This is the case
 // a hand-picked chroma colour would get wrong and measurement gets right.
-{
+if (need('enemies/t1/slime')) {
   const d = load('enemies/t1/slime');
   const pick = pickBackdrop(d.px, d.w, d.h, d.channels);
   ok('slime does not get a green backdrop', pick.choice.name !== 'green',
@@ -122,7 +151,7 @@ for (const key of sprites) {
 }
 
 // ---------------------------------------------------------------- a sheet renders
-{
+if (need('vfx/hit_spark')) {
   const d = load('vfx/hit_spark');
   const frames = [d.px, d.px];
   const sheet = contactSheet(frames, d.w, d.h, 96, 2);
@@ -136,7 +165,7 @@ for (const key of sprites) {
 // The gate that matters most is the one that catches a clip which is really a still
 // photograph, so the measurement behind it gets tested directly: identical frames must
 // score zero, and a subject that has actually moved must score something.
-{
+if (need('enemies/t1/orc_grunt')) {
   const d = load('enemies/t1/orc_grunt');
   const still = motionBetween(d.px, d.px, d.w, d.h);
   ok('a frame against itself shows no movement',
@@ -176,7 +205,7 @@ for (const key of sprites) {
 }
 
 // ---------------------------------------------------------------- alignment
-{
+if (need('enemies/t1/orc_grunt')) {
   const d = load('enemies/t1/orc_grunt');
   const a = alignFrames([d.px, shift(d.px, d.w, d.h, 17, -9)], d.w, d.h);
   const s = [d.px, shift(d.px, d.w, d.h, 17, -9)].map(f => frameStats(f, d.w, d.h));
@@ -186,16 +215,18 @@ for (const key of sprites) {
     `before ${Math.hypot(s[0].centroid[0] - s[1].centroid[0], s[0].centroid[1] - s[1].centroid[1]).toFixed(1)}px, after ${Math.hypot(after[0].centroid[0] - after[1].centroid[0], after[0].centroid[1] - after[1].centroid[1]).toFixed(1)}px`);
 }
 
-console.log(`\nvideo kit: ${pass} passed / ${fail} failed`);
+console.log(`\nvideo kit: ${pass} passed / ${fail} failed${skipped ? ` / ${skipped} skipped: ${SKIP.reason}` : ''}`);
 if (fail) {
   // Save one round-trip image so a human can look at the matte rather than trust a number.
   const key = 'enemies/t1/orc_grunt';
   const d = load(key);
-  const pick = pickBackdrop(d.px, d.w, d.h, d.channels);
-  const canvas = composeStartFrame(d.px, d.w, d.h, d.channels, { w: 640, h: 640 }, pick.choice.rgb, 0.8);
-  const keyed = keyFrame(canvas, 640, 640, { backdrop: { r: pick.choice.rgb[0], g: pick.choice.rgb[1], b: pick.choice.rgb[2] } });
-  fs.mkdirSync(path.join(ROOT, 'experiments', 'anim'), { recursive: true });
-  fs.writeFileSync(path.join(ROOT, 'experiments', 'anim', 'roundtrip_debug.png'), encodePng(640, 640, 4, keyed.rgba));
-  console.log('wrote experiments/anim/roundtrip_debug.png for eyeballing');
+  if (d) {
+    const pick = pickBackdrop(d.px, d.w, d.h, d.channels);
+    const canvas = composeStartFrame(d.px, d.w, d.h, d.channels, { w: 640, h: 640 }, pick.choice.rgb, 0.8);
+    const keyed = keyFrame(canvas, 640, 640, { backdrop: { r: pick.choice.rgb[0], g: pick.choice.rgb[1], b: pick.choice.rgb[2] } });
+    fs.mkdirSync(path.join(ROOT, 'experiments', 'anim'), { recursive: true });
+    fs.writeFileSync(path.join(ROOT, 'experiments', 'anim', 'roundtrip_debug.png'), encodePng(640, 640, 4, keyed.rgba));
+    console.log('wrote experiments/anim/roundtrip_debug.png for eyeballing');
+  }
 }
 process.exit(fail ? 1 : 0);
