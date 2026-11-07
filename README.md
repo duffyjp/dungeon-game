@@ -451,6 +451,26 @@ still's pixel size and silhouette box come from the image manifest. The self-tes
 the on-screen silhouette of a clip frame against the still of the same creature and fails above
 a 10% difference.
 
+## Idle monsters are animation frames, not separate art
+
+A standing creature is drawn from the first frame of its walk cycle, not from the generated
+still sprite. Falling back to the still made an orc that stopped moving turn into a different
+drawing — a separate illustration at a different silhouette — which is the second half of the
+size-jump problem. The stills are still loaded, but only when a browser cannot decode animated
+WebP at all, or a clip fails to decode.
+
+```
+node tools/stillToWebp.mjs      # enemy stills: PNG masters -> WebP fallbacks
+```
+
+That conversion took the 23 species stills from 5.42 MB to 1.18 MB in the build. The PNG
+masters move to `sprite_sources/`, which git ignores, because they are the images the
+image-to-video clips were generated from. Measured fidelity of the fallbacks: median PSNR
+21 dB, mean absolute colour error 11.6/255, and the alpha channel essentially untouched
+(worst-case error 1/255), so the cut-out edges survive. They are fallback art now, which is
+why that trade is reasonable; if you ever want them pristine, `WEBP_Q=92 node tools/stillToWebp.mjs`
+costs about a third more bytes.
+
 ## Dev notes
 
 - **The watcher ignores `assets/` and atomic-save temp files.** Watching those two

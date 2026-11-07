@@ -71,6 +71,15 @@ export class Enemy {
     // does not step in lockstep. Clips are decoded once per (sprite, action) and shared by
     // every creature of that kind; the per-clip quad is shared the same way.
     this.anim = { t: 0, offset: Math.random() * 8, idx: -1, action: null, clips: new Map(), asked: new Set(), quads: new Map() };
+    // Ask for the walk cycle at spawn, not on first movement: it supplies the parked frame a
+    // standing monster is drawn with, so an orc that never takes a step is still the animated
+    // creature rather than a still illustration of it. loadFrames caches per clip file, so a
+    // room full of one species decodes once.
+    const walkEntry = animationFor(spriteKey, 'walk');
+    if (walkEntry) {
+      this.anim.asked.add('walk');
+      loadFrames(walkEntry).then(tex => { if (tex) this.anim.clips.set('walk', { entry: walkEntry, frames: tex }); });
+    }
     this.group.add(this.body);
 
     // Contact shadow follows the same tier ramp as the silhouette, so a knee-high wisp
@@ -193,6 +202,29 @@ export class Enemy {
       if (entry) {
         loadFrames(entry).then(tex => { if (tex) a.clips.set(action, { entry, frames: tex }); });
       }
+    }
+
+    // Standing still is not a different piece of art. It used to fall back to the generated
+    // still sprite - a separate drawing of the same creature, at a different silhouette - so an
+    // orc that stopped moving visibly turned into a PNG. Now the walk cycle's first frame is
+    // parked: frame 0 is the frame the clip was generated from, so the pose matches and the
+    // source image never changes under the player's eyes.
+    if (!action) {
+      const park = a.clips.get('walk') || a.clips.get('attack') || a.clips.get('flee');
+      if (park && park.frames.length) {
+        if (a.action !== null || a.idx !== 0) {
+          a.action = null;
+          a.idx = 0;
+          this.applyAnimMap(park.frames[0], park.entry);
+        }
+        return;
+      }
+      if (a.action !== null || this.body.material.map !== this.baseMap) {
+        a.action = null;
+        a.idx = -1;
+        this.applyAnimMap(null, null);       // no clip: unsupported browser or a failed decode
+      }
+      return;
     }
 
     if (action && action === a.action) {

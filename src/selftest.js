@@ -674,7 +674,19 @@ export async function runSelfTest(game) {
               ok('an animated monster is the same size as the standing one', false,
                 `anchor data missing for ${pEntry.file}`);
             }
-          }          spider.anim.clips.set('walk', { entry, frames: tex });
+          }
+          // ---- a standing monster is not a different drawing --------------
+          // The idle pose used to fall back to the generated still sprite, a separate
+          // illustration of the same creature, so stopping in the middle of a corridor turned
+          // an orc into a PNG. The walk clip's first frame is parked instead.
+          pair.tickAnimation(0, 0);
+          const parkedFromClip = pair.body.material.map !== pair.baseMap && pair.body.geometry !== pair.baseGeom;
+          ok('a standing monster is drawn from the animation, not the still sprite', parkedFromClip,
+            `${(pair.spriteKey || '').split('/').pop()} standing: ` +
+            `${pair.body.material.map === pair.baseMap ? 'still PNG' : 'clip frame 0'}, ` +
+            `${pair.body.geometry === pair.baseGeom ? 'base quad' : 'clip quad'}`);
+
+          spider.anim.clips.set('walk', { entry, frames: tex });
           spider.anim.idx = -1; spider.anim.action = null; spider.anim.t = 0;
           spider.tickAnimation(0.09, 0.6);
           const first = spider.anim.idx;
@@ -682,9 +694,12 @@ export async function runSelfTest(game) {
           ok('a creature covering ground advances frames',
             spider.anim.idx !== first && spider.anim.action === 'walk',
             `frame ${first} -> ${spider.anim.idx} while ${spider.anim.action}`);
+          // Standing no longer swaps to a different illustration: the walk clip's first frame
+          // is parked, so the source never changes under the player's eyes.
           spider.tickAnimation(0.016, 0);
-          ok('a creature standing still goes back to the still sprite',
-            spider.anim.action === null && spider.body.material.map === spider.baseMap);
+          ok('a creature standing still parks on a clip frame instead of changing art',
+            spider.anim.action === null && spider.anim.idx === 0 && spider.body.material.map !== spider.baseMap,
+            spider.body.material.map === spider.baseMap ? 'fell back to the still sprite' : `parked on frame ${spider.anim.idx}, same source file as walking`);
 
           // The cycle chosen has to follow what the creature is doing, not merely whether it
           // is moving — otherwise an attack and a walk are the same animation.

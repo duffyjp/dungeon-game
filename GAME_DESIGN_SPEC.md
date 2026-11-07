@@ -1028,6 +1028,34 @@ on-screen silhouettes to agree within 10%. The first version of that check compa
 creature's clip to another creature's still and reported a false −32%; pairing them properly is
 what made the number mean something.
 
+### 13.16 Standing still no longer changes the artwork
+
+The owner saw the other half of the same problem: walk up to an orc, it stops, and it becomes
+the PNG — visibly a different drawing. `tickAnimation` treated "no action" as "no animation",
+so it dropped back to the generated still sprite: a second illustration of the creature, made
+by a different pass, at a different silhouette and detail level.
+
+Now a standing creature is parked on **frame 0 of its walk clip**. That frame is the composed
+start frame the video model was given, so the pose is the one the animation begins from: the
+source file never changes under the player's eyes, and the anchor geometry from §13.15 keeps the
+scale identical. The walk clip is requested at spawn rather than on first movement, so an
+enemy that never takes a step is still drawn from its cycle.
+
+The still sprites were demoted from runtime art to that one fallback — a browser without
+`ImageDecoder`, or a clip that fails to decode — and `tools/stillToWebp.mjs` re-encoded them:
+**5.42 MB of PNG down to 1.18 MB of WebP** across 23 species, with the PNG masters moved to
+`sprite_sources/` (git-ignored) because they are the images the clips were generated from.
+Fidelity of the fallbacks was measured rather than assumed: median PSNR 21 dB (13.5 dB worst,
+on the fine-legged bone spider), mean absolute colour error 11.6/255, and the alpha channel
+essentially untouched — mean 0.05/255, worst case 1/255 — which is what matters for sprites cut
+out with `alphaTest`. That trade is acceptable for art almost no player sees; `WEBP_Q` raises it
+if that ever changes. Site: 57.6 MB → 53.1 MB.
+
+A test that asserted the old behaviour had to go with it: `a creature standing still goes back
+to the still sprite` was green for weeks while describing the bug. It now asserts the opposite —
+that a stopping creature parks on a clip frame and keeps the same source and quad — and a second
+check verifies that a standing monster's material and geometry both come from the clip.
+
 
 ---
 

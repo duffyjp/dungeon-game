@@ -409,7 +409,7 @@
     "alphaMethod": "subject isolated on flat magenta by the image model, keyed offline with the video keyer (80.9% of the frame keyed to clear); the radial decal mask is no longer applied"
   },
   {
-    "path": "assets/images/enemies/t1/slime.png",
+    "path": "assets/images/enemies/t1/slime.webp",
     "slug": "t1/slime",
     "prompt": "translucent green gelatinous slime cube-creature, a low wide asymmetrical mass of dense gel with one heavy angular cube-form half sunk into the top of it, two dim narrow horizontal slits of light deep inside the mass, dense translucent body with a darker suspended core, dripping edges, shoulders wider than the cube-form with the cube-form occupying less than a third of the total body height, thick unequal weight-bearing limbs, mature grounded proportions of a large heavy adult creature, angular silhouette, mud and rust grit suspended throughout the gel, dulled weathered surface, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of translucent green and lime with ochre highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44088,
@@ -448,10 +448,11 @@
         "silhouetteIoU": 0.94
       },
       "backup": "assets/images/_chroma_v1/enemies/t1/slime.png"
-    }
+    },
+    "convertedAt": "2026-11-07"
   },
   {
-    "path": "assets/images/enemies/t2/acid_slime.png",
+    "path": "assets/images/enemies/t2/acid_slime.webp",
     "slug": "t2/acid_slime",
     "prompt": "yellow-green corrosive slime, dripping, faint steam, a low wide asymmetrical mass of dense gel with one heavy angular cube-form half sunk into the top of it, two dim narrow horizontal slits of light deep inside the mass, dense translucent body with a darker suspended core, dripping edges, thin vapour drawn tight against the body and contained within the silhouette, shoulders wider than the cube-form with the cube-form occupying less than a third of the total body height, thick unequal weight-bearing limbs, mature grounded proportions of a large heavy adult creature, angular silhouette, mud and rust grit suspended throughout the gel, dulled weathered surface, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of translucent yellow-green gel with sulfurous ochre highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44089,
@@ -486,10 +487,12 @@
         "silhouetteIoU": 0.9
       },
       "backup": "assets/images/_chroma_v1/enemies/t2/acid_slime.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t3/caustic_ooze.png",
+    "path": "assets/images/enemies/t3/caustic_ooze.webp",
     "slug": "t3/caustic_ooze",
     "prompt": "black-purple viscous ooze with glowing core, dissolving tendrils, a low wide asymmetrical mass of dense heavy gel with one sunken angular cube-form dissolved almost away, two dim narrow horizontal slits of light deep inside the mass, dense translucent body with a brighter acid green core suspended at the centre, dripping edges, short dissolving tendrils hanging from the underside, shoulders wider than the cube-form with the cube-form occupying less than a third of the total body height, thick unequal weight-bearing limbs, mature grounded proportions of a large heavy adult creature, angular silhouette, grit and dissolved debris suspended throughout the gel, dulled weathered surface, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of near-black violet-black gel with an acid green core and dull ochre highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, the core glow stays entirely inside the silhouette, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44091,
@@ -525,10 +528,12 @@
         "silhouetteIoU": 0.968
       },
       "backup": "assets/images/_chroma_v1/enemies/t3/caustic_ooze.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t4/void_slime.png",
+    "path": "assets/images/enemies/t4/void_slime.webp",
     "slug": "t4/void_slime",
     "prompt": "ink-black slime with starfield interior, a low wide asymmetrical mass of dense heavy gel with one sunken angular cube-form half dissolved into the top of it, two dim narrow horizontal slits of pale light deep inside the mass, dense translucent body with a darker suspended core, tiny cold white star points suspended throughout the interior, dripping edges, shoulders wider than the cube-form with the cube-form occupying less than a third of the total body height, thick unequal weight-bearing limbs, mature grounded proportions of a large heavy adult creature, angular silhouette, grit and ash suspended throughout the gel, dulled weathered surface, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of near-black ink blue-black gel with cold white star points and dull grey-green edges, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44092,
@@ -563,10 +568,12 @@
         "silhouetteIoU": 0.992
       },
       "backup": "assets/images/_chroma_v1/enemies/t4/void_slime.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t1/orc_grunt.png",
+    "path": "assets/images/enemies/t1/orc_grunt.webp",
     "slug": "t1/orc_grunt",
     "prompt": "heavy-set orc warrior, scarred green-grey skin, ragged leather, rusty cleaver with a plain unmarked worn steel blade, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of moss green skin, rusted iron, oxblood leather, bold readable silhouette, crisp clean edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, character cut-out floating on the flat colour field, even background lighting edge to edge",
     "seed": 44053,
@@ -601,10 +608,12 @@
         "silhouetteIoU": 0.952
       },
       "backup": "assets/images/_chroma_v1/enemies/t1/orc_grunt.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t2/orc_brute.png",
+    "path": "assets/images/enemies/t2/orc_brute.webp",
     "slug": "t2/orc_brute",
     "prompt": "massive orc in scavenged iron plate, spiked pauldron, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of moss green skin, rusted iron, oxblood leather, bold readable silhouette, crisp clean edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, character cut-out floating on the flat colour field, even background lighting edge to edge",
     "seed": 44054,
@@ -637,10 +646,12 @@
         "silhouetteIoU": 0.951
       },
       "backup": "assets/images/_chroma_v1/enemies/t2/orc_brute.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t3/orc_warlord.png",
+    "path": "assets/images/enemies/t3/orc_warlord.webp",
     "slug": "t3/orc_warlord",
     "prompt": "battle-scarred orc warlord, blackened plate, tusked helm, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of moss green skin, rusted iron, oxblood leather, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, even background lighting edge to edge",
     "seed": 44057,
@@ -676,10 +687,12 @@
         "silhouetteIoU": 0.954
       },
       "backup": "assets/images/_chroma_v1/enemies/t3/orc_warlord.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t4/iron_reaver.png",
+    "path": "assets/images/enemies/t4/iron_reaver.webp",
     "slug": "t4/iron_reaver",
     "prompt": "massive green-skinned orc champion with thick moss green arms and hands and a tusked jaw showing below the helm, encased head to toe in full seamless rusted iron plate armour, enclosed helm with a dark featureless visor, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of moss green skin, rusted iron, oxblood leather, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, even background lighting edge to edge",
     "seed": 44060,
@@ -715,10 +728,12 @@
         "silhouetteIoU": 0.972
       },
       "backup": "assets/images/_chroma_v1/enemies/t4/iron_reaver.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t1/goblin_archer.png",
+    "path": "assets/images/enemies/t1/goblin_archer.webp",
     "slug": "t1/goblin_archer",
     "prompt": "wiry goblin archer, leather jerkin, crude bow, a lean sinewy adult goblin with long corded limbs, a narrow angular head with a heavy brow ridge and two narrow luminous eye-slits, patched worn leather jerkin over a bare rope-burned torso, crude yew bow held at the side, quiver of mismatched arrows on the back, mature grounded proportions of a wiry adult figure, angular silhouette, weathered well-used materials, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of moss green skin, weathered brown leather, dull steel and bone white, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44099,
@@ -753,10 +768,12 @@
         "silhouetteIoU": 0.889
       },
       "backup": "assets/images/_chroma_v1/enemies/t1/goblin_archer.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t2/bone_archer.png",
+    "path": "assets/images/enemies/t2/bone_archer.webp",
     "slug": "t2/bone_archer",
     "prompt": "skeletal archer, tattered cloak, horn bow held ready, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of bone white, weathered wood, dull steel, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, even background lighting edge to edge",
     "seed": 44062,
@@ -789,10 +806,12 @@
         "silhouetteIoU": 0.896
       },
       "backup": "assets/images/_chroma_v1/enemies/t2/bone_archer.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t3/venom_archer.png",
+    "path": "assets/images/enemies/t3/venom_archer.webp",
     "slug": "t3/venom_archer",
     "prompt": "hooded archer with bone-and-fang bow held ready, venom flask at the belt, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of bone white, weathered wood, dull steel, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, even background lighting edge to edge",
     "seed": 44063,
@@ -825,10 +844,12 @@
         "silhouetteIoU": 0.941
       },
       "backup": "assets/images/_chroma_v1/enemies/t3/venom_archer.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t4/hollow_ranger.png",
+    "path": "assets/images/enemies/t4/hollow_ranger.webp",
     "slug": "t4/hollow_ranger",
     "prompt": "armoured hollow archer, empty visor, long composite bow held ready, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of bone white, weathered wood, dull steel, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, even background lighting edge to edge",
     "seed": 44064,
@@ -861,10 +882,12 @@
         "silhouetteIoU": 0.982
       },
       "backup": "assets/images/_chroma_v1/enemies/t4/hollow_ranger.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t1/hedge_mage.png",
+    "path": "assets/images/enemies/t1/hedge_mage.webp",
     "slug": "t1/hedge_mage",
     "prompt": "stooped road-mage in plain undecorated patched robes, wooden staff with a small ember glow kept entirely inside the staff head, herb satchel at the belt, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of deep indigo robes with ember orange accents, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44066,
@@ -899,10 +922,12 @@
         "silhouetteIoU": 0.986
       },
       "backup": "assets/images/_chroma_v1/enemies/t1/hedge_mage.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t2/storm_mage.png",
+    "path": "assets/images/enemies/t2/storm_mage.webp",
     "slug": "t2/storm_mage",
     "prompt": "storm-cloaked mage, small tight ozone sparks around the hands, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of deep indigo robes with ember orange accents, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, all light and sparks stay tight against the subject, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44067,
@@ -935,10 +960,12 @@
         "silhouetteIoU": 0.96
       },
       "backup": "assets/images/_chroma_v1/enemies/t2/storm_mage.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t3/void_archmage.png",
+    "path": "assets/images/enemies/t3/void_archmage.webp",
     "slug": "t3/void_archmage",
     "prompt": "tall archmage with a heavy unlit grimoire of matte dark leather floating beside the shoulder, long plain undecorated deep indigo robe with an ember orange sash and ember orange cuff trim, cold blue rim light along the robe folds, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of deep indigo robes with ember orange accents, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, all illumination stays inside the silhouette, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44070,
@@ -974,10 +1001,12 @@
         "silhouetteIoU": 0.994
       },
       "backup": "assets/images/_chroma_v1/enemies/t3/void_archmage.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t4/doomspeaker.png",
+    "path": "assets/images/enemies/t4/doomspeaker.webp",
     "slug": "t4/doomspeaker",
     "prompt": "masked doomspeaker cultist in a hooded obsidian robe with plain burnished gold edging, smooth plain robe front with one small round bronze clasp at the chest, smooth featureless dark mask, hands clasped at the front of the belt, low ember flame painted along the hem and cuffs, hand-painted stylized game character sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of deep indigo robes with ember orange accents, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, all light stays inside the silhouette, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44073,
@@ -1013,10 +1042,12 @@
         "silhouetteIoU": 0.991
       },
       "backup": "assets/images/_chroma_v1/enemies/t4/doomspeaker.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t1/wisp.png",
+    "path": "assets/images/enemies/t1/wisp.webp",
     "slug": "t1/wisp",
     "prompt": "translucent pale ghost wisp, faint humanoid face, a knee-high hooded wisp hovering low with its hem trailing clear of the ground, one low compact mass wider across than it is tall, the whole figure reaching only to knee height, a pale hooded shroud with two points of light inside the deep hood, the mass held clear of the colour field with a short tapering vapour tail beneath the hem, angular silhouette, weathered ash-grey tones with charcoal shading inside the hood, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale grey-blue mist with cold steel highlights and charcoal shadow, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the figure is matte and dry with crisp edges, all illumination stays inside the silhouette, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44129,
@@ -1056,10 +1087,12 @@
         "silhouetteIoU": 0.995
       },
       "backup": "assets/images/_chroma_v1/enemies/t1/wisp.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t2/wraith.png",
+    "path": "assets/images/enemies/t2/wraith.webp",
     "slug": "t2/wraith",
     "prompt": "tattered spectral figure, hollow eyes, a tall broad apparition in a ragged torn shroud with frayed hanging strips over a gaunt skeletal torso, broad stooped shoulders, long arms ending in skeletal clawed hands, deep hollow eye sockets with two small points of cold light inside them, mature grounded proportions of a large lean adult figure, angular silhouette, weathered well-used materials, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale grey-blue mist with cold steel highlights and charcoal shadow, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the figure is matte and dry with crisp edges, all illumination stays inside the silhouette, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44096,
@@ -1094,10 +1127,12 @@
         "silhouetteIoU": 0.977
       },
       "backup": "assets/images/_chroma_v1/enemies/t2/wraith.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t3/dread_spectre.png",
+    "path": "assets/images/enemies/t3/dread_spectre.webp",
     "slug": "t3/dread_spectre",
     "prompt": "towering spectre trailing mist, cracked mask, a towering broad apparition twice the bulk of a wraith, heavy layered burial cloth with wide slab-like shoulders, a pale cracked bone mask with two narrow points of cold light behind the eye slits, thick mist trailing from the sleeves and hem, mature grounded proportions of an imposing adult figure, angular silhouette, weathered well-used materials, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of pale grey-blue mist with cold steel highlights and charcoal shadow, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the figure is matte and dry with crisp edges, all illumination stays inside the silhouette, the creature stands directly on the colour field with the identical flat magenta colour continuing under it, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44097,
@@ -1132,10 +1167,12 @@
         "silhouetteIoU": 0.853
       },
       "backup": "assets/images/_chroma_v1/enemies/t3/dread_spectre.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t4/hungering_shade.png",
+    "path": "assets/images/enemies/t4/hungering_shade.webp",
     "slug": "t4/hungering_shade",
     "prompt": "near-black shade with pale grasping hands, a tall gaunt near-black shade with corded emaciated limbs, oversized pale grasping hands with long fingers held forward, a sunken featureless face with two narrow points of cold light, heavy tattered shadow-cloth hanging from the shoulders, mature grounded proportions of a large stooped adult figure, angular silhouette, weathered well-used materials, slow deliberate posture, semi-real painterly rendering consistent with a gritty dungeon, hand-painted stylized game character sprite, dungeon crawler monster concept art, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of near-black charcoal and slate grey with pale bone-white hands and cold steel highlights, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, standing pose facing the viewer, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the figure is matte and dry with crisp edges, all illumination stays inside the silhouette, the creature stands directly on the colour field with the identical flat magenta colour continuing under and between the feet, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44098,
@@ -1171,10 +1208,12 @@
         "silhouetteIoU": 0.985
       },
       "backup": "assets/images/_chroma_v1/enemies/t4/hungering_shade.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t1/cellar_spider.png",
+    "path": "assets/images/enemies/t1/cellar_spider.webp",
     "slug": "t1/cellar_spider",
     "prompt": "cellar spider with a wet carapace and fine leg detail, eight legs, viewed from the front, hand-painted stylized game creature sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of charcoal chitin with amber eyes, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the saturated magenta colour field fills the entire canvas from corner to corner and touches all four sides of the image, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the creature is matte with crisp edges against the colour field, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44080,
@@ -1211,10 +1250,12 @@
         "silhouetteIoU": 0.747
       },
       "backup": "assets/images/_chroma_v1/enemies/t1/cellar_spider.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t2/grave_spider.png",
+    "path": "assets/images/enemies/t2/grave_spider.webp",
     "slug": "t2/grave_spider",
     "prompt": "bloated grave spider with coarse pale hairs and a greenish carrion sheen on the abdomen, eight legs, front three-quarter view, hand-painted stylized game creature sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of charcoal chitin with amber eyes and pale ash-grey hairs, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the saturated magenta colour field fills the entire canvas from corner to corner and touches all four sides of the image, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the creature is matte with crisp edges against the colour field, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44084,
@@ -1247,10 +1288,12 @@
         "silhouetteIoU": 0.794
       },
       "backup": "assets/images/_chroma_v1/enemies/t2/grave_spider.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/enemies/t3/bone_spider.png",
+    "path": "assets/images/enemies/t3/bone_spider.webp",
     "slug": "t3/bone_spider",
     "prompt": "skeletal spider with bone legs and a skull-shaped abdomen, ribbed carapace, eight jointed bone legs, front three-quarter view, hand-painted stylized game creature sprite, dungeon crawler monster concept art, semi-realistic painterly stylization, dark fantasy key art, painterly PBR-adjacent rendering, soft cel-shaded key light from upper left, limited cohesive palette of bone white and aged ivory chitin with amber eyes, bold readable silhouette, crisp clean hard silhouette edges, slight visible brushwork, full body in frame, centered composition, isolated on flat solid uniform magenta (#ff00ff) background, clean unbroken background, subject only, the saturated magenta colour field fills the entire canvas from corner to corner and touches all four sides of the image, the background is one single completely flat colour field with the identical saturated magenta colour in every background pixel, the creature is matte with crisp edges against the colour field, the flat colour field is uniform right up to the silhouette edge, even background lighting edge to edge",
     "seed": 44085,
@@ -1283,7 +1326,9 @@
         "silhouetteIoU": 0.756
       },
       "backup": "assets/images/_chroma_v1/enemies/t3/bone_spider.png"
-    }
+    },
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "sprite_sources"
   },
   {
     "path": "assets/images/props/staircase_down.png",
