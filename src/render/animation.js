@@ -44,6 +44,12 @@ const cache = new Map();
 let lastDiag = 'not attempted';
 export function animationDiagnostic() { return lastDiag; }
 
+// Every frame texture this session has decoded. The renderer uploads a texture on first draw,
+// and for an animation that first draw is normally the moment a monster starts moving, so the
+// upload lands as a hitch in play. The level loader walks this list and pushes the pixels to the
+// GPU during the loading card instead.
+const frameTextures = [];
+
 function frameToTexture(bitmap) {
   const w = bitmap.displayWidth, h = bitmap.displayHeight;
   const c = document.createElement('canvas');
@@ -56,8 +62,11 @@ function frameToTexture(bitmap) {
   tex.generateMipmaps = false;
   tex.needsUpdate = true;
   tex.userData = { w, h };
+  frameTextures.push(tex);
   return tex;
 }
+
+export function cachedFrameTextures() { return frameTextures.slice(); }
 
 export function loadFrames(entry) {
   if (cache.has(entry.file)) return cache.get(entry.file);

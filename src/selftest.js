@@ -819,6 +819,12 @@ export async function runSelfTest(game) {
         game._mapDraws > 0 && game._mapDraws <= 30,
         `${game._mapDraws} repaints across 60 frames (target ${CFG.minimapHz} Hz)`);
 
+      ok('the level uploads its textures and compiles its shaders before play begins',
+        game.lastGpuWarm && game.lastGpuWarm.uploads > 0 && game.lastGpuWarm.programs > 0,
+        game.lastGpuWarm
+          ? `depth ${game.lastGpuWarm.depth ?? game.depth}: ${game.lastGpuWarm.uploads} textures, ${game.lastGpuWarm.programs} programs in ${(game.lastGpuWarm.ms / 1000).toFixed(1)}s`
+          : 'warmGpu never ran');
+
       ok('loot does not change the compiled shader count',
         during.programs === before.programs && after.programs === before.programs,
         `programs ${before.programs} -> ${during.programs} -> ${after.programs}, lights ${before.p} -> ${during.p} -> ${after.p}; ` +
@@ -831,7 +837,7 @@ export async function runSelfTest(game) {
     // ---- the frame profiler itself (?profile=1) ----------------------------
     {
       game.perfOn = true;
-      game.perf = { iv: [], upSum: 0, rdSum: 0, n: 0, since: 0 };
+      game.perf = { iv: [], upSum: 0, rdSum: 0, n: 0, since: 0, minIv: Infinity };
       for (let i = 0; i < 200; i++) game.samplePerf(16 + (i % 9), 2.5, 4.0);
       ok('the frame profiler reports percentiles and a CPU split',
         /frame p50 \d+\.\d+ms p95 \d+\.\d+ p99/.test(game.perfLine || '') && /cpu update/.test(game.perfLine || ''),

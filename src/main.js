@@ -24,7 +24,7 @@ import { Menus } from './ui/menus.js';
 import * as sfx from './audio/sfx.js';
 import * as music from './audio/music.js';
 import { preloadAll, hasAsset, assetKeys, assetUrl, warmAssets } from './render/assets.js';
-import { loadFrames } from './render/animation.js';
+import { loadFrames, cachedFrameTextures } from './render/animation.js';
 import { biomeAssetKeys, propAssetKeys, enemyAssetKeys, enemyClipEntries, commonAssetKeys, nextTierAssetKeys } from './world/levelAssets.js';
 import { loadSettings, saveRun, bestRuns } from './util/storage.js';
 import { isBetter, useQualityTable } from './loot/quality.js';
@@ -72,7 +72,8 @@ export class Game {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.08;
     this.perfOn = q.get('profile') === '1';
-    this.perf = { iv: [], upSum: 0, rdSum: 0, n: 0, since: 0 };
+    this.noScene = q.get('noscene') === '1';
+    this.perf = { iv: [], upSum: 0, rdSum: 0, n: 0, since: 0, minIv: Infinity };
     if (this.perfOn) {
       const d = document.createElement('div');
       d.className = 'perfhud';
@@ -286,7 +287,6 @@ export class Game {
     // each downloaded and decoded mid-fight, which is the hitching the owner heard about.
     this.state = 'loading';
     await this.preloadLevelAssets(level, biome);
-    if (this.state === 'loading') this.state = 'playing';
     this.levelView = buildLevelView(level, biome);
     this.scene.add(this.levelView.group);
 
@@ -395,6 +395,46 @@ export class Game {
     sfx.play('level_start');
     music.playNext(`depth ${depth}`, { biome: level.biome, boss: this.enemies.some(e => e.isBoss) });
     console.info(`[level] depth=${depth} seed=${level.seed} size=${level.w} path=${check.stairDist}/${check.diameter} enemies=${this.enemies.length}`);
+
+    // The scene exists now, so bring the GPU up to speed before the player can move. three.js
+    // uploads a texture the first time it is drawn and compiles a material's shader the first
+    // time that combination is used - and both land as a stall on the first frames of a level.
+    // The profiler showed a 1078 ms spike at entry and programs climbing from 12 to 21 in the
+    // middle of a fight, neither of which a network panel can reveal: the bytes were already
+    // there, it was the driver doing the work at the worst possible moment.
+    await this.warmGpu();
+    this.hideLoadProgress();
+    if (this.state === 'loading') this.state = 'playing';
+  }
+
+  // Push every texture this depth can draw to the GPU and compile every shader variant the
+  // scene will need, while the loading card is still up.
+  async warmGpu() {
+    const t0 = performance.now();
+    const seen = new Set();
+    let uploads = 0;
+    const MAPS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'alphaMap', 'displacementMap'];
+    const touch = (tex) => {
+      if (!tex || !tex.isTexture || seen.has(tex)) return;
+      seen.add(tex);
+      try { this.renderer.initTexture(tex); uploads++; } catch (e) { /* one bad texture is not worth failing a level over */ }
+    };
+    this.scene.traverse(o => {
+      const mats = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
+      for (const m of mats) for (const k of MAPS) touch(m[k]);
+    });
+    // Animation frames are bound only when a monster moves, so first draw is normally mid-fight.
+    for (const tex of cachedFrameTextures()) touch(tex);
+
+    const before = this.renderer.info.programs.length;
+    try {
+      await this.renderer.compileAsync(this.scene, this.camera);
+    } catch (e) {
+      this.renderer.compile(this.scene, this.camera);
+    }
+    this.lastGpuWarm = { uploads, programs: this.renderer.info.programs.length, compiled: this.renderer.info.programs.length - before, ms: Math.round(performance.now() - t0) };
+    console.info(`[gpu] depth ${this.depth}: ${this.lastGpuWarm.uploads} textures uploaded, ${before} -> ${this.lastGpuWarm.programs} programs, ${(this.lastGpuWarm.ms / 1000).toFixed(1)}s`);
+    return this.lastGpuWarm;
   }
 
   // Download and decode everything this depth will draw before it becomes playable, with a
@@ -425,7 +465,8 @@ export class Game {
       await sfx.warmAll((d) => { done = keys.size + clips.length + d; this.showLoadProgress(done, total); });
       this.sfxWarmed = true;
     }
-    this.hideLoadProgress();
+    // The card stays up: _loadLevel hides it after the GPU has been brought up to speed, so the
+    // upload and shader-compile work is inside the wait rather than inside the first fight.
     this.lastPreload = { depth: this.depth, images: keys.size, clips: clips.length, sfx: sfxJobs, ms: Math.round(performance.now() - t0) };
     console.info(`[preload] depth ${this.depth}: ${keys.size} images, ${clips.length} clips and ${sfxJobs} effects in ${(this.lastPreload.ms / 1000).toFixed(1)}s`);
 
@@ -563,7 +604,10 @@ export class Game {
     const t0 = performance.now();
     if (this.state === 'playing') this.update(dt);
     const t1 = performance.now();
-    this.renderer.render(this.scene, this.camera);
+    // ?noscene=1 answers the one question the other knobs cannot: if the frame interval is still
+    // ~33 ms with nothing rendered, the ceiling is the display or the browser's compositing, not
+    // our drawing at all.
+    if (!this.noScene) this.renderer.render(this.scene, this.camera);
     const t2 = performance.now();
     this.samplePerf(this._lastFrame ? t2 - this._lastFrame : dt * 1000, t1 - t0, t2 - t1);
     this._lastFrame = t2;
@@ -573,6 +617,9 @@ export class Game {
     const p = this.perf;
     p.iv.push(intervalMs);
     if (p.iv.length > 900) p.iv.shift();
+    // The shortest interval seen is the cadence the browser is handing us. If the median sits on
+    // it, the game is not slow - the frame clock is.
+    p.minIv = Math.min(p.minIv || Infinity, intervalMs);
     p.upSum += updateMs; p.rdSum += renderMs; p.n++;
     p.since += intervalMs;
     if (p.since < 2000) return;
@@ -581,7 +628,8 @@ export class Game {
     const q = f => s[Math.min(s.length - 1, Math.floor(s.length * f))];
     const info = this.renderer.info.render;
     const line = `[perf] frame p50 ${q(0.5).toFixed(1)}ms p95 ${q(0.95).toFixed(1)} p99 ${q(0.99).toFixed(1)} ` +
-      `max ${s[s.length - 1].toFixed(1)} | cpu update ${(p.upSum / p.n).toFixed(1)}ms + submit ${(p.rdSum / p.n).toFixed(1)}ms | ` +
+      `max ${s[s.length - 1].toFixed(1)} (raf min ${p.minIv.toFixed(1)}) | ` +
+      `cpu update ${(p.upSum / p.n).toFixed(1)}ms + submit ${(p.rdSum / p.n).toFixed(1)}ms | ` +
       `${info.calls} draws, ${(info.triangles / 1000).toFixed(0)}k tris, ${this.renderer.info.programs.length} programs | ` +
       `pixel ratio ${this.renderer.getPixelRatio()}, ${this.lightPool.length} pooled lights`;
     console.info(line);

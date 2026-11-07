@@ -40,7 +40,11 @@ export class Input {
     // needs the click that started the run. Refusing the request during that window is how the
     // game ended up needing an extra click before the mouse looked around.
     if (this.game.state !== 'playing' && this.game.state !== 'loading') return;
-    this.canvas.requestPointerLock?.();
+    // Chrome returns a promise that rejects when the request was not made from a real gesture -
+    // which is normal for the follow-up request after a fullscreen transition. Letting that
+    // rejection escape puts an uncaught DOMException in the console for no reason.
+    const r = this.canvas.requestPointerLock?.();
+    if (r && typeof r.catch === 'function') r.catch(() => {});
   }
 
   setYaw(y) { this.yaw = y; }

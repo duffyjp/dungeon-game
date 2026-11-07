@@ -425,26 +425,35 @@ attempts; the two rejected seeds are recorded in its manifest entry.
 `?profile=1` puts a frame-time readout on screen and prints one line every two seconds:
 
 ```
-[perf] frame p50 16.7ms p95 23.1 p99 41.0 max 88.0 | cpu update 2.4ms + submit 5.1ms
-       | 158 draws, 175k tris, 12 programs | pixel ratio 2, 6 pooled lights
+[perf] frame p50 16.7ms p95 23.1 p99 41.0 max 88.0 (raf min 16.6) | cpu update 2.4ms + submit 5.1ms
+       | 158 draws, 175k tris, 38 programs | pixel ratio 2, 6 pooled lights
 ```
 
 `p50` is smoothness, `p95`/`p99`/`max` are the stutters — a game can feel bad with a good median.
 `cpu` is what the game itself costs; the gap between that and the frame interval is the GPU. Note
-`render()` returns before the GPU finishes, so submit time is not GPU time.
+`render()` returns before the GPU finishes, so submit time is not GPU time. **`raf min` is the
+shortest interval the browser handed us: if the median sits on it, the frame clock — not the
+drawing — is the ceiling.**
 
 A/B the suspects without editing code:
 
 | URL | What it tests |
 |---|---|
-| `?ratio=1` | fragment count: the game renders at up to 2x device pixels, which is 4x the work per light |
+| `?noscene=1` | draws nothing at all: if the interval is unchanged, the cap is the display or the browser, not the game |
+| `?ratio=0.75` | renders below native pixel count (only a change if `devicePixelRatio` is above that) |
 | `?lights=4` | the torch light pool — every light is a full BRDF evaluation in every fragment |
 | `?disp=0` | height-displaced walls (223 wall instances, most of the triangles) |
 | `?aa=0` | multisample antialiasing, mostly wasted above 1x |
 
+Before the first frame is playable, the game now uploads every texture and compiles every shader
+variant the level will use (`[gpu] depth 1: 596 textures, 38 programs in 0.4s`). three.js uploads
+a texture on first draw and compiles a material on first use, which put a **one-second stall on
+level entry** and left shader programs climbing from 12 to 21 in the middle of a fight — cost the
+network panel cannot show, because the bytes were already downloaded.
+
 Known costs at a mid depth: **158 draw calls, 175k triangles, 12 point lights + 1 spotlight
-compiled into every material, pixel ratio up to 2.** Dropping loot does not recompile anything
-(programs stay at 12), and the minimap repaints at 20 Hz rather than every frame.
+compiled into every material, pixel ratio up to 2.** Dropping loot does not recompile anything,
+and the minimap repaints at 20 Hz rather than every frame.
 
 ## Loading: what a depth needs, before it plays
 

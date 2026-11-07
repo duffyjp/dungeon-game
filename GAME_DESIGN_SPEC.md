@@ -1216,6 +1216,45 @@ browsers run software rendering — so the percentiles can only be read on the o
 profiler exists to turn "it feels bad" into "p50 is 17 ms and p99 is 90 ms, and the CPU parts are
 7 ms", which says where to cut.
 
+### 13.24 The profiler's first catch: a one-second stall at level entry
+
+The owner's `?profile=1` log said it better than any guess could:
+
+```
+[perf] frame p50 32.0ms p95 60.0 p99 1078.0 max 1078.0 | cpu update 0.0ms + submit 16.4ms | 334 draws, 174k tris, 12 programs
+[perf] frame p50 32.0ms p95 35.0 p99 47.0 ... 21 programs        <- programs climbed mid-fight
+[perf] ... max 804.0                                             <- a second stall later in the run
+```
+
+CPU work was ~3 ms of a 32 ms frame, so the time was not the game's logic. Two things were
+happening, and **neither is visible in a network panel** because the bytes were already there:
+
+- **Texture upload on first draw.** three.js moves a texture to the GPU the first time something
+  is drawn with it. Preloading (§13.17) had already fetched and decoded 79 images, so the network
+  panel was quiet while the driver uploaded hundreds of textures at the worst moment: the first
+  frames of a level. That is the 1078 ms entry stall and the 804 ms one that followed.
+- **Shader compilation on first use.** `programs` climbing `12 → 21` during play means nine
+  material variants were compiled while the player was fighting, each freezing the main thread
+  while the driver builds them.
+
+Both now happen inside the loading card: `warmGpu()` walks the finished scene graph, calls
+`renderer.initTexture` on every map of every material plus every decoded animation frame, and
+awaits `renderer.compileAsync(scene, camera)` before `state` becomes `playing`. The harness
+reports **596 textures and 38 programs compiled before play begins**, and the same run that once
+climbed `12 → 21` now reads `38 → 38 → 38` across spawning and collecting loot.
+
+The profiler gained `raf min` — the shortest interval the browser handed us — because a steady
+31–32 ms median with 3 ms of CPU is either a GPU taking 30 ms or a **frame clock at 30 Hz**, and
+the two need different answers. `?noscene=1` draws nothing at all: if the interval is still
+~33 ms with an empty scene, the ceiling is the display or the browser's compositing and no amount
+of optimisation inside the game will move it. Worth noting that `?ratio=1` was a no-op for the
+owner, which means `devicePixelRatio` is already 1 on that panel — a reason to test `?ratio=0.75`
+rather than conclude fill is free.
+
+Also fixed from the same log: `requestPointerLock()` after a fullscreen transition is outside the
+gesture, so Chrome's rejected promise surfaced as an uncaught `DOMException` in the console. The
+rejection is now swallowed, since a failed follow-up lock request is expected and harmless.
+
 
 ---
 
