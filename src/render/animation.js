@@ -111,6 +111,49 @@ export function frameIndex(entry, clockSeconds, offset = 0) {
   return Math.floor(((clockSeconds + offset) * fps)) % entry.frames;
 }
 
+// How big a clip's frame is on the billboard, in the billboard's own units.
+//
+// This is the fix for monsters changing size when they start or stop animating. The billboard
+// is one fixed quad sized for the *still* sprite, which is a padded square: the creature
+// occupies roughly 80% of it. A clip cell is the opposite - a tight crop around the moving
+// silhouette. Stretching that crop across the whole quad therefore drew the animated creature
+// about 25% larger than the same monster standing still, and the pop happened on every
+// idle-to-walk or walk-to-attack switch.
+//
+// The manifest now records the framing the bake knew and the manifest used to drop: the canvas
+// the sprite was composed onto, the scale it was composed at, the pixel size of the still, and
+// the still's own silhouette box. That is enough to draw a clip so the creature is exactly as
+// tall as it is standing still, on the same floor line, with the clip's own aspect preserved.
+//
+// Locking to the still's silhouette is deliberate. Measuring the shipped clips, the animated
+// box ranges from 56% to 106% of the still's height - the video model zooms and drifts a little
+// - so a purely geometric mapping would still let a monster shrink when it starts walking. The
+// size a player judges is the size of the creature, so the height comes from the still.
+//
+// Returns { w, h, dx, dy }: the quad to use and how far to shift it inside the billboard's own
+// plane (dx in the sprite's local x, which rotates with the billboarding, dy in world y).
+export function bodyRectFor(entry, baseW, baseH) {
+  const f = entry && entry.frame;
+  if (!f || !Array.isArray(f.sprite) || !f.sprite[0] || !f.sprite[1] || !Array.isArray(f.subject)) return null;
+  if (!entry.cellW || !entry.cellH) return null;
+  const [SW, SH] = f.sprite;
+  const [, subjY, , subjH] = f.subject;
+  let h = baseH * (subjH / SH);
+  // The crop box is the union of every pose in the clip, so it is a little taller than the
+  // standing pose the still shows. medianSubject is the clip's usual silhouette height, and
+  // dividing by it is what removes the last 5-10% of shrink.
+  if (f.medianSubject && entry.crop && entry.crop[3]) {
+    const k = entry.crop[3] / f.medianSubject;
+    if (k > 0.5 && k < 2) h *= k;
+  }
+  const w = h * (entry.cellW / entry.cellH);
+  if (!(h > 0.05 * baseH && h < 1.8 * baseH) || !(w > 0.05 * baseW && w < 2.2 * baseW)) return null;
+  // The silhouette's feet line, and its horizontal centre, in the standing sprite's placement.
+  const feetY = baseH * (1 - (subjY + subjH) / SH);
+  const centreX = baseW * ((f.subject[0] + f.subject[2] / 2) / SW - 0.5);
+  return { w, h, dx: centreX, dy: (feetY + h / 2) - baseH / 2 };
+}
+
 export function animationEntries() {
   return manifest.entries || [];
 }

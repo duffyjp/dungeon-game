@@ -433,6 +433,24 @@ The first version of this tool guessed at the naming rules and reported 47 of 50
 clips as dead. Reading the code that resolves keys was the fix, and the rule is now written
 down in the tool: an audit that invents deletions is worse than no audit.
 
+## Animation anchors
+
+An animated clip is cropped tight around the moving silhouettes; the still sprite it was
+generated from is a padded square. Both are drawn on one billboard quad, so a monster used to
+grow by up to 69% the moment it started walking. The bake's framing is recovered into
+`assets/anim/manifest.json` (`frame.canvas`, `frame.compose`, `frame.sprite`, the still's
+`subject` box and the clip's `medianSubject`), and `src/render/animation.js: bodyRectFor` turns
+them into the right quad per clip.
+
+```
+node tools/animAnchor.mjs      # after any bake: fills in the framing for every clip
+```
+
+Run it whenever `animWebp` produces new clips — the bake writes `frame.canvas/compose`, but the
+still's pixel size and silhouette box come from the image manifest. The self-test then measures
+the on-screen silhouette of a clip frame against the still of the same creature and fails above
+a 10% difference.
+
 ## Dev notes
 
 - **The watcher ignores `assets/` and atomic-save temp files.** Watching those two

@@ -154,6 +154,7 @@ try { child.kill('SIGKILL'); } catch { /* already gone */ }
 server.close();
 
 const fails = (report.results || []).filter(r => r.startsWith('FAIL'));
+if (process.env.BUILDCHECK_VERBOSE) for (const r of report.results) console.log('  ' + r);
 for (const r of fails) console.log(r);
 console.log(`SELF-TEST on the built site: ${report.pass} passed / ${report.fail} failed`);
 

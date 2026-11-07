@@ -13,7 +13,7 @@ import { mapWindow } from './ui/minimap.js';
 import { isOpen } from './util/grid.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
 import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, hasHeightFor, getMirroredNormalTexture, getTexture } from './render/assets.js';
-import { animationFor, loadFrames, animationSupported, animationDiagnostic } from './render/animation.js';
+import { animationFor, loadFrames, animationSupported, animationDiagnostic, bodyRectFor } from './render/animation.js';
 import { sfxEventNames, sfxFileNames } from './audio/sfx.js';
 import { trackList as musicTrackList } from './audio/music.js';
 import { AUDIO_CREDIT_HTML } from './ui/menus.js';
@@ -631,7 +631,50 @@ export async function runSelfTest(game) {
 
         const spider = game.enemies.find(e => e.spriteKey === animKey) || game.enemies[0];
         if (spider) {
-          spider.anim.clips.set('walk', { entry, frames: tex });
+          // ---- the size-pop regression -------------------------------------
+          // A clip cell is a tight crop around the moving silhouette; the still sprite is a
+          // padded square. Drawn onto one fixed quad, the animated creature came out about
+          // 25% bigger than the same monster standing still, so it jumped size whenever its
+          // action changed. This measures the subject in both images and the quad each is
+          // drawn with, and requires the on-screen silhouette to agree.
+          const subjectBox = (data, W, H) => {
+            let x0 = W, y0 = H, x1 = -1, y1 = -1;
+            for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+              if (data[(y * W + x) * 4 + 3] < 40) continue;
+              if (x < x0) x0 = x; if (x > x1) x1 = x;
+              if (y < y0) y0 = y; if (y > y1) y1 = y;
+            }
+            return x1 < 0 ? null : { w: x1 - x0 + 1, h: y1 - y0 + 1 };
+          };
+          // Pair the clip and the still from the *same* creature: the sample clip above belongs
+          // to whatever the animation section picked, which is not necessarily an enemy that
+          // spawned on this level.
+          const pair = game.enemies.find(e => animationFor(e.spriteKey, 'walk')) || spider;
+          const pEntry = pair && animationFor(pair.spriteKey, 'walk');
+          const pFrames = pEntry ? await loadFrames(pEntry) : null;
+          const still = pair && pair.baseMap;
+          const sw = still && still.image ? (still.image.naturalWidth || still.image.width) : 0;
+          const sh = still && still.image ? (still.image.naturalHeight || still.image.height) : 0;
+          if (sw && sh && pFrames && pFrames.length) {
+            const sc = document.createElement('canvas'); sc.width = sw; sc.height = sh;
+            sc.getContext('2d', { willReadFrequently: true }).drawImage(still.image, 0, 0);
+            const sd = sc.getContext('2d').getImageData(0, 0, sw, sh).data;
+            const fc = pFrames[0];
+            const clipData = grab(fc);
+            const clipBox = subjectBox(clipData, fc.userData.w, fc.userData.h);
+            const stillBox = subjectBox(sd, sw, sh);
+            const rect = bodyRectFor(pEntry, pair.baseQuad[0], pair.baseQuad[1]);
+            if (clipBox && stillBox && rect) {
+              const stillM = pair.baseQuad[1] * (stillBox.h / sh);
+              const clipM = rect.h * (clipBox.h / fc.userData.h);
+              ok('an animated monster is the same size as the standing one',
+                Math.abs(clipM / stillM - 1) < 0.10,
+                `${(100 * (clipM / stillM - 1)).toFixed(0)} % change, ${(pair.spriteKey || '').split('/').pop()} walk clip`);
+            } else {
+              ok('an animated monster is the same size as the standing one', false,
+                `anchor data missing for ${pEntry.file}`);
+            }
+          }          spider.anim.clips.set('walk', { entry, frames: tex });
           spider.anim.idx = -1; spider.anim.action = null; spider.anim.t = 0;
           spider.tickAnimation(0.09, 0.6);
           const first = spider.anim.idx;

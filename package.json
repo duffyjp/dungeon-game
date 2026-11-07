@@ -45,7 +45,8 @@
     "music:batch": "node tools/musicBatch.mjs",
     "music:pack": "node tools/musicPack.mjs",
     "qa:audio": "node tools/audioProfileSelftest.mjs",
-    "qa:assets": "node tools/assetAudit.mjs"
+    "qa:assets": "node tools/assetAudit.mjs",
+    "anim:anchor": "node tools/animAnchor.mjs"
   },
   "dependencies": {
     "three": "^0.160.1"

@@ -985,6 +985,49 @@ provenance record (prompt, seed, model, source URL) into `assets/images/removed.
 than discarding it, so any file judged dead can be regenerated if that turns out to have been
 the wrong call.
 
+### 13.15 Monsters changed size when they started moving
+
+The owner reported slimes and orcs on the first level glitching in size, "maybe when the
+animation restarts". It was not the animation. The billboard is one fixed quad sized for the
+**still** sprite, which is a padded square: the creature occupies 54–92% of that frame. A clip
+cell is the opposite — a tight crop around the union of the moving silhouettes, so the
+creature fills nearly all of it. Stretching the crop across the quad built for the padded
+sprite therefore drew the animated monster larger than the standing one, and the jump landed on
+every action switch, which is exactly when a player is watching.
+
+| creature | the still fills | size jump when it animated |
+|---|---|---|
+| grave spider | 54% | **+69%** |
+| cellar spider | 63% | +42% |
+| orc grunt | 77% | +24% |
+| orc brute | 78% | +24% |
+| slime | 80% | +20% |
+| wraith | 90% | +6% |
+
+**Fix: anchor the clip quad to the still.** The bake had known the framing and the manifest had
+thrown it away, so `tools/animAnchor.mjs` now recovers it from each clip's `results.json` (the
+canvas the sprite was composed onto and the scale it was composed at) and the image manifest,
+and records on every entry: `frame.canvas`, `frame.compose`, `frame.sprite`, the still's
+alpha `frame.subject`, and `frame.medianSubject` — the median silhouette height across the
+clip's frames. `bodyRectFor(entry, baseW, baseH)` in `src/render/animation.js` turns those into
+a quad whose height equals the still's silhouette height, with the cell's own aspect preserved,
+placed on the same floor line and horizontal centre. `enemy.js` caches one geometry per clip
+and swaps it in `applyAnimMap`, restoring the base quad when a monster returns to standing
+still. The residual after locking is **1%** (measured in the browser on the wraith walk clip).
+
+Two things worth keeping straight. The crop box is a *union* over poses, so sizing from it
+alone left a 5–10% shrink; dividing by the median frame height removes it. And the drift is
+real in the source art — animated boxes span 56–106% of the still's height because the video
+model zooms a little — so a purely geometric mapping would still have let a monster shrink when
+it started walking. Locking to the still's silhouette is a deliberate choice: the size a player
+judges is the size of the creature, not the size of its bounding box.
+
+**Guard**: the self-test decodes a clip frame, measures the alpha box of both the frame and the
+still of the *same* creature, multiplies by the quad each is drawn with, and requires the
+on-screen silhouettes to agree within 10%. The first version of that check compared one
+creature's clip to another creature's still and reported a false −32%; pairing them properly is
+what made the number mean something.
+
 
 ---
 

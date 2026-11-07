@@ -159,6 +159,11 @@ for (const e of list) {
       sprite: e.sprite, action: e.action, file,
       frames: order.length, uniqueFrames: N, fps: FPS, durationMs: Math.round(1000 / FPS),
       cellW: fw, cellH: fh, crop: [cx, cy, cw, ch],
+      // The framing the runtime needs to put a tight crop back onto the padded sprite's quad.
+      // Without it the billboard stretches the crop to the whole quad and the monster grows
+      // when it starts moving. node tools/animAnchor.mjs adds `sprite` (the still's pixel size)
+      // from the image manifest, so run it after any bake.
+      frame: { canvas: [W, H], compose: Number(meta.scale) || 1 },
       loop: BOOM ? 'boomerang-baked' : 'forward',
       bytes: buf.length, clip: e.id, seed: meta.seed,
       model: 'wan2.2_i2v (Apache 2.0)', licence: 'Wan 2.2 Apache 2.0'

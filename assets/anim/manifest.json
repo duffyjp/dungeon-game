@@ -27,7 +27,31 @@
       "clip": "cellar_spider__attack",
       "seed": 44536,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          70,
+          123,
+          373,
+          322
+        ],
+        "medianSubject": 334
+      },
+      "anchor": {
+        "x": 46,
+        "y": 89,
+        "w": 421,
+        "h": 377
+      }
     },
     {
       "sprite": "enemies/t1/cellar_spider",
@@ -50,7 +74,31 @@
       "clip": "cellar_spider__flee",
       "seed": 44537,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          70,
+          123,
+          373,
+          322
+        ],
+        "medianSubject": 316
+      },
+      "anchor": {
+        "x": 70,
+        "y": 90,
+        "w": 382,
+        "h": 357
+      }
     },
     {
       "sprite": "enemies/t1/cellar_spider",
@@ -73,7 +121,31 @@
       "clip": "cellar_spider__walk",
       "seed": 44511,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          70,
+          123,
+          373,
+          322
+        ],
+        "medianSubject": 296
+      },
+      "anchor": {
+        "x": 42,
+        "y": 120,
+        "w": 432,
+        "h": 331
+      }
     },
     {
       "sprite": "enemies/t1/goblin_archer",
@@ -96,7 +168,31 @@
       "clip": "goblin_archer__attack",
       "seed": 44521,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          72,
+          37,
+          385,
+          449
+        ],
+        "medianSubject": 448
+      },
+      "anchor": {
+        "x": 53,
+        "y": 18,
+        "w": 408,
+        "h": 502
+      }
     },
     {
       "sprite": "enemies/t1/goblin_archer",
@@ -119,7 +215,31 @@
       "clip": "goblin_archer__walk",
       "seed": 44532,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          72,
+          37,
+          385,
+          449
+        ],
+        "medianSubject": 458
+      },
+      "anchor": {
+        "x": 69,
+        "y": 27,
+        "w": 391,
+        "h": 474
+      }
     },
     {
       "sprite": "enemies/t1/hedge_mage",
@@ -142,7 +262,31 @@
       "clip": "hedge_mage__attack",
       "seed": 44500,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          144,
+          30,
+          224,
+          459
+        ],
+        "medianSubject": 463
+      },
+      "anchor": {
+        "x": 89,
+        "y": 0,
+        "w": 318,
+        "h": 511
+      }
     },
     {
       "sprite": "enemies/t1/hedge_mage",
@@ -165,7 +309,31 @@
       "clip": "hedge_mage__walk",
       "seed": 44500,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          144,
+          30,
+          224,
+          459
+        ],
+        "medianSubject": 478
+      },
+      "anchor": {
+        "x": 118,
+        "y": -43,
+        "w": 288,
+        "h": 543
+      }
     },
     {
       "sprite": "enemies/t1/orc_grunt",
@@ -188,7 +356,31 @@
       "clip": "orc_grunt__attack",
       "seed": 44500,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          93,
+          65,
+          308,
+          392
+        ],
+        "medianSubject": 378
+      },
+      "anchor": {
+        "x": 63,
+        "y": 62,
+        "w": 395,
+        "h": 401
+      }
     },
     {
       "sprite": "enemies/t1/orc_grunt",
@@ -211,7 +403,31 @@
       "clip": "orc_grunt__walk",
       "seed": 44500,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          93,
+          65,
+          308,
+          392
+        ],
+        "medianSubject": 390
+      },
+      "anchor": {
+        "x": 69,
+        "y": 55,
+        "w": 367,
+        "h": 411
+      }
     },
     {
       "sprite": "enemies/t1/slime",
@@ -234,7 +450,31 @@
       "clip": "slime__attack",
       "seed": 44500,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          99,
+          60,
+          316,
+          410
+        ],
+        "medianSubject": 406
+      },
+      "anchor": {
+        "x": 47,
+        "y": 58,
+        "w": 423,
+        "h": 430
+      }
     },
     {
       "sprite": "enemies/t1/slime",
@@ -257,7 +497,31 @@
       "clip": "slime__walk",
       "seed": 44500,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          99,
+          60,
+          316,
+          410
+        ],
+        "medianSubject": 414
+      },
+      "anchor": {
+        "x": 57,
+        "y": 53,
+        "w": 396,
+        "h": 430
+      }
     },
     {
       "sprite": "enemies/t1/wisp",
@@ -280,7 +544,31 @@
       "clip": "wisp__attack",
       "seed": 44500,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          163,
+          42,
+          183,
+          426
+        ],
+        "medianSubject": 406
+      },
+      "anchor": {
+        "x": 132,
+        "y": 50,
+        "w": 268,
+        "h": 450
+      }
     },
     {
       "sprite": "enemies/t1/wisp",
@@ -303,7 +591,31 @@
       "clip": "wisp__walk",
       "seed": 44510,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          163,
+          42,
+          183,
+          426
+        ],
+        "medianSubject": 412
+      },
+      "anchor": {
+        "x": 152,
+        "y": 33,
+        "w": 224,
+        "h": 445
+      }
     },
     {
       "sprite": "enemies/t2/acid_slime",
@@ -326,7 +638,31 @@
       "clip": "acid_slime__attack",
       "seed": 44601,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          98,
+          66,
+          319,
+          398
+        ],
+        "medianSubject": 398
+      },
+      "anchor": {
+        "x": 24,
+        "y": 55,
+        "w": 453,
+        "h": 429
+      }
     },
     {
       "sprite": "enemies/t2/acid_slime",
@@ -349,7 +685,31 @@
       "clip": "acid_slime__walk",
       "seed": 44600,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          98,
+          66,
+          319,
+          398
+        ],
+        "medianSubject": 404
+      },
+      "anchor": {
+        "x": 50,
+        "y": 40,
+        "w": 410,
+        "h": 439
+      }
     },
     {
       "sprite": "enemies/t2/bone_archer",
@@ -372,7 +732,31 @@
       "clip": "bone_archer__attack",
       "seed": 44701,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          61,
+          20,
+          305,
+          473
+        ],
+        "medianSubject": 458
+      },
+      "anchor": {
+        "x": 62,
+        "y": 25,
+        "w": 403,
+        "h": 482
+      }
     },
     {
       "sprite": "enemies/t2/bone_archer",
@@ -395,7 +779,31 @@
       "clip": "bone_archer__walk",
       "seed": 44700,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          61,
+          20,
+          305,
+          473
+        ],
+        "medianSubject": 474
+      },
+      "anchor": {
+        "x": 37,
+        "y": 9,
+        "w": 327,
+        "h": 493
+      }
     },
     {
       "sprite": "enemies/t2/grave_spider",
@@ -418,7 +826,31 @@
       "clip": "grave_spider__attack",
       "seed": 44616,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          66,
+          143,
+          392,
+          274
+        ],
+        "medianSubject": 286
+      },
+      "anchor": {
+        "x": 76,
+        "y": 88,
+        "w": 400,
+        "h": 311
+      }
     },
     {
       "sprite": "enemies/t2/grave_spider",
@@ -441,7 +873,31 @@
       "clip": "grave_spider__flee",
       "seed": 44617,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          66,
+          143,
+          392,
+          274
+        ],
+        "medianSubject": 270
+      },
+      "anchor": {
+        "x": 55,
+        "y": 132,
+        "w": 410,
+        "h": 288
+      }
     },
     {
       "sprite": "enemies/t2/grave_spider",
@@ -464,7 +920,31 @@
       "clip": "grave_spider__walk",
       "seed": 44615,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          66,
+          143,
+          392,
+          274
+        ],
+        "medianSubject": 292
+      },
+      "anchor": {
+        "x": 39,
+        "y": 102,
+        "w": 432,
+        "h": 323
+      }
     },
     {
       "sprite": "enemies/t2/orc_brute",
@@ -487,7 +967,31 @@
       "clip": "orc_brute__attack",
       "seed": 44604,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          90,
+          64,
+          320,
+          400
+        ],
+        "medianSubject": 404
+      },
+      "anchor": {
+        "x": 61,
+        "y": 60,
+        "w": 515,
+        "h": 516
+      }
     },
     {
       "sprite": "enemies/t2/orc_brute",
@@ -510,7 +1014,31 @@
       "clip": "orc_brute__walk",
       "seed": 44603,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          90,
+          64,
+          320,
+          400
+        ],
+        "medianSubject": 394
+      },
+      "anchor": {
+        "x": 65,
+        "y": 60,
+        "w": 380,
+        "h": 408
+      }
     },
     {
       "sprite": "enemies/t2/storm_mage",
@@ -533,7 +1061,31 @@
       "clip": "storm_mage__attack",
       "seed": 44702,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          151,
+          64,
+          194,
+          401
+        ],
+        "medianSubject": 396
+      },
+      "anchor": {
+        "x": 97,
+        "y": 60,
+        "w": 344,
+        "h": 411
+      }
     },
     {
       "sprite": "enemies/t2/storm_mage",
@@ -556,7 +1108,31 @@
       "clip": "storm_mage__walk",
       "seed": 44609,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          151,
+          64,
+          194,
+          401
+        ],
+        "medianSubject": 400
+      },
+      "anchor": {
+        "x": 113,
+        "y": 59,
+        "w": 307,
+        "h": 418
+      }
     },
     {
       "sprite": "enemies/t2/wraith",
@@ -579,7 +1155,31 @@
       "clip": "wraith__attack",
       "seed": 44613,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          166,
+          27,
+          193,
+          460
+        ],
+        "medianSubject": 420
+      },
+      "anchor": {
+        "x": 62,
+        "y": 46,
+        "w": 400,
+        "h": 470
+      }
     },
     {
       "sprite": "enemies/t2/wraith",
@@ -602,7 +1202,31 @@
       "clip": "wraith__walk",
       "seed": 44612,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          166,
+          27,
+          193,
+          460
+        ],
+        "medianSubject": 455
+      },
+      "anchor": {
+        "x": 79,
+        "y": 25,
+        "w": 389,
+        "h": 478
+      }
     },
     {
       "sprite": "enemies/t3/bone_spider",
@@ -625,7 +1249,31 @@
       "clip": "bone_spider__attack",
       "seed": 44634,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          41,
+          126,
+          431,
+          329
+        ],
+        "medianSubject": 332
+      },
+      "anchor": {
+        "x": 38,
+        "y": 115,
+        "w": 442,
+        "h": 359
+      }
     },
     {
       "sprite": "enemies/t3/bone_spider",
@@ -648,7 +1296,31 @@
       "clip": "bone_spider__flee",
       "seed": 44635,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          41,
+          126,
+          431,
+          329
+        ],
+        "medianSubject": 298
+      },
+      "anchor": {
+        "x": 43,
+        "y": 129,
+        "w": 461,
+        "h": 338
+      }
     },
     {
       "sprite": "enemies/t3/bone_spider",
@@ -671,7 +1343,31 @@
       "clip": "bone_spider__walk",
       "seed": 44706,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          41,
+          126,
+          431,
+          329
+        ],
+        "medianSubject": 328
+      },
+      "anchor": {
+        "x": 42,
+        "y": 115,
+        "w": 478,
+        "h": 361
+      }
     },
     {
       "sprite": "enemies/t3/caustic_ooze",
@@ -694,7 +1390,31 @@
       "clip": "caustic_ooze__attack",
       "seed": 44619,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          73,
+          62,
+          367,
+          399
+        ],
+        "medianSubject": 394
+      },
+      "anchor": {
+        "x": 10,
+        "y": 43,
+        "w": 482,
+        "h": 432
+      }
     },
     {
       "sprite": "enemies/t3/caustic_ooze",
@@ -717,7 +1437,31 @@
       "clip": "caustic_ooze__walk",
       "seed": 44618,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          73,
+          62,
+          367,
+          399
+        ],
+        "medianSubject": 408
+      },
+      "anchor": {
+        "x": 12,
+        "y": 40,
+        "w": 506,
+        "h": 467
+      }
     },
     {
       "sprite": "enemies/t3/dread_spectre",
@@ -740,7 +1484,31 @@
       "clip": "dread_spectre__attack",
       "seed": 44705,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          120,
+          31,
+          260,
+          450
+        ],
+        "medianSubject": 412
+      },
+      "anchor": {
+        "x": 90,
+        "y": 41,
+        "w": 331,
+        "h": 456
+      }
     },
     {
       "sprite": "enemies/t3/dread_spectre",
@@ -763,7 +1531,31 @@
       "clip": "dread_spectre__walk",
       "seed": 44630,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          120,
+          31,
+          260,
+          450
+        ],
+        "medianSubject": 466
+      },
+      "anchor": {
+        "x": 133,
+        "y": 5,
+        "w": 268,
+        "h": 499
+      }
     },
     {
       "sprite": "enemies/t3/orc_warlord",
@@ -786,7 +1578,31 @@
       "clip": "orc_warlord__attack",
       "seed": 44622,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          106,
+          34,
+          298,
+          451
+        ],
+        "medianSubject": 442
+      },
+      "anchor": {
+        "x": 57,
+        "y": 32,
+        "w": 405,
+        "h": 461
+      }
     },
     {
       "sprite": "enemies/t3/orc_warlord",
@@ -809,7 +1625,31 @@
       "clip": "orc_warlord__walk",
       "seed": 44621,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          106,
+          34,
+          298,
+          451
+        ],
+        "medianSubject": 450
+      },
+      "anchor": {
+        "x": 77,
+        "y": 27,
+        "w": 358,
+        "h": 472
+      }
     },
     {
       "sprite": "enemies/t3/venom_archer",
@@ -832,7 +1672,31 @@
       "clip": "venom_archer__attack",
       "seed": 44704,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          92,
+          25,
+          267,
+          463
+        ],
+        "medianSubject": 440
+      },
+      "anchor": {
+        "x": 81,
+        "y": 42,
+        "w": 303,
+        "h": 470
+      }
     },
     {
       "sprite": "enemies/t3/venom_archer",
@@ -855,7 +1719,31 @@
       "clip": "venom_archer__walk",
       "seed": 44720,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          92,
+          25,
+          267,
+          463
+        ],
+        "medianSubject": 466
+      },
+      "anchor": {
+        "x": 68,
+        "y": 21,
+        "w": 289,
+        "h": 490
+      }
     },
     {
       "sprite": "enemies/t3/void_archmage",
@@ -878,7 +1766,31 @@
       "clip": "void_archmage__attack",
       "seed": 44628,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          141,
+          42,
+          210,
+          448
+        ],
+        "medianSubject": 442
+      },
+      "anchor": {
+        "x": 95,
+        "y": 38,
+        "w": 291,
+        "h": 465
+      }
     },
     {
       "sprite": "enemies/t3/void_archmage",
@@ -901,7 +1813,31 @@
       "clip": "void_archmage__walk",
       "seed": 44627,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          141,
+          42,
+          210,
+          448
+        ],
+        "medianSubject": 446
+      },
+      "anchor": {
+        "x": 123,
+        "y": 28,
+        "w": 282,
+        "h": 469
+      }
     },
     {
       "sprite": "enemies/t4/doomspeaker",
@@ -924,7 +1860,31 @@
       "clip": "doomspeaker__attack",
       "seed": 44646,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          171,
+          26,
+          171,
+          467
+        ],
+        "medianSubject": 462
+      },
+      "anchor": {
+        "x": 77,
+        "y": 24,
+        "w": 339,
+        "h": 475
+      }
     },
     {
       "sprite": "enemies/t4/doomspeaker",
@@ -947,7 +1907,31 @@
       "clip": "doomspeaker__walk",
       "seed": 44645,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          171,
+          26,
+          171,
+          467
+        ],
+        "medianSubject": 467
+      },
+      "anchor": {
+        "x": 149,
+        "y": 21,
+        "w": 220,
+        "h": 479
+      }
     },
     {
       "sprite": "enemies/t4/hollow_ranger",
@@ -970,7 +1954,31 @@
       "clip": "hollow_ranger__attack",
       "seed": 44707,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          161,
+          48,
+          305,
+          442
+        ],
+        "medianSubject": 434
+      },
+      "anchor": {
+        "x": 104,
+        "y": 11,
+        "w": 365,
+        "h": 502
+      }
     },
     {
       "sprite": "enemies/t4/hollow_ranger",
@@ -993,7 +2001,31 @@
       "clip": "hollow_ranger__walk",
       "seed": 44642,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          161,
+          48,
+          305,
+          442
+        ],
+        "medianSubject": 438
+      },
+      "anchor": {
+        "x": 130,
+        "y": 45,
+        "w": 357,
+        "h": 453
+      }
     },
     {
       "sprite": "enemies/t4/hungering_shade",
@@ -1016,7 +2048,31 @@
       "clip": "hungering_shade__attack",
       "seed": 44649,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          137,
+          31,
+          225,
+          455
+        ],
+        "medianSubject": 453
+      },
+      "anchor": {
+        "x": 70,
+        "y": 19,
+        "w": 382,
+        "h": 477
+      }
     },
     {
       "sprite": "enemies/t4/hungering_shade",
@@ -1039,7 +2095,31 @@
       "clip": "hungering_shade__walk",
       "seed": 44648,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          137,
+          31,
+          225,
+          455
+        ],
+        "medianSubject": 448
+      },
+      "anchor": {
+        "x": 73,
+        "y": 25,
+        "w": 405,
+        "h": 481
+      }
     },
     {
       "sprite": "enemies/t4/iron_reaver",
@@ -1062,7 +2142,31 @@
       "clip": "iron_reaver__attack",
       "seed": 44640,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          72,
+          34,
+          363,
+          457
+        ],
+        "medianSubject": 466
+      },
+      "anchor": {
+        "x": 52,
+        "y": 25,
+        "w": 403,
+        "h": 482
+      }
     },
     {
       "sprite": "enemies/t4/iron_reaver",
@@ -1085,7 +2189,31 @@
       "clip": "iron_reaver__walk",
       "seed": 44639,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          72,
+          34,
+          363,
+          457
+        ],
+        "medianSubject": 454
+      },
+      "anchor": {
+        "x": 48,
+        "y": 27,
+        "w": 421,
+        "h": 473
+      }
     },
     {
       "sprite": "enemies/t4/void_slime",
@@ -1108,7 +2236,31 @@
       "clip": "void_slime__attack",
       "seed": 44637,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          75,
+          68,
+          362,
+          389
+        ],
+        "medianSubject": 404
+      },
+      "anchor": {
+        "x": 70,
+        "y": 45,
+        "w": 382,
+        "h": 419
+      }
     },
     {
       "sprite": "enemies/t4/void_slime",
@@ -1131,7 +2283,31 @@
       "clip": "void_slime__walk",
       "seed": 44636,
       "model": "wan2.2_i2v (Apache 2.0)",
-      "licence": "Wan 2.2 Apache 2.0"
+      "licence": "Wan 2.2 Apache 2.0",
+      "frame": {
+        "canvas": [
+          640,
+          640
+        ],
+        "compose": 1,
+        "sprite": [
+          512,
+          512
+        ],
+        "subject": [
+          75,
+          68,
+          362,
+          389
+        ],
+        "medianSubject": 413
+      },
+      "anchor": {
+        "x": 48,
+        "y": 34,
+        "w": 442,
+        "h": 460
+      }
     }
   ]
 }

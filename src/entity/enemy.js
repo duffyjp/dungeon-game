@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { CFG } from '../config.js';
 import { getTexture, getSoftShadowTexture } from '../render/assets.js';
 import { makeBillboard } from '../world/levelView.js';
-import { animationFor, loadFrames, frameIndex } from '../render/animation.js';
+import { animationFor, loadFrames, frameIndex, bodyRectFor } from '../render/animation.js';
 import { moveCircle, hasLineOfSight, findOpenSpot } from '../world/collision.js';
 import { isOpen } from '../util/grid.js';
 import * as sfx from '../audio/sfx.js';
@@ -63,10 +63,14 @@ export class Enemy {
     this.spriteKey = spriteKey;
     this.body = makeBillboard(spriteKey, [this.height * 0.75, this.height], this.x, this.z, this.height / 2);
     this.baseMap = this.body.material.map;
+    // The quad the still sprite was sized for, kept so an animated clip can be put back onto
+    // it at the right scale (see bodyRectFor) and so returning to idle restores it exactly.
+    this.baseGeom = this.body.geometry;
+    this.baseQuad = [this.height * 0.75, this.height];
     // Frame animation state. The offset is random per creature so a room of the same species
     // does not step in lockstep. Clips are decoded once per (sprite, action) and shared by
-    // every creature of that kind.
-    this.anim = { t: 0, offset: Math.random() * 8, idx: -1, action: null, clips: new Map(), asked: new Set() };
+    // every creature of that kind; the per-clip quad is shared the same way.
+    this.anim = { t: 0, offset: Math.random() * 8, idx: -1, action: null, clips: new Map(), asked: new Set(), quads: new Map() };
     this.group.add(this.body);
 
     // Contact shadow follows the same tier ramp as the silhouette, so a knee-high wisp
@@ -198,7 +202,7 @@ export class Enemy {
       const i = frameIndex(clip.entry, a.t, a.offset);
       if (i !== a.idx) {
         a.idx = i;
-        this.applyAnimMap(clip.frames[i]);
+        this.applyAnimMap(clip.frames[i], clip.entry);
       }
       return;
     }
@@ -207,15 +211,33 @@ export class Enemy {
     a.idx = -1;
     a.t = 0;
     const clip = action ? a.clips.get(action) : null;
-    this.applyAnimMap(clip ? clip.frames[0] : null);
+    this.applyAnimMap(clip ? clip.frames[0] : null, clip ? clip.entry : null);
   }
 
-  applyAnimMap(tex) {
+  applyAnimMap(tex, entry = null) {
     const before = this.body.material.map;
     this.body.material.map = tex || this.baseMap;
     // A material rebuild is only needed when a map appears or disappears; swapping one
     // texture for another does not need one, and this runs on every frame of every monster.
     if (!before !== !this.body.material.map) this.body.material.needsUpdate = true;
+
+    // And the quad has to follow the image. A clip cell is a tight crop of the composed frame
+    // while the still sprite is padded, so the same quad draws the animated creature larger
+    // than the standing one - a slime would jump size every time it started walking. The
+    // per-clip quad is computed once per clip and shared by every creature of that kind.
+    const geom = entry ? this.clipQuad(entry) : this.baseGeom;
+    if (geom && this.body.geometry !== geom) this.body.geometry = geom;
+  }
+
+  clipQuad(entry) {
+    const cached = this.anim.quads.get(entry.file);
+    if (cached) return cached;
+    const r = bodyRectFor(entry, this.baseQuad[0], this.baseQuad[1]);
+    const geom = r
+      ? (() => { const g = new THREE.PlaneGeometry(r.w, r.h); g.translate(r.dx, r.dy, 0); return g; })()
+      : this.baseGeom;
+    this.anim.quads.set(entry.file, geom);
+    return geom;
   }
 
   // ---- movement helpers ----
