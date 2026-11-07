@@ -118,6 +118,43 @@ export class Game {
     this._visT = 0;
 
     addEventListener('resize', () => this.onResize());
+    // A fullscreen transition changes the drawing-buffer size, and the compositor settles a
+    // beat after the event fires. Resize on the event and once more on the next frame, or the
+    // scene keeps the old aspect and looks stretched on one side.
+    document.addEventListener('fullscreenchange', () => {
+      this.onResize();
+      requestAnimationFrame(() => this.onResize());
+    });
+  }
+
+  // ---------------------------------------------------------------- fullscreen
+  // Real element fullscreen, not the browser's own F11: that hides browser chrome but leaves
+  // the canvas at its CSS size, so the picture is the same resolution stretched over a bigger
+  // window. Going through requestFullscreen lets the renderer resize to the panel's native
+  // pixel count, which is the difference between a bigger window and a sharper one.
+  async toggleFullscreen() {
+    const el = document.documentElement;
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return false;
+      }
+      const req = el.requestFullscreen
+        ? el.requestFullscreen({ navigationUI: 'hide' })
+        : el.webkitRequestFullscreen ? Promise.resolve(el.webkitRequestFullscreen()) : null;
+      if (!req) {
+        this.toast('Fullscreen is not available in this browser', '#e0483d');
+        return false;
+      }
+      await req;
+      this.onResize();
+      return Boolean(document.fullscreenElement);
+    } catch (err) {
+      // Browsers refuse fullscreen that was not triggered by a gesture the user made, which
+      // is a policy outcome rather than a bug — say so instead of failing silently.
+      this.toast(`Fullscreen refused by the browser: ${err.name || err.message}`, '#e0483d');
+      return false;
+    }
   }
 
   // ---------------------------------------------------------------- lifecycle

@@ -9,6 +9,12 @@ export const CFG = {
   // too heavy, so this sits lower and displacement below carries the physical depth instead.
   bumpScale: 1.8,
 
+  // Minimap: a window of this many cells that travels with the player, in place of the whole
+  // level shrunk to fit. Below this span a level still draws entire, so small levels keep the
+  // overview and only the big ones scroll.
+  mapFollow: true,
+  mapViewCells: 13,
+
   // Displacement is real geometry, so it is paid for in vertices rather than texels.
   // tools/dispCost.mjs measures it: 8 subdivisions per wall face puts the deepest level at
   // 268k triangles against 4.2k today, which a GPU shrugs off. What it cannot do is express

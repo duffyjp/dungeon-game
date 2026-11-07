@@ -15,7 +15,7 @@
 
 import * as THREE from 'three';
 import { CFG } from '../config.js';
-import { getTexture, hasNormalFor, getMirroredNormalTexture, hasRoughnessFor, getMirroredRoughnessTexture } from '../render/assets.js';
+import { getTexture, hasAsset, hasNormalFor, getMirroredNormalTexture, hasRoughnessFor, getMirroredRoughnessTexture } from '../render/assets.js';
 
 // ---- shared materials -------------------------------------------------------
 
@@ -57,6 +57,10 @@ function nrm(key, rx = 1, ry = rx) {
   texCache.set(ck, t);
   return t;
 }
+
+// A material that asks for art that has not been generated yet must get no map at all:
+// tex() would hand back the procedural placeholder noise, and in play that reads as a bug.
+function texIf(key, rx = 1, ry = rx) { return hasAsset(key) ? tex(key, rx, ry) : null; }
 
 // Same pattern for the roughness companion. Measured: a normal map alone moves under 1% of
 // pixels under this game's lighting, while the sheen it enables is what the eye actually
@@ -106,7 +110,13 @@ const M = {
   stoneTall: (biome) => mat(`stoneTall:${biome.wall}`, () => new THREE.MeshStandardMaterial({
     color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`, 1, 3), normalMap: nrm(`textures/${biome.wall}`, 1, 3), roughnessMap: rm(`textures/${biome.wall}`, 1, 3), normalScale: bumpVec()
   })),
-  bone: () => mat('bone', () => new THREE.MeshStandardMaterial({ color: 0xd9d2bf, roughness: 0.7, metalness: 0.02 })),
+  bone: () => mat('bone', () => new THREE.MeshStandardMaterial({
+    color: 0xd9d2bf, roughness: 0.78, metalness: 0.02,
+    map: texIf('textures/bone', 2, 2),
+    normalMap: nrm('textures/bone', 2, 2), normalScale: bumpVec(),
+    roughnessMap: rm('textures/bone', 2, 2)
+  })),
+  socket: () => mat('socket', () => new THREE.MeshStandardMaterial({ color: 0x14110f, roughness: 0.95, metalness: 0 })),
   brass: () => mat('brass', () => new THREE.MeshStandardMaterial({ color: 0x8f7338, roughness: 0.5, metalness: 0.3 })),
   door: () => mat('doorSlab', () => new THREE.MeshStandardMaterial({
     color: 0xbfae94, roughness: 0.8, metalness: 0.03, map: tex('textures/door_oak'), normalMap: nrm('textures/door_oak'), roughnessMap: rm('textures/door_oak'), normalScale: bumpVec()
@@ -206,6 +216,25 @@ function barrel() {
   return g;
 }
 
+// A skull a player can recognise at a distance: cranium, jaw, and two dark sockets that
+// read as holes because they are darker rather than because they are modelled. Used by the
+// bone piles and hung from the chain, so the same silhouette carries both props.
+function skullMesh(scale = 1) {
+  const g = new THREE.Group();
+  const cranium = mesh(new THREE.SphereGeometry(0.14, 10, 8), M.bone(), [0, 0.14, 0]);
+  cranium.scale.set(1, 1.06, 1.12);
+  g.add(cranium);
+  const jaw = mesh(new THREE.BoxGeometry(0.17, 0.075, 0.19), M.bone(), [0, 0.035, 0.035]);
+  g.add(jaw);
+  // sockets sit slightly inside the face so the headlamp rims them instead of flattening them
+  for (const sx of [-1, 1]) {
+    g.add(mesh(new THREE.SphereGeometry(0.042, 8, 6), M.socket(), [sx * 0.055, 0.165, 0.115]));
+  }
+  g.add(mesh(new THREE.ConeGeometry(0.028, 0.05, 5), M.socket(), [0, 0.095, 0.135], [Math.PI, 0, 0]));
+  g.scale.setScalar(scale);
+  return g;
+}
+
 function bones() {
   const g = new THREE.Group();
   const longBone = new THREE.CapsuleGeometry(0.055, 0.45, 3, 6);
@@ -215,9 +244,11 @@ function bones() {
     m.rotation.set(Math.PI / 2, 0, a);
     g.add(m);
   }
-  const skull = new THREE.SphereGeometry(0.14, 8, 6);
-  g.add(mesh(skull, M.bone(), [jitter(9, 2) * 0.3, 0.13, jitter(9, 8) * 0.3]));
-  g.add(mesh(new THREE.SphereGeometry(0.09, 7, 5), M.bone(), [-0.3, 0.09, 0.24]));
+  const sk = skullMesh(1);
+  sk.position.set(jitter(9, 2) * 0.3, 0, jitter(9, 8) * 0.3);
+  sk.rotation.y = (jitter(4, 6, 2) + 1) * Math.PI;
+  g.add(sk);
+  g.add(settle(mesh(new THREE.SphereGeometry(0.09, 7, 5), M.bone(), [-0.3, 0.09, 0.24])));
   return g;
 }
 
@@ -234,7 +265,14 @@ function chain() {
   }
   const endY = top - 12 * 0.18 - 0.14;
   g.add(mesh(new THREE.TorusGeometry(0.15, 0.05, 6, 10), M.iron(), [0, endY, 0], [Math.PI / 2, 0, 0]));
-  g.add(mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.45, 6), M.iron(), [0, endY - 0.35, 0]));
+  // What hung here before was a bare iron rod, which read as a modelling mistake — the prop
+  // is a chain with something on the end, so put something on the end.
+  const sk = skullMesh(1.2);
+  sk.position.set(0, endY - 0.34, 0);
+  sk.rotation.x = 0.14;              // tipped forward slightly, so the sockets face the room
+  g.add(sk);
+  // a couple of links wrapping the crown, so it is attached rather than resting there
+  g.add(mesh(new THREE.TorusGeometry(0.1, 0.03, 6, 10), M.iron(), [0, endY - 0.12, 0.02], [Math.PI / 2.4, 0, 0]));
   return g;
 }
 
@@ -407,20 +445,32 @@ function webTexture() {
   return webTex;
 }
 
-function cobweb() {
+function cobweb(mount) {
+  // Cobwebs belong to a corner, so the geometry is built around the walls the cell actually
+  // has rather than dropped in the middle of a room at a random angle: a sheet against each
+  // wall face, a web bridging them along the ceiling, and a drape into the corner. Cells with
+  // a single wall face get the wall sheet and the ceiling bridge only.
   const g = new THREE.Group();
-  const sheet = new THREE.PlaneGeometry(1.5, 1.15);
   const m = mat('cobweb', () => new THREE.MeshStandardMaterial({
     map: webTexture(), transparent: true, opacity: 0.5, roughness: 1, metalness: 0,
     side: THREE.DoubleSide, depthWrite: false, color: 0xdfe4ea
   }));
-  // two crossing sheets hung from the ceiling; from any corridor angle at least one reads
-  for (const rot of [0, Math.PI / 2]) {
-    const q = mesh(sheet, m, [0, CFG.wallH - 0.62, 0], [0.18, rot, 0.1]);
-    g.add(q);
+  const faces = (mount && mount.faces && mount.faces.length) ? mount.faces : [{ x: 0, z: 1 }];
+  const hug = 0.86;                       // wall face sits half a cell out from the centre
+  const wallSheet = new THREE.PlaneGeometry(1.5, 1.25);
+  for (const f of faces) {
+    const a = Math.atan2(f.x, f.z);
+    g.add(mesh(wallSheet, m, [Math.sin(a) * hug, CFG.wallH - 0.80, Math.cos(a) * hug], [0.10, a, 0]));
   }
-  // a short drape down the corner catches the headlamp on the way past
-  g.add(mesh(new THREE.PlaneGeometry(0.7, 1.3), m, [0.42, CFG.wallH - 1.5, -0.42], [0, Math.PI / 4, 0]));
+  const bx = faces.reduce((s, f) => s + f.x, 0) / faces.length;
+  const bz = faces.reduce((s, f) => s + f.z, 0) / faces.length;
+  const bis = Math.atan2(bx, bz);
+  g.add(mesh(new THREE.PlaneGeometry(1.45, 1.45), m,
+    [bx * 0.42, CFG.wallH - 0.10, bz * 0.42], [-Math.PI / 2, 0, bis]));
+  if (faces.length > 1) {
+    g.add(mesh(new THREE.PlaneGeometry(0.85, 1.35), m,
+      [Math.sin(bis) * 0.62, CFG.wallH - 1.20, Math.cos(bis) * 0.62], [0, bis + Math.PI / 4, 0]));
+  }
   return g;
 }
 
@@ -428,7 +478,7 @@ function cobweb() {
 
 // Returns a Group positioned at the world origin; the caller places it. Returns null for
 // kinds that should stay sprites, so levelView can fall back instead of dropping detail.
-export function makeProp(kind, biome, cell = { x: 0, y: 0 }) {
+export function makeProp(kind, biome, cell = { x: 0, y: 0 }, mount = null) {
   let g = null;
   switch (kind) {
     case 'crate': g = crate(); break;
@@ -438,12 +488,17 @@ export function makeProp(kind, biome, cell = { x: 0, y: 0 }) {
     case 'stone_arch': g = arch(biome); break;
     case 'door_oak': g = door(biome); break;
     case 'rubble': g = rubble(biome); break;
-    case 'cobweb': g = cobweb(biome); break;
+    case 'cobweb': g = cobweb(mount); break;
     default: return null;
   }
-  g.rotation.y = (jitter(cell.x, cell.y, 1) + 1) * Math.PI * 0.5;
-  g.position.set(jitter(cell.x, cell.y, 2) * 0.12, 0, jitter(cell.x, cell.y, 3) * 0.12);
+  if (kind !== 'cobweb') {
+    // Cobwebs are placed against the room's walls by their own builder, so free rotation and
+    // position jitter would undo exactly the thing they are meant to do.
+    g.rotation.y = (jitter(cell.x, cell.y, 1) + 1) * Math.PI * 0.5;
+    g.position.set(jitter(cell.x, cell.y, 2) * 0.12, 0, jitter(cell.x, cell.y, 3) * 0.12);
+  }
   g.userData.solid = true;
+  g.userData.propKind = kind;      // lets a check ask "is this cobweb actually against a wall"
   return g;
 }
 

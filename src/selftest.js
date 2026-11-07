@@ -8,8 +8,11 @@ import { CFG } from './config.js';
 import enemiesData from '../data/enemies.json';
 import biomeData from '../data/biomes.json';
 import { makeProp } from './world/propMeshes.js';
+import { wallMount, textureHasAlpha } from './world/levelView.js';
+import { mapWindow } from './ui/minimap.js';
+import { isOpen } from './util/grid.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
-import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, hasHeightFor, getMirroredNormalTexture } from './render/assets.js';
+import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, hasHeightFor, getMirroredNormalTexture, getTexture } from './render/assets.js';
 import { animationFor, loadFrames, animationSupported, animationDiagnostic } from './render/animation.js';
 
 export async function runSelfTest(game) {
@@ -405,6 +408,54 @@ export async function runSelfTest(game) {
     ok('the wall material carries both a normal map and a roughness map',
       Boolean(wm2 && wm2.normalMap && wm2.roughnessMap),
       wm2 ? `normal ${Boolean(wm2.normalMap)} roughness ${Boolean(wm2.roughnessMap)}` : 'no wall material found');
+
+    // ---- props and interface ---------------------------------------------
+    // Cobwebs are mounted to the room now, so a web with no wall to mount to is a placement
+    // bug rather than a taste question; and a floor decal is only allowed to keep the radial
+    // mask while its art is still an opaque square.
+    const webProps = ((game.level && game.level.props) || []).filter(p => p.kind === 'cobweb');
+    const unmountable = webProps.filter(p => !wallMount(game.level, p.x, p.y));
+    ok('every cobweb has a wall to hang from', unmountable.length === 0,
+      `${webProps.length} cobwebs in this level${unmountable.length ? ` — ${unmountable.length} have no wall within two cells` : ''}`);
+    const decalKeys = ['blood_splatter', 'scorch'];
+    const stillOpaque = decalKeys.filter(k => !textureHasAlpha(getTexture(`textures/${k}`).image));
+    ok('floor decals carry their own silhouette', stillOpaque.length === 0,
+      decalKeys.join(', ') + (stillOpaque.length ? ` — still needs the radial mask: ${stillOpaque.join(', ')}` : ''));
+    ok('a bone surface tile exists for the 3D bone piles', hasAsset('textures/bone'),
+      hasAsset('textures/bone') ? 'textures/bone, with derived normal and roughness' : 'no textures/bone in the registry');
+
+    const win = mapWindow(game.level, game.player.x, game.player.z, game.minimap.size);
+    ok('the minimap window follows the player on a level big enough to scroll',
+      win.follow && Math.abs(game.player.x / CFG.cell - (win.ox + win.view / 2)) < 1e-9,
+      `level ${game.level.w}x${game.level.h}, view ${win.view} cells, window at ${win.ox.toFixed(1)},${win.oy.toFixed(1)}`);
+    ok('fullscreen is exposed on the game', typeof game.toggleFullscreen === 'function');
+
+    // The cobweb fix has to be checked geometrically: a screenshot only proves it looked
+    // mounted by luck of the camera. Each web group's sheets are offset toward the wall it
+    // was hung on, so the sum of its child positions must point at a solid neighbour cell.
+    const meshes = (game.levelView && game.levelView.propMeshes) || [];
+    const webs = meshes.filter(m => m.userData && m.userData.propKind === 'cobweb');
+    let notHugging = 0;
+    for (const w of webs) {
+      let cx = 0, cz = 0;
+      w.traverse(o => { if (o !== w && o.isMesh) { cx += o.position.x; cz += o.position.z; } });
+      const gx = Math.floor(w.position.x / CFG.cell), gy = Math.floor(w.position.z / CFG.cell);
+      const sx = Math.sign(cx), sy = Math.sign(cz);
+      const solidNeighbour = !isOpen(game.level, gx + sx, gy) || !isOpen(game.level, gx, gy + sy);
+      if (!solidNeighbour) notHugging++;
+    }
+    ok('every cobweb leans against a solid face', webs.length > 0 && notHugging === 0,
+      `${webs.length} webs in this level, ${notHugging} not against a wall`);
+    const chains = meshes.filter(m => m.userData && m.userData.propKind === 'chain_hanging');
+    let boneParts = 0;
+    for (const c of chains) {
+      c.traverse(o => {
+        if (o.isMesh && o.material && o.material.color && Math.abs(o.material.color.getHex() - 0xd9d2bf) < 4) boneParts++;
+      });
+    }
+    ok('a hanging chain ends in a skull, not a bare rod',
+      chains.length === 0 || boneParts >= chains.length,
+      `${chains.length} chains in this level, ${boneParts} bone-coloured parts on them`);
 
     // "Is bump mapping active?" has two parts, and only the second is interesting. The
     // texture has to be bound to the live material — not a placeholder that happens to be

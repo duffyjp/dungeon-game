@@ -395,11 +395,14 @@
     "previousPrompt": "dark dried blood splatter on stone, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-blood_splatter_00001_.png&subfolder=&type=output",
     "normalPath": "assets/images/normals/blood_splatter.webp",
-    "model": "Qwen/Qwen-Image-2.1 (edit mode — conditions on the existing tile, so the composition is preserved)",
-    "licence": "Qwen Research License (https://huggingface.co/Qwen/Qwen-Image-2.1/raw/main/LICENSE). Reviewed by the repository owner on 2026-11-06; shipping its outputs is approved. Record model and licence on every asset made with it.",
+    "model": "Qwen/Qwen-Image-2.1 (edit mode)",
+    "licence": "Qwen Research License (https://huggingface.co/Qwen/Qwen-Image-2.1/raw/main/LICENSE). Reviewed by the repository owner on 2026-11-06; shipping its outputs is approved.",
     "editInstruction": "Repaint this game texture as a gritty, weathered, photoreal dungeon surface with high micro-detail, physically plausible wear concentrated where a creature or the player would contact it, cold diffuse torch light, desaturated palette, fine grain and micro-contrast throughout : dark dried blood on stone, brown-black and matte where thick, translucent at the edges, spatter droplets and a smear where it was dragged",
     "restyleSeed": 45023,
-    "derivedNormal": "normal map computed offline from this tile (luminance -> wrapping box blur -> Sobel -> normalise); no model involved, so no third-party terms attach"
+    "derivedNormal": "normal map computed offline from this tile (luminance -> wrapping box blur -> Sobel -> normalise); no model involved, so no third-party terms attach",
+    "alphaSource": "experiments/decalalpha/strata-decalalpha-blood_splatter_00001.png",
+    "alphaSeed": 45040,
+    "alphaMethod": "subject isolated on flat magenta by the image model, keyed offline with the video keyer (87.4% of the frame keyed to clear); the radial decal mask is no longer applied"
   },
   {
     "path": "assets/images/textures/scorch.webp",
@@ -422,11 +425,14 @@
     "previousPrompt": "radial scorch mark on stone, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-scorch_00001_.png&subfolder=&type=output",
     "normalPath": "assets/images/normals/scorch.webp",
-    "model": "Qwen/Qwen-Image-2.1 (edit mode — conditions on the existing tile, so the composition is preserved)",
-    "licence": "Qwen Research License (https://huggingface.co/Qwen/Qwen-Image-2.1/raw/main/LICENSE). Reviewed by the repository owner on 2026-11-06; shipping its outputs is approved. Record model and licence on every asset made with it.",
+    "model": "Qwen/Qwen-Image-2.1 (edit mode)",
+    "licence": "Qwen Research License (https://huggingface.co/Qwen/Qwen-Image-2.1/raw/main/LICENSE). Reviewed by the repository owner on 2026-11-06; shipping its outputs is approved.",
     "editInstruction": "Repaint this game texture as a gritty, weathered, photoreal dungeon surface with high micro-detail, physically plausible wear concentrated where a creature or the player would contact it, cold diffuse torch light, desaturated palette, fine grain and micro-contrast throughout : blackened scorch mark on stone, cracked soot flaking away, an ember-darkened rim and heat-discoloured grain radiating outward",
     "restyleSeed": 45024,
-    "derivedNormal": "normal map computed offline from this tile (luminance -> wrapping box blur -> Sobel -> normalise); no model involved, so no third-party terms attach"
+    "derivedNormal": "normal map computed offline from this tile (luminance -> wrapping box blur -> Sobel -> normalise); no model involved, so no third-party terms attach",
+    "alphaSource": "experiments/decalalpha/strata-decalalpha-scorch_00001.png",
+    "alphaSeed": 45041,
+    "alphaMethod": "subject isolated on flat magenta by the image model, keyed offline with the video keyer (80.9% of the frame keyed to clear); the radial decal mask is no longer applied"
   },
   {
     "path": "assets/images/enemies/t1/slime.png",
@@ -2633,5 +2639,21 @@
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-menu_bg_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
     "generatedAt": "2026-11-05T05:31:06Z"
+  },
+  {
+    "slug": "bone",
+    "path": "assets/images/textures/bone.webp",
+    "normalPath": "assets/images/normals/bone.webp",
+    "roughnessPath": "assets/images/roughness/bone.webp",
+    "heightPath": "assets/images/heights/bone.webp",
+    "model": "Qwen/Qwen-Image-2.1 (edit mode)",
+    "licence": "Qwen Research License (https://huggingface.co/Qwen/Qwen-Image-2.1/raw/main/LICENSE). Reviewed by the repository owner on 2026-11-06; shipping its outputs is approved.",
+    "editInstruction": "Re-render this pile of bones as a seamless tileable surface texture of weathered bone and ivory: overlapping fragments, grain and crazing in the surface, dirt and age staining, evenly lit with flat diffuse light, no cast shadows, no background, no object outline, uniform scale across the whole image",
+    "restyleSeed": 45042,
+    "size": [
+      512,
+      512
+    ],
+    "derivedNormal": "normal, roughness and height computed offline from this tile (luminance -> wrapping box blur -> Sobel); no model involved, so no third-party terms attach"
   }
 ]

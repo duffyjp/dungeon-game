@@ -55,6 +55,15 @@ export class Input {
       else if (this.game.state === 'paused') this.game.resume();
       return;
     }
+    // V for the view. F is taken by interact, and F11 is the browser's own window chrome,
+    // which stretches the same picture instead of rendering at the panel's pixel count.
+    // Ahead of the paused/playing guards deliberately: toggling from the pause menu is the
+    // common case, and Escape then V should not require unpausing first.
+    if (k === 'KeyV' || k === 'F11') {
+      e.preventDefault();
+      this.game.toggleFullscreen();
+      return;
+    }
     // Playtest cheat, typed while paused: L then up to two digits (L 0 5 → depth 5,
     // L 1 0 → depth 10). It commits when the second digit lands, or 900 ms after the last
     // one, which is what lets a single digit like "L 5" work without waiting for a partner.

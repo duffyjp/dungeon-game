@@ -775,6 +775,41 @@ ambient occlusion, shadow-casting torches, or displaced geometry — and the lev
 runs faked lighting with shadow maps off (§16), so that is a separate, measurable decision
 rather than a default.
 
+### 13.10 Prop and interface pass (one screenshot from the owner plus five requests)
+
+- **Cobwebs mount to the room.** They were groups of planes with a random snapped yaw, so in a
+  cell open on all four sides a web floated in mid-air. `wallFaces` returns up to two
+  perpendicular solid faces; `wallMount` walks outward two cells when the prop cell has none
+  and hangs from the nearest wall, and a cobweb with no wall anywhere near is skipped rather
+  than floated. The builder then places a sheet against each face, a web bridging them along
+  the ceiling, and a drape into the corner. The self-test checks this geometrically — the sum
+  of each group's child offsets must point at a solid neighbour — because a screenshot only
+  proves a web looked mounted by luck of the camera.
+- **Floor decals carry their own silhouette.** Blood and scorch tiles were opaque squares of
+  floor, and the square edge was hidden with a radial alpha mask, which is why they read as
+  pools of light. They went back through the image model for isolation on a flat chroma
+  backdrop and were keyed here (`tools/decalAlpha.mjs`: 87.4% and 80.9% of the frame keyed to
+  clear, shipped at 11 KB and 17 KB). `textureHasAlpha` probes the art, and the radial mask is
+  now applied only to decals that still need it.
+- **Minimap follows the player.** `mapWindow` is a pure function, exported so it can be
+  asserted, returning the cell window, its offset and the pixels per cell; levels smaller than
+  `CFG.mapViewCells` still draw whole, larger ones scroll, north stays up, and only the
+  visible cell range is drawn.
+- **Fullscreen is the element API, not F11.** `V`, or the pause-menu button, calls
+  `document.documentElement.requestFullscreen` and resizes the renderer on
+  `fullscreenchange` and again on the next frame, so the picture is rendered at the panel's
+  pixel count instead of the same image stretched over a bigger window. F11 is intercepted and
+  routed to the same path, and a browser that refuses the request says why rather than doing
+  nothing.
+- **Props got surfaces.** A bone tile (`textures/bone`, with derived normal and roughness maps)
+  went onto the bone piles; rubble and debris already carry the biome masonry. The chain's end
+  piece — a bare iron rod, which read as a modelling mistake — is now a low-poly skull with
+  dark sockets, shared with the bone piles.
+
+Harness note: the screenshot tool runs Edge with `--disable-gpu`, and SwiftShader cannot
+rasterise the displaced walls at all, so prop and decal screenshots are taken with `?disp=0`.
+That is a limitation of the harness, not of the game.
+
 
 ---
 

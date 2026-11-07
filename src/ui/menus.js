@@ -68,6 +68,7 @@ export class Menus {
   actRetrySameSeed() { this.game.startRun(this.game.runSeed, 1); }
   actShowMain() { this.game.state = 'menu'; this.showMain(); }
   actResume() { this.game.resume(); }
+  actFullscreen() { this.game.toggleFullscreen(); }
 
   showPause() {
     this.show(`
@@ -75,6 +76,7 @@ export class Menus {
         <h2>PAUSED</h2>
         <div class="row btns"><button data-act="actResume">RESUME</button></div>
         ${settingsHtml(this.game.settings)}
+        <div class="row btns"><button data-act="actFullscreen">FULLSCREEN (V)</button></div>
         <div class="row btns"><button data-act="actShowMain">QUIT TO MENU</button></div>
         <div class="cheatline">playtest: L then digits jumps to that depth (L 0 5 → depth 5)</div>
       </div>`);
@@ -103,7 +105,7 @@ export class Menus {
           <li>Slimes heal you, ghosts give lives, orcs drop swords, archers bows and arrows, mages armour.</li>
           <li>1 is the blade, 2 is the bow. A bow costs an arrow, and an empty quiver closes it.</li>
           <li>Enemies telegraph every attack. Watch for the wind-up, step out, then hit.</li>
-          <li><b>Esc</b> pause · <b>M</b> mute music · <b>E</b> accept an equipment prompt.</li>
+          <li><b>Esc</b> pause · <b>M</b> mute music · <b>V</b> fullscreen (escape leaves it) · <b>E</b> accept an equipment prompt.</li>
         </ul>
         <div class="row btns"><button data-act="showMain">BACK</button></div>
       </div>`);

@@ -187,14 +187,17 @@ export function buildLevelView(level, biome) {
   for (const p of level.props) {
     const wx = (p.x + 0.5) * CFG.cell, wz = (p.y + 0.5) * CFG.cell;
     if (p.decal) {
-      // Floor decals lie flat and never billboard. Generated decals have no alpha and
-      // hard square edges, so a radial alpha mask feathers them into the floor.
+      // Floor decals lie flat and never billboard. Art that carries its own alpha is drawn
+      // as-is; only the older opaque tiles need the radial mask to hide their square edge.
+      const decalKey = `textures/${p.kind}`;
+      const decalMap = getTexture(decalKey);
+      const keyed = textureHasAlpha(decalMap.image);
       const decal = new THREE.Mesh(
         new THREE.PlaneGeometry(CFG.cell * 1.3, CFG.cell * 1.3),
         new THREE.MeshBasicMaterial({
-          map: getTexture(`textures/${p.kind}`),
-          alphaMap: getDecalMask(),
-          transparent: true, opacity: 0.72, depthWrite: false, toneMapped: false
+          map: decalMap,
+          ...(keyed ? { opacity: 0.92 } : { alphaMap: getDecalMask(), opacity: 0.72 }),
+          transparent: true, depthWrite: false, toneMapped: false
         })
       );
       decal.rotation.x = -Math.PI / 2;
@@ -213,10 +216,17 @@ export function buildLevelView(level, biome) {
     }
     // Solid objects are real geometry now, so strafing past a crate shows its sides.
     // Anything makeProp declines (still-organic shapes) falls back to a billboard.
-    const solid = makeProp(p.kind, biome, p);
+    let mount = null, anchorX = wx, anchorZ = wz;
+    if (p.kind === 'cobweb') {
+      mount = wallMount(level, p.x, p.y);
+      if (!mount) continue;            // nowhere near a wall: skip rather than float
+      anchorX = (mount.x + 0.5) * CFG.cell;
+      anchorZ = (mount.y + 0.5) * CFG.cell;
+    }
+    const solid = makeProp(p.kind, biome, p, mount);
     if (solid) {
-      solid.position.x += wx;
-      solid.position.z += wz;
+      solid.position.x += anchorX;
+      solid.position.z += anchorZ;
       group.add(solid);
       propMeshes.push(solid);
       continue;
@@ -308,6 +318,65 @@ function wallDirection(level, x, y) {
   const facing = faces.find(([dx, dy]) => at(x - dx, y - dy) === 1);
   const [dx, dy] = facing || faces[0];
   return { x: dx, z: dy };
+}
+
+// Which walls a prop can mount to, as up to two perpendicular faces. Cobwebs want a real
+// corner; a corridor cell that is open on three sides only has the one. The map edge counts
+// as solid, the same rule wallDirection uses for torches.
+export function wallFaces(level, x, y) {
+  const at = (cx, cy) => (cx < 0 || cy < 0 || cx >= level.w || cy >= level.h) ? 0 : level.open[cy * level.w + cx];
+  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  const faces = dirs.filter(([dx, dy]) => at(x + dx, y + dy) !== 1).map(([dx, dy]) => ({ x: dx, z: dy }));
+  if (!faces.length) return null;
+  for (const a of faces) {
+    for (const b of faces) {
+      if (a !== b && a.x * b.x + a.z * b.z === 0) return { faces: [a, b] };
+    }
+  }
+  return { faces: [faces[0]] };
+}
+
+// Where a cobweb should actually go. A prop cell open on all four sides has nothing to hang
+// from, and dropping the web there is what made them float in mid-room, so it looks for the
+// nearest wall within two cells and hangs from that instead; if there is genuinely no wall
+// close by, the prop is skipped rather than floated.
+export function wallMount(level, x, y) {
+  const direct = wallFaces(level, x, y);
+  if (direct) return { ...direct, x, y };
+  for (let r = 1; r <= 2; r++) {
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const nx = x + dx, ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= level.w || ny >= level.h) continue;
+        const f = wallFaces(level, nx, ny);
+        if (f) return { ...f, x: nx, y: ny };
+      }
+    }
+  }
+  return null;
+}
+
+// Does this decal's art carry its own silhouette? Generated decals used to be opaque
+// squares of floor, which is why they needed a radial mask and looked like pools of light.
+// Once the tile has real alpha the mask must go, or the soft circle returns on top of the
+// correct shape.
+const alphaProbe = new Map();
+export function textureHasAlpha(img) {
+  if (!img || !img.width) return false;
+  const k = img.src || (img.width + 'x' + img.height);
+  if (alphaProbe.has(k)) return alphaProbe.get(k);
+  const c = document.createElement('canvas');
+  c.width = c.height = 48;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.clearRect(0, 0, 48, 48);
+  g.drawImage(img, 0, 0, 48, 48);
+  const d = g.getImageData(0, 0, 48, 48).data;
+  let clear = 0;
+  for (let i = 3; i < d.length; i += 4) if (d[i] < 250) clear++;
+  const yes = clear / (48 * 48) > 0.02;
+  alphaProbe.set(k, yes);
+  return yes;
 }
 
 function propSize(kind) {
