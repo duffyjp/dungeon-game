@@ -76,9 +76,17 @@ export class Enemy {
     // creature rather than a still illustration of it. loadFrames caches per clip file, so a
     // room full of one species decodes once.
     const walkEntry = animationFor(spriteKey, 'walk');
+    this.anim.hasWalk = Boolean(walkEntry);
     if (walkEntry) {
+      // For one frame after spawn the clip may still be arriving. Show nothing rather than
+      // flashing the illustration: the still sprite is a fallback for a species with no
+      // animation, not a costume a monster wears while it waits.
+      this.body.visible = false;
       this.anim.asked.add('walk');
-      loadFrames(walkEntry).then(tex => { if (tex) this.anim.clips.set('walk', { entry: walkEntry, frames: tex }); });
+      loadFrames(walkEntry).then(tex => {
+        this.anim.walkResolved = Boolean(tex);
+        if (tex) this.anim.clips.set('walk', { entry: walkEntry, frames: tex });
+      });
     }
     this.group.add(this.body);
 
@@ -204,25 +212,37 @@ export class Enemy {
       }
     }
 
-    // Standing still is not a different piece of art. It used to fall back to the generated
-    // still sprite - a separate drawing of the same creature, at a different silhouette - so an
-    // orc that stopped moving visibly turned into a PNG. Now the walk cycle's first frame is
-    // parked: frame 0 is the frame the clip was generated from, so the pose matches and the
-    // source image never changes under the player's eyes.
+    // Standing still is not a different piece of art, and it is not a freeze frame either.
+    // Parking on frame 0 was a fix to the wrong problem: frame 0 is the illustration the clip
+    // was generated from, so a stopped orc looked exactly like the still sprite again. Now a
+    // standing monster quietly works through a small window of its walk cycle in ping-pong, at
+    // a fraction of the walking rate - weight shifting, not striding in place. Every frame it
+    // shows comes from the animated file, so the still illustration is never on screen.
     if (!action) {
       const park = a.clips.get('walk') || a.clips.get('attack') || a.clips.get('flee');
       if (park && park.frames.length) {
-        if (a.action !== null || a.idx !== 0) {
-          a.action = null;
-          a.idx = 0;
-          this.applyAnimMap(park.frames[0], park.entry);
+        if (a.action !== null) { a.action = null; a.idx = -1; a.t = 0; }
+        a.t += dt;                      // the idle clock: without it the pose never advances
+        const span = Math.max(2, Math.min(park.frames.length, CFG.idleSpan));
+        const fps = Math.max(2, (park.entry.fps || 16) * CFG.idleRate);
+        // Ping-pong over the window without repeating the endpoints, so no pose is held for
+        // twice as long as the others and the loop has no limp.
+        const period = ((span - 1) * 2) / fps;
+        const phase = (((a.t + a.offset) % period) + period) % period / (period / 2);
+        const i = phase < 1 ? Math.round(phase * (span - 1)) : Math.round((2 - phase) * (span - 1));
+        if (i !== a.idx) {
+          a.idx = i;
+          this.applyAnimMap(park.frames[Math.min(i, park.frames.length - 1)], park.entry);
         }
         return;
       }
       if (a.action !== null || this.body.material.map !== this.baseMap) {
         a.action = null;
         a.idx = -1;
-        this.applyAnimMap(null, null);       // no clip: unsupported browser or a failed decode
+        // Only a species with no animation at all, or one whose clip decode genuinely failed,
+        // wears the still sprite. A clip that is merely still arriving leaves the body hidden
+        // for a frame instead of flashing an illustration at the player.
+        if (!this.anim.hasWalk || a.walkResolved === false) this.applyAnimMap(null, null);
       }
       return;
     }

@@ -694,6 +694,27 @@ export async function runSelfTest(game) {
             `${(pair.spriteKey || '').split('/').pop()} standing: ` +
             `${pair.body.material.map === pair.baseMap ? 'still PNG' : 'clip frame 0'}, ` +
             `${pair.body.geometry === pair.baseGeom ? 'base quad' : 'clip quad'}`);
+          // The single-creature check above proves almost nothing: it passes if one monster
+          // behaves. Sweep the whole level and name whichever ones are on the illustration -
+          // unless they are hidden, which is what a monster with a clip still arriving does.
+          step(6);
+          const stills = game.enemies.filter(e => e.alive && e.body.material.map === e.baseMap && e.body.visible);
+          ok('no living monster on this level is showing its still sprite', stills.length === 0,
+            `${stills.length}/${game.enemies.length} on the PNG: ` +
+            stills.slice(0, 6).map(e => `${(e.spriteKey || '').split('/').pop()}[action=${e.anim.action},` +
+              `clips=${[...e.anim.clips.keys()].map(k => `${k}:${e.anim.clips.get(k).frames.length}`).join('+')},` +
+              `asked=${[...e.anim.asked].join('/')},boss=${e.isBoss ? 1 : 0}]`).join(' '));
+
+          // A standing monster must also still be *moving*: parking on the pose the clip was
+          // generated from looked exactly like the illustration, which is the complaint this
+          // whole pass exists to close. Tick one with no movement and count the poses it shows.
+          const idle = game.enemies.find(e => e.alive && e.anim.clips.size) || null;
+          if (idle) {
+            const seenFrames = new Set();
+            for (let i = 0; i < 45; i++) { idle.tickAnimation(1 / 30, 0); seenFrames.add(idle.anim.idx); }
+            ok('a standing monster keeps shifting weight instead of freezing', seenFrames.size >= 3,
+              `${seenFrames.size} distinct poses over 1.5 s standing still`);
+          }
 
           spider.anim.clips.set('walk', { entry, frames: tex });
           spider.anim.idx = -1; spider.anim.action = null; spider.anim.t = 0;
@@ -706,9 +727,10 @@ export async function runSelfTest(game) {
           // Standing no longer swaps to a different illustration: the walk clip's first frame
           // is parked, so the source never changes under the player's eyes.
           spider.tickAnimation(0.016, 0);
-          ok('a creature standing still parks on a clip frame instead of changing art',
-            spider.anim.action === null && spider.anim.idx === 0 && spider.body.material.map !== spider.baseMap,
-            spider.body.material.map === spider.baseMap ? 'fell back to the still sprite' : `parked on frame ${spider.anim.idx}, same source file as walking`);
+          ok('a creature standing still keeps using the clip instead of changing art',
+            spider.anim.action === null && spider.body.material.map !== spider.baseMap &&
+            spider.anim.idx >= 0 && spider.anim.idx < (spider.anim.clips.get('walk')?.frames.length || 0),
+            spider.body.material.map === spider.baseMap ? 'fell back to the still sprite' : `pose ${spider.anim.idx} of the walk cycle`);
 
           // The cycle chosen has to follow what the creature is doing, not merely whether it
           // is moving — otherwise an attack and a walk are the same animation.

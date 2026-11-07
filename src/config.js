@@ -80,6 +80,12 @@ export const CFG = {
   torchSpacingMin: 3,
   maxTorches: 16,
 
+  // Idle monsters: a standing creature works slowly through a window of its walk cycle rather
+  // than freezing on the pose the clip was generated from. Raise idleSpan for more sway,
+  // idleRate for faster; set idleSpan to 2 if you want it nearly still.
+  idleSpan: 6,
+  idleRate: 0.32,
+
   // audio
   sfxVoices: 6,
   musicCrossfade: 1.2,
