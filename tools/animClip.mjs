@@ -51,7 +51,12 @@ if (!key || !action) {
 const ACTIONS = {
   walk: 'the figure moves with large exaggerated steps in place, its whole body bouncing up and down noticeably, its outline swinging wide from side to side, it keeps facing the viewer, it stays in the middle of the frame, the view stays fixed, the background stays completely still',
   attack: 'the figure crouches down low and then thrusts forward once in one big fast strike, then settles back to standing still, it keeps facing the viewer, it stays in the middle of the frame, the view stays fixed, the background stays completely still',
-  flee: 'the figure turns around to face away and runs off into the distance, shrinking smaller and smaller, the view stays fixed, the background stays completely still',
+  // Fleeing used to ask the figure to run off into the distance, and the model obliged by
+  // shrinking it to a speck — which is wrong twice over: these billboards already scale with
+  // the player's distance, so an in-sprite recession would double-count the perspective, and
+  // the frames stop being one creature. So flee runs in place, facing away, at constant size,
+  // and the engine does the receding.
+  flee: 'the figure turns around to face away from the viewer and runs in place with big fast strides, keeping exactly the same size and staying in the middle of the frame, the view stays fixed, the background stays completely still',
   hurt: 'the figure is struck and recoils with a big stagger, folding inward, then straightens back to standing still, it keeps facing the viewer, it stays in the middle of the frame, the view stays fixed, the background stays completely still'
 };
 // A step cycle needs enough frames to read as a cycle; a single strike does not.
@@ -215,10 +220,6 @@ const raw = frameFiles.map(f => {
 });
 const W = raw[0].W, H = raw[0].H;
 const keyed = raw.map(r => keyFrame(r.rgba, r.W, r.H));
-keyed.forEach((k, i) => {
-  const name = `keyed_${String(i + 1).padStart(3, '0')}.png`;
-  fs.writeFileSync(path.join(outDir, name), encodePng(W, H, 4, k.rgba));
-});
 
 // Re-anchor the clip, then judge it with the shared scorer in tools/videoKit.mjs — the
 // same scorer tools/animMeasure.mjs re-runs over clips that already exist, so a gate can be
@@ -227,15 +228,22 @@ const { aligned, anchor } = alignFrames(keyed.map(k => k.rgba), W, H);
 if (!anchor) { console.error('no frames had a subject to align on'); process.exit(1); }
 const [ax, ay] = anchor;
 
+// Save the *aligned* frames, because those are what an atlas would be built from; saving
+// the unaligned ones here would mean the promoted art is not the art that was measured.
+aligned.forEach((f, i) => {
+  const name = `keyed_${String(i + 1).padStart(3, '0')}.png`;
+  fs.writeFileSync(path.join(outDir, name), encodePng(W, H, 4, f));
+});
+
 // ---------------------------------------------------------------- 7. gates
 const srcSil = composeStartFrame(src.px, src.w, src.h, src.channels, { w: W, h: H }, bg, SCALE);
 const srcKeyed = keyFrame(srcSil, W, H, { backdrop: { r: bg[0], g: bg[1], b: bg[2] } }).rgba;
 const { rows, gates, summary } = scoreClip({
   frames: aligned, W, H, requested: FRAMES, srcKeyed,
-  motionFloor: MOTION_FLOOR,
-  // Running away is the one action whose job is to make the figure smaller, so the
-  // shrinkage that would otherwise read as "it turned away" is expected and is not gated.
-  allowShrink: action === 'flee'
+  motionFloor: MOTION_FLOOR
+  // No action is exempt from holding its size any more: the first flee clips shrank the
+  // creature to a speck, and since the engine already scales sprites with distance, that
+  // shrink was both a double-count and a lost identity.
 });
 const { minIoU, minCov, maxDrift, maxColour, minClear, srcCov } = summary;
 const startFaithful = rows[0].iouSource;

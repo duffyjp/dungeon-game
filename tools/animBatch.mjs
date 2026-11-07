@@ -26,6 +26,8 @@ const TIERS = (arg('tiers', 't1')).split(',').map(s => s.trim()).filter(Boolean)
 const ACTIONS = (arg('actions', 'walk,attack,flee')).split(',').map(s => s.trim()).filter(Boolean);
 const FORCE = process.argv.includes('--force');
 const LIMIT = Number(arg('limit', 0));
+// Seeds advance per clip; see the loop. 44500-44511 are the clips already on disk.
+const SEED_BASE = Number(arg('seed', 44520));
 
 const FAMILIES = {
   slime: ['slime', 'acid_slime', 'caustic_ooze', 'void_slime'],
@@ -61,12 +63,16 @@ const results = [];
 const startedAll = Date.now();
 for (let i = 0; i < queue.length; i++) {
   const j = queue[i];
-  console.log(`\n=== ${i + 1}/${queue.length}  ${j.sprite}  ${j.action} ===`);
+  // A seed per clip, not one seed for the phase. With a shared seed a retry reproduces the
+  // exact clip that already failed, which makes "run it again" meaningless; distinct seeds
+  // mean a rejection is one unlucky draw rather than a verdict on the sprite.
+  const seed = SEED_BASE + i;
+  console.log(`\n=== ${i + 1}/${queue.length}  ${j.sprite}  ${j.action}  seed ${seed} ===`);
   const t0 = Date.now();
   let ok = false, out = '';
   try {
     out = execFileSync(process.execPath,
-      [path.join(ROOT, 'tools', 'animClip.mjs'), '--sprite', j.sprite, '--action', j.action],
+      [path.join(ROOT, 'tools', 'animClip.mjs'), '--sprite', j.sprite, '--action', j.action, '--seed', String(seed)],
       { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
     ok = true;
   } catch (e) {

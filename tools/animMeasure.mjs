@@ -78,11 +78,10 @@ for (const d of dirs) {
     srcKeyed = keyFrame(canvas, W, H, { backdrop: { r: bg[0], g: bg[1], b: bg[2] } }).rgba;
   }
 
-  const act = meta.action || d.split('__')[1];
   const scored = scoreClip({
     frames: aligned, W, H,
     requested: Number(meta.frames || files.length),
-    srcKeyed, motionFloor, iouFloor, allowShrink: act === 'flee'
+    srcKeyed, motionFloor, iouFloor
   });
   const failed = scored.gates.filter(g => !g[1]).map(g => g[0]);
   rows.push({
