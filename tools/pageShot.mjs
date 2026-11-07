@@ -25,16 +25,21 @@ const browser = [
 ].find(existsSync);
 if (!browser) { console.error('no Chromium browser found'); process.exit(2); }
 
-const PORT = 5182;
+const PORT = Number(process.env.SHOT_PORT || 5182);
 // A full URL means "photograph what is already running" — useful for checking the dev server
 // the human is actually looking at, rather than a fresh one this tool starts and tears down.
 const remote = /^https?:\/\//.test(page);
 let server = null;
+let port = PORT;
 if (!remote) {
-  server = await createServer({ logLevel: 'warn', server: { port: PORT, strictPort: true, watch: null } });
+  // Do not insist on a fixed port: when two QA runs overlap, strictPort makes the second one
+  // die with an obscure exit code 1 while the first keeps the port, and the failure looks
+  // like the page timed out. Take the next free port and report which one was used.
+  server = await createServer({ logLevel: 'warn', server: { port: PORT, strictPort: false, watch: null } });
   await server.listen();
+  port = server.httpServer?.address()?.port || PORT;
 }
-const targetUrl = remote ? `${page}${query}` : `http://localhost:${PORT}/${page}${query}`;
+const targetUrl = remote ? `${page}${query}` : `http://localhost:${port}/${page}${query}`;
 
 const target = join(process.cwd(), out);
 rmSync(target, { force: true });                 // a stale file must not read as success
@@ -58,6 +63,7 @@ const ok = existsSync(target);
 try { child.kill('SIGKILL'); } catch { /* already gone */ }
 if (server) await server.close();
 
+const waitSeconds = Math.max(150, budget * 3) / 1000;
 console.log(ok ? `wrote ${out} (${Math.round(statSync(target).size / 1024)} KB)`
-  : 'no screenshot produced (page did not finish within 150 s)');
+  : `no screenshot produced: ${targetUrl} did not settle within ${waitSeconds}s (raise SHOT_BUDGET, or check whether a browser is holding the profile)`);
 process.exit(ok ? 0 : 1);
