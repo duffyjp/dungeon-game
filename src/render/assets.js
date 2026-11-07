@@ -301,6 +301,49 @@ export async function loadMirroredNormalTexture(key) {
   return getMirroredNormalTexture(key);
 }
 
+// Roughness companion. A scalar map stores no direction, so the mirror composite is a plain
+// geometric flip with no channel negation — the thing that mattered for normals does not
+// apply here, and saying so in code is what stops someone "fixing" it later.
+const roughMirrorCache = new Map();
+
+export function hasRoughnessFor(key) {
+  return hasAsset(`roughness/${key.split('/').pop()}`);
+}
+
+export function getMirroredRoughnessTexture(key) {
+  const rkey = `roughness/${key.split('/').pop()}`;
+  if (roughMirrorCache.has(rkey)) return roughMirrorCache.get(rkey);
+  const src = getTexture(rkey);
+  const img = src.image;
+  if (!img || !img.width) return src;
+  const s = Math.min(img.width, 512);
+  const c = document.createElement('canvas');
+  c.width = c.height = s * 2;
+  const g = c.getContext('2d');
+  for (let ty = 0; ty < 2; ty++) {
+    for (let tx = 0; tx < 2; tx++) {
+      g.save();
+      g.translate(tx * s, ty * s);
+      g.scale(tx ? -1 : 1, ty ? -1 : 1);
+      g.drawImage(img, tx ? -s : 0, ty ? -s : 0, s, s);
+      g.restore();
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.NoColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.needsUpdate = true;
+  roughMirrorCache.set(rkey, tex);
+  return tex;
+}
+
+export async function loadMirroredRoughnessTexture(key) {
+  const rkey = `roughness/${key.split('/').pop()}`;
+  if (!hasAsset(rkey)) return null;
+  await loadTexture(rkey, { keyed: false });
+  return getMirroredRoughnessTexture(key);
+}
+
 export async function preloadAll(keys) {
   const results = await Promise.allSettled(keys.map(k => loadTexture(k)));
   const failed = results

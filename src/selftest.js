@@ -9,7 +9,7 @@ import enemiesData from '../data/enemies.json';
 import biomeData from '../data/biomes.json';
 import { makeProp } from './world/propMeshes.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
-import { hasAsset, hasRealAlpha, hasNormalFor, getMirroredNormalTexture } from './render/assets.js';
+import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, getMirroredNormalTexture } from './render/assets.js';
 import { animationFor, loadFrames, animationSupported, animationDiagnostic } from './render/animation.js';
 
 export async function runSelfTest(game) {
@@ -385,6 +385,13 @@ export async function runSelfTest(game) {
     const missingNormals = surfaceKeys.filter(k => !hasNormalFor(k));
     ok('every biome surface ships a normal map', missingNormals.length === 0,
       `${surfaceKeys.length - missingNormals.length}/${surfaceKeys.length} surfaces paired${missingNormals.length ? ` — missing: ${missingNormals.join(', ')}` : ''}`);
+    const missingRough = surfaceKeys.filter(k => !hasRoughnessFor(k));
+    ok('every biome surface ships a roughness map', missingRough.length === 0,
+      `${surfaceKeys.length - missingRough.length}/${surfaceKeys.length} paired${missingRough.length ? ` — missing: ${missingRough.join(', ')}` : ''}`);
+    const wm2 = game.levelView && game.levelView.wallMesh && game.levelView.wallMesh.material;
+    ok('the wall material carries both a normal map and a roughness map',
+      Boolean(wm2 && wm2.normalMap && wm2.roughnessMap),
+      wm2 ? `normal ${Boolean(wm2.normalMap)} roughness ${Boolean(wm2.roughnessMap)}` : 'no wall material found');
     if (hasNormalFor('textures/wall_crypt')) {
       const cv = getMirroredNormalTexture('textures/wall_crypt').image;
       const g2 = cv.getContext('2d', { willReadFrequently: true });

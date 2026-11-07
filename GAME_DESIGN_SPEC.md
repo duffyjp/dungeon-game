@@ -727,6 +727,54 @@ because ffmpeg re-expands it internally — cell size and frame count are the le
 Full-resolution settings are on disk for anyone who wants them: the same roster at 192 px with
 all frames projects near 18 MB.
 
+### 13.9 Grittier environment surfaces and bump mapping (measured)
+
+All 16 environment tiles were restyled through Qwen-Image-2.1 in **edit mode**, which
+conditions on the existing tile, so the masonry layouts survive and only the surface changes.
+Per-tile instructions and the seeds used live in `workflows/grit_prompts.json`; the pass is
+re-runnable and arguable because the wording sits next to the other reviewed graphs.
+
+Shipping got cheaper rather than dearer. The renderer caps a tile at 512 px inside the
+mirrored composite, so the 1024 px PNGs were 15.5 MB of transfer for detail the browser
+discarded. At the size actually used and encoded opaque WebP the tiles are 0.98 MB; normal
+maps add 1.01 MB and roughness maps 0.3 MB. The site is 29.1 MB, down from 42.2 MB.
+
+**Normal maps are derived offline, not generated.** Luminance → wrapping box blur → Sobel →
+normalise (`tools/normalFromAlbedo.mjs`). A normal map is geometry rather than imagery, so
+deriving it from the tile's own shading guarantees the relief agrees with the albedo, it is
+reproducible from source in milliseconds instead of GPU minutes, and no third-party terms
+attach to it — the only generated thing in the chain is the surface.
+
+**The trap the engine already contained.** The anti-seam mechanism is a mirrored 2×2
+composite. For colour that is free; for a normal map it is wrong, because the stored colour
+*is* a direction, so a mirrored quadrant must negate red across the vertical seam and green
+across the horizontal. The self-test samples the seam at a strongly sloped texel and asserts
+the normals stay continuous. Roughness maps store no direction, so their composite is a plain
+geometric flip — recorded in the code so nobody "fixes" it later.
+
+**What bump mapping is actually worth here, measured rather than assumed.** The headlamp is a
+spotlight rigidly attached to the camera, so a wall facing the player is lit along its own
+normal; a tilted micro-normal barely changes N·L, and a normal map cannot invent the
+self-shadowing that makes a deep joint read as a hole. With the game's real light values and
+the shipped crypt wall (`bumpcheck.html`, `npm run qa:bump`):
+
+| surface | normalScale 1.4 — pixels changed by bump | surface change across a 0.55 m sidestep |
+|---|---|---|
+| matte 0.88, no sheen map, head-on | 0.60% | 5.86% → 5.89% |
+| engine wall 0.88 + sheen map, head-on | 1.07% | 5.96% → 6.11% |
+| worn 0.62 + sheen map, head-on | 2.07% | 5.53% → 6.68% |
+| matte 0.88, no sheen, beside a torch | 1.77% | 9.01% → 9.26% |
+| worn 0.62 + sheen, beside a torch | 2.68% | 8.99% → 10.24% |
+
+Read honestly: the normal map alone changes well under 1% of pixels and is invisible on
+screen — the owner reported exactly that, and the measurement agrees. The roughness companion
+is what adds anything a player can notice, and it works because it is view-dependent: the
+sheen slides across the worn faces while the player moves, which is where the eye reads
+relief. Getting relief that survives a still frame needs actual occlusion — screen-space
+ambient occlusion, shadow-casting torches, or displaced geometry — and the level deliberately
+runs faked lighting with shadow maps off (§16), so that is a separate, measurable decision
+rather than a default.
+
 
 ---
 

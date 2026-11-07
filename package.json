@@ -39,7 +39,8 @@
     "qa:arrow": "node tools/pageShot.mjs index.html arrowcheck.png 900 560 \"?demo=1&seed=bravo&depth=2&preview=archer&tier=2&previewshoot=1&freeze=1\"",
     "qa:bow": "node tools/pageShot.mjs index.html bowcheck.png 900 560 \"?demo=1&seed=bravo&depth=2&arrows=6&shoot=1&freeze=1&mark=1\"",
     "qa:props:one": "node tools/pageShot.mjs propcheck.html propcheck.png 900 620",
-    "shot": "node tools/pageShot.mjs"
+    "shot": "node tools/pageShot.mjs",
+    "qa:bump": "node tools/pageShot.mjs bumpcheck.html bumpcheck.png 1000 1700"
   },
   "dependencies": {
     "three": "^0.160.1"

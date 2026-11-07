@@ -1,4 +1,4 @@
-﻿// Real low-poly prop geometry (replaces billboard cutouts for solid objects).
+// Real low-poly prop geometry (replaces billboard cutouts for solid objects).
 //
 // Why these are meshes and enemies are still sprites (decided with the user): props are
 // the things you walk *past*, so their flatness shows the moment you strafe, while the
@@ -7,7 +7,7 @@
 //
 // Materials here are MeshStandardMaterial on purpose: the billboard sprites are
 // deliberately unlit because the generated art has lighting baked in, but geometry needs
-// the headlamp spotlight and torch lights to shape it â€” that shading is most of what
+// the headlamp spotlight and torch lights to shape it — that shading is most of what
 // makes a prop read as solid.
 //
 // Everything is deterministic: jitter comes from a hash of the cell, so the same seed
@@ -15,7 +15,7 @@
 
 import * as THREE from 'three';
 import { CFG } from '../config.js';
-import { getTexture, hasNormalFor, getMirroredNormalTexture } from '../render/assets.js';
+import { getTexture, hasNormalFor, getMirroredNormalTexture, hasRoughnessFor, getMirroredRoughnessTexture } from '../render/assets.js';
 
 // ---- shared materials -------------------------------------------------------
 
@@ -44,13 +44,29 @@ function tex(key, rx = 1, ry = rx) {
 // normals/door_oak) and returns null when there is none, so a prop is built exactly as
 // before. The normal already arrives as the mirrored composite, which is what stops seams
 // showing on the four faces of a column.
-const BUMP_SCALE = 0.85;
+const BUMP_SCALE = 1.4;
 function nrm(key, rx = 1, ry = rx) {
   if (!hasNormalFor(key)) return null;
   const ck = `nrm:${key}@${rx},${ry}`;
   const hit = texCache.get(ck);
   if (hit) return hit;
   const t = getMirroredNormalTexture(key).clone();
+  t.needsUpdate = true;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(rx, ry);
+  texCache.set(ck, t);
+  return t;
+}
+
+// Same pattern for the roughness companion. Measured: a normal map alone moves under 1% of
+// pixels under this game's lighting, while the sheen it enables is what the eye actually
+// picks up as the player walks past a torch.
+function rm(key, rx = 1, ry = rx) {
+  if (!hasRoughnessFor(key)) return null;
+  const ck = `rm:${key}@${rx},${ry}`;
+  const hit = texCache.get(ck);
+  if (hit) return hit;
+  const t = getMirroredRoughnessTexture(key).clone();
   t.needsUpdate = true;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.repeat.set(rx, ry);
@@ -79,27 +95,27 @@ function mat(key, make) {
 
 const M = {
   wood: () => mat('wood', () => new THREE.MeshStandardMaterial({
-    color: 0x8a6a44, roughness: 0.82, metalness: 0.02, map: tex('textures/door_oak'), normalMap: nrm('textures/door_oak'), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0x8a6a44, roughness: 0.82, metalness: 0.02, map: tex('textures/door_oak'), normalMap: nrm('textures/door_oak'), roughnessMap: rm('textures/door_oak'), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
   })),
   woodPlain: () => mat('woodPlain', () => new THREE.MeshStandardMaterial({ color: 0x9a7a52, roughness: 0.86, metalness: 0.02 })),
   iron: () => mat('iron', () => new THREE.MeshStandardMaterial({ color: 0x6b7076, roughness: 0.68, metalness: 0.22 })),
   stone: (biome) => mat(`stone:${biome.wall}`, () => new THREE.MeshStandardMaterial({
-    color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`), normalMap: nrm(`textures/${biome.wall}`), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`), normalMap: nrm(`textures/${biome.wall}`), roughnessMap: rm(`textures/${biome.wall}`), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
   })),
   // uprights and lintels: repeat the wall tile along V so it keeps its aspect
   stoneTall: (biome) => mat(`stoneTall:${biome.wall}`, () => new THREE.MeshStandardMaterial({
-    color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`, 1, 3), normalMap: nrm(`textures/${biome.wall}`, 1, 3), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`, 1, 3), normalMap: nrm(`textures/${biome.wall}`, 1, 3), roughnessMap: rm(`textures/${biome.wall}`, 1, 3), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
   })),
   bone: () => mat('bone', () => new THREE.MeshStandardMaterial({ color: 0xd9d2bf, roughness: 0.7, metalness: 0.02 })),
   brass: () => mat('brass', () => new THREE.MeshStandardMaterial({ color: 0x8f7338, roughness: 0.5, metalness: 0.3 })),
   door: () => mat('doorSlab', () => new THREE.MeshStandardMaterial({
-    color: 0xbfae94, roughness: 0.8, metalness: 0.03, map: tex('textures/door_oak'), normalMap: nrm('textures/door_oak'), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0xbfae94, roughness: 0.8, metalness: 0.03, map: tex('textures/door_oak'), normalMap: nrm('textures/door_oak'), roughnessMap: rm('textures/door_oak'), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
   })),
   column: () => mat('column', () => new THREE.MeshStandardMaterial({
-    color: 0xb9b3a8, roughness: 0.9, metalness: 0.03, map: tex('textures/pillar'), normalMap: nrm('textures/pillar'), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0xb9b3a8, roughness: 0.9, metalness: 0.03, map: tex('textures/pillar'), normalMap: nrm('textures/pillar'), roughnessMap: rm('textures/pillar'), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
   })),
   plinth: () => mat('plinth', () => new THREE.MeshStandardMaterial({
-    color: 0x8f8a80, roughness: 0.85, map: tex('textures/pillar', 0.5), normalMap: nrm('textures/pillar', 0.5), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0x8f8a80, roughness: 0.85, map: tex('textures/pillar', 0.5), normalMap: nrm('textures/pillar', 0.5), roughnessMap: rm('textures/pillar', 0.5), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
   })),
   plinthTop: () => mat('plinthTop', () => new THREE.MeshStandardMaterial({ color: 0x9c968b, roughness: 0.8 })),
   // Dressed stone with no map: on small blocks a wall tile stretches into something that
@@ -116,7 +132,7 @@ const M = {
   shaft: () => mat('shaft', () => new THREE.MeshBasicMaterial({ color: 0x04060a, toneMapped: false })),
   // Flame: emissive but not blown out. At 2.2 the cone photographed as a white spike
   // floating in the corridor, which read as a spear tip rather than a fire. The fix is not
-  // less brightness but colour that survives tone mapping â€” ACES pulls a bright warm
+  // less brightness but colour that survives tone mapping — ACES pulls a bright warm
   // emissive toward white, so these are authored as saturated orange and marked
   // toneMapped: false, which keeps the hue instead of desaturating it.
   flame: () => mat('flame', () => new THREE.MeshStandardMaterial({
@@ -262,7 +278,7 @@ function pillar(biome) {
 
 function staircase(biome) {
   const g = new THREE.Group();
-  // The floor is one unbroken plane, so a real hole is not on the table â€” and a stair
+  // The floor is one unbroken plane, so a real hole is not on the table — and a stair
   // that descends away from you hides its own treads behind the first riser when the eye
   // is at 1.6 m (an earlier version of this photographed as a pale bench). So the shaft
   // is drawn as an *opening in the floor*: a low stone kerb around a black interior, with
@@ -300,12 +316,12 @@ function torch(biome, cell = { x: 0, y: 0 }) {
   // environment map, and metalness without reflections just goes chalky under the lamp.
   g.add(mesh(new THREE.BoxGeometry(0.12, 0.2, 0.05), M.ironDark(), [0, 0, 0.025]));
   g.add(mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.44, 6), M.ironDark(), [0, 0.16, -0.15], [-0.62, 0, 0]));
-  // small grease cup at the end of the arm â€” deliberately narrower than the flame
+  // small grease cup at the end of the arm — deliberately narrower than the flame
   g.add(mesh(new THREE.CylinderGeometry(0.075, 0.05, 0.12, 8), M.ironDark(), [0, 0.36, -0.31]));
   g.add(mesh(new THREE.TorusGeometry(0.075, 0.016, 6, 10), M.brass(), [0, 0.42, -0.31], [Math.PI / 2, 0, 0]));
   // Fire, not a traffic cone. A single clean cone photographed as a solid orange hat, so
   // the flame is a cluster of three licks at slightly different leans, hung from a group
-  // based at the cup rim â€” main.js flickers that group, and the base has to be the pivot
+  // based at the cup rim — main.js flickers that group, and the base has to be the pivot
   // or the fire jumps off the sconce as it wobbles.
   const flame = new THREE.Group();
   flame.position.set(0, 0.44, -0.31);
@@ -330,7 +346,7 @@ function rubble(biome) {
   // Broken masonry: a low scatter of tumbled blocks plus one toppled column drum, which
   // is what makes it read as collapsed architecture instead of a pile of cubes. This used
   // to be a billboard looking up `props/rubble`, an asset that was never generated, so
-  // the engine drew its procedural placeholder noise â€” a grey blob sitting in corridors.
+  // the engine drew its procedural placeholder noise — a grey blob sitting in corridors.
   for (let i = 0; i < 7; i++) {
     const w = 0.26 + ((jitter(i, 1) + 1) / 2) * 0.3;
     const h = 0.14 + ((jitter(i, 2) + 1) / 2) * 0.2;
@@ -437,7 +453,7 @@ export function makeTorch(biome, cell) { return torch(biome, cell); }
 export function makePedestal() { return pedestal(); }
 
 // Called when a level is torn down: the shared caches hold materials that reference
-// biome textures, which stay valid across levels, so nothing to dispose here â€” but the
+// biome textures, which stay valid across levels, so nothing to dispose here — but the
 // per-level groups are released by their parent group being removed.
 export function disposePropCaches() {
   for (const m of matCache.values()) m.dispose();

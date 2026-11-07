@@ -1,0 +1,175 @@
+<!doctype html>
+<!--
+  Does bump mapping actually change the picture? Answered by measurement, because "I can't
+  see it" and "the normal map is applied" are both consistent with each other: the game's
+  principal light is a spotlight rigidly attached to the camera, so a wall facing the player
+  is lit along its own normal. Under head-on light a tilted micro-normal changes N·L by very
+  little, which is the one condition in which bump mapping is nearly invisible. The other
+  reason is structural: a normal map can only re-aim micro-normals, it cannot darken a crevice
+  the way self-shadowing does, and these albedos already have their shading baked in.
+
+  Two numbers per configuration, using the game's real light values and the real shipped
+  crypt wall tile, normal map and roughness map:
+    bump changed — how different the frame is from the same frame with no normal map;
+    strafing    — how much the surface itself changes across a 0.55 m sidestep, which is the
+                  case a sheen map is actually for: a specular highlight that slides over the
+                  worn faces as the player moves is visible in motion long before it is
+                  visible in a still.
+  One WebGL renderer for the whole page: creating a renderer per cell exhausts the browser's
+  context limit and the surplus canvases silently turn white.
+
+  Run:  npm run qa:bump
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>bump check</title>
+<style>
+  body { background:#111; color:#ddd; font:12px/1.45 ui-monospace, Consolas, monospace; margin:14px; }
+  h1 { font-size:15px; margin:0 0 10px; }
+  #grid { display:flex; flex-wrap:wrap; gap:6px; }
+  .cell { border:1px solid #333; }
+  .cell b { display:block; padding:2px 4px; color:#9cf; font-weight:400; font-size:11px; }
+  pre { background:#000; padding:10px; border:1px solid #333; white-space:pre-wrap; margin-top:10px; }
+</style>
+</head>
+<body>
+<h1>crypt wall under the game's real lighting — what bump and sheen each contribute</h1>
+<div id="grid"></div>
+<pre id="report">measuring…</pre>
+
+<script type="module">
+import * as THREE from 'three';
+import biomes from './data/biomes.json';
+import { loadMirroredTexture, loadMirroredNormalTexture, loadMirroredRoughnessTexture } from './src/render/assets.js';
+
+const W = 260, H = 164;
+const biome = biomes.crypt || Object.values(biomes)[0];
+
+const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+// The rig copied from src/main.js so the measurement is about the material and the light,
+// not about a pretend scene: same ambient colour and intensity, same hemisphere, same
+// headlamp. `torch` adds a wall-mounted PointLight with the game's own values, because that
+// is the light in a level that meets a wall at a shallow angle.
+function makeScene(headlampOffset, torch) {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(58, W / H, 0.05, 60);
+  camera.position.set(0, 1.6, 0);
+  camera.lookAt(0, 1.4, -3);
+
+  scene.add(new THREE.AmbientLight(biome.ambient || 0x101418, (biome.ambientIntensity || 0.1) * 9));
+  scene.add(new THREE.HemisphereLight(0x223044, 0x0a0a0c, 0.25));
+
+  const lamp = new THREE.SpotLight(0xfff0dd, 18, 26, Math.PI / 3.2, 0.95, 1.45);
+  lamp.position.set(headlampOffset[0], headlampOffset[1], headlampOffset[2]);
+  const target = new THREE.Object3D();
+  target.position.set(0, -0.15, -1);
+  camera.add(lamp); camera.add(target); lamp.target = target;
+  if (torch) {
+    const t = new THREE.PointLight(0xffb35c, 12, 9, 2);
+    t.position.set(torch[0], torch[1], torch[2]);
+    scene.add(t);
+  }
+  scene.add(camera);
+
+  const wall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3), new THREE.MeshStandardMaterial());
+  wall.position.set(0, 1.5, -3);
+  scene.add(wall);
+  return { scene, camera, wall };
+}
+
+const albedo = await loadMirroredTexture('textures/wall_crypt');
+const normal = await loadMirroredNormalTexture('textures/wall_crypt');
+const rough = await loadMirroredRoughnessTexture('textures/wall_crypt');
+for (const t of [albedo, normal, rough]) if (t) t.repeat.set(1, 0.85);
+
+const setups = [
+  { label: 'head-on (today)', off: [0, 0, 0] },
+  { label: 'torch on the wall', off: [0, 0, 0], torch: [1.6, 1.85, -2.35] }
+];
+const mats = [
+  { label: 'matte 0.88, no sheen', roughness: 0.88, metalness: 0.08, roughnessMap: null },
+  { label: 'engine wall + sheen', roughness: 0.88, metalness: 0.08, roughnessMap: rough },
+  { label: 'worn 0.62 + sheen', roughness: 0.62, metalness: 0.1, roughnessMap: rough }
+];
+const scales = [0, 1.4, 2.4];
+
+const px2 = () => {
+  const g = document.createElement('canvas');
+  g.width = W; g.height = H;
+  const ctx = g.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(renderer.domElement, 0, 0, W, H);
+  return ctx.getImageData(0, 0, W, H).data;
+};
+const luma = (p, i) => 0.2126 * p[i] + 0.7152 * p[i + 1] + 0.0722 * p[i + 2];
+const grid = document.getElementById('grid');
+const rows = [];
+
+for (const s of setups) {
+  for (const mt of mats) {
+    const one = makeScene(s.off, s.torch);
+    const m = one.wall.material;
+    m.map = albedo;
+    m.roughness = mt.roughness;
+    m.metalness = mt.metalness;
+    m.roughnessMap = mt.roughnessMap;
+    m.normalMap = normal;
+    m.needsUpdate = true;
+
+    m.normalScale.set(0, 0);
+    renderer.render(one.scene, one.camera);
+    const ref = px2();
+
+    for (const sc of scales) {
+      m.normalScale.set(sc, sc);
+      one.camera.position.set(0, 1.6, 0);
+      one.camera.lookAt(0, 1.4, -3);
+      renderer.render(one.scene, one.camera);
+      const at = px2();
+      let diff = 0, strafe = 0, sumSq = 0, n = 0;
+      for (let i = 0; i < at.length; i += 4) {
+        const a = luma(at, i), b = luma(ref, i);
+        diff += Math.abs(a - b);
+        sumSq += a * a; n++;
+      }
+      // sidestep: the lamp travels with the camera, exactly as it does in play
+      one.camera.position.set(0.55, 1.6, 0.1);
+      one.camera.lookAt(0.55, 1.4, -3);
+      renderer.render(one.scene, one.camera);
+      const moved = px2();
+      for (let i = 0; i < moved.length; i += 4) strafe += Math.abs(luma(moved, i) - luma(at, i));
+
+      rows.push({
+        light: s.label, mat: mt.label, scale: sc,
+        bright: Math.sqrt(sumSq / n) / 255 * 100,
+        diff: diff / n / 255 * 100,
+        strafe: strafe / n / 255 * 100
+      });
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.innerHTML = `<b>${s.label} · ${mt.label} · scale ${sc}</b>`;
+      const shot = document.createElement('canvas');
+      shot.width = W; shot.height = H;
+      shot.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(at), W, H), 0, 0);
+      cell.appendChild(shot);
+      grid.appendChild(cell);
+    }
+  }
+}
+
+const report = rows.map(r =>
+  `${r.light.padEnd(18)} ${r.mat.padEnd(21)} bump ${String(r.scale).padEnd(4)}  ` +
+  `brightness ${r.bright.toFixed(1)}%   bump changed ${r.diff.toFixed(2)}% of pixels   ` +
+  `surface change while strafing: ${r.strafe.toFixed(2)}%`
+).join('\n');
+document.getElementById('report').textContent = report +
+  `\n\nnormal map:   ${normal ? `${normal.image.width}px composite, colorSpace ${normal.colorSpace}` : 'NONE'}` +
+  `\nroughness map: ${rough ? `${rough.image.width}px composite, colorSpace ${rough.colorSpace}` : 'NONE'}` +
+  `\nalbedo:       ${albedo.image.width}px composite`;
+console.log('[bumpcheck]\n' + report);
+</script>
+</body>
+</html>

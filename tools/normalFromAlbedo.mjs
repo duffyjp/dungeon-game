@@ -6,7 +6,7 @@
 //
 // Why offline rather than a model: a normal map is geometry, not imagery. Deriving it from
 // the tile's own shading means the relief agrees with the albedo, it is reproducible from the
-// source, and it carries no third-party licence question at all â€” the only generated thing in
+// source, and it carries no third-party licence question at all — the only generated thing in
 // the chain is the albedo. It also costs milliseconds instead of GPU minutes.
 //
 // Method: luminance -> box blur (a raw albedo is too high-frequency: per-grain noise turns
@@ -34,12 +34,14 @@ const BLUR = Number(arg('blur', 2));
 const INVERT_Y = process.argv.includes('--invertY');
 const OUT = arg('out', 'assets/images/normals');
 const FORMAT = arg('format', 'webp');
+const ROUGHNESS = process.argv.includes('--roughness');
 const WEBP_Q = Number(arg('webp-quality', 92));
+const SRC_DIR_ARG = arg('src-dir', 'assets/images/textures');
 const keys = process.argv.includes('--all-tiles')
-  ? fs.readdirSync(path.join(ROOT, 'assets/images/textures')).filter(f => f.endsWith('.png')).map(f => f.replace(/\.png$/, ''))
+  ? fs.readdirSync(path.resolve(ROOT, SRC_DIR_ARG)).filter(f => /\.(png|webp)$/.test(f)).map(f => f.replace(/\.(png|webp)$/i, ''))
   : (arg('keys') || '').split(',').map(s => s.trim()).filter(Boolean);
 // Where the albedo lives. A candidate restyle is measured in experiments/ before anything in
-// assets/ is touched, so the tool has to be able to read a tile from somewhere else â€” and
+// assets/ is touched, so the tool has to be able to read a tile from somewhere else — and
 // resolve() rather than join(), because a caller may pass an absolute temp directory.
 const SRC_DIR = path.resolve(ROOT, arg('src-dir', 'assets/images/textures'));
 const OUT_DIR = path.resolve(ROOT, OUT);
@@ -149,11 +151,35 @@ for (const key of keys) {
   const small = downscaleRGB(rgb, dec.w, dec.h, SIZE, SIZE);
   const H = boxBlur(luminance(small, SIZE, SIZE), SIZE, SIZE, BLUR);
   const n = sobelNormals(H, SIZE, SIZE, STRENGTH, INVERT_Y);
+  // Optional companion roughness map. The reason it exists: a normal map can only tilt a
+  // surface's micro-normals, and measured against this game's lighting that changes well
+  // under 1% of pixels — invisible. What a player can actually see on stone is the sheen
+  // moving across the high points as the torch swings, and that is a roughness effect, not
+  // a diffuse one. Joints stay rough (they are occluded and damp); the worn faces get wetter
+  // and catch the light.
+  if (ROUGHNESS) {
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < H.length; i++) { if (H[i] < lo) lo = H[i]; if (H[i] > hi) hi = H[i]; }
+    const rg = Buffer.alloc(SIZE * SIZE * 3);
+    for (let i = 0; i < H.length; i++) {
+      const hn = (H[i] - lo) / Math.max(1e-6, hi - lo);       // 0 in the joints, 1 on the faces
+      const v = Math.round(255 * (1 - 0.52 * hn));            // joints ~1.0, faces ~0.48
+      rg[i * 3] = rg[i * 3 + 1] = rg[i * 3 + 2] = v;
+    }
+    const rpath = path.join(path.resolve(ROOT, arg('rough-out', 'assets/images/roughness')), `${key}.png`);
+    fs.mkdirSync(path.dirname(rpath), { recursive: true });
+    fs.writeFileSync(rpath, encodePng(SIZE, SIZE, 3, rg));
+    if (FORMAT === 'webp') {
+      execFileSync(FFMPEG, ['-y', '-loglevel', 'error', '-i', rpath, '-c:v', 'libwebp', '-pix_fmt', 'yuva444p',
+        '-lossless', '0', '-quality', '90', '-compression_level', '6', rpath.replace(/\.png$/, '.webp')], { stdio: ['ignore', 'pipe', 'pipe'] });
+      fs.unlinkSync(rpath);
+    }
+  }
   const buf = encodePng(SIZE, SIZE, 3, n.rgb);
   // Shipping format: a normal map is a smooth directional field, and lossy WebP at q92
   // stores it for 79 KB where the PNG needs 608 KB. The deviation statistics are measured
   // from the same pixels either way, and the render check is what decides whether the loss
-  // is visible â€” so the format is a flag, not a guess.
+  // is visible — so the format is a flag, not a guess.
   let final = buf, finalName = `${key}.png`;
   if (FORMAT === 'webp') {
     const tmpPng = path.join(os.tmpdir(), `strata-normal-${key}.png`);
