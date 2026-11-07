@@ -14,7 +14,7 @@ import { isOpen } from './util/grid.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
 import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, hasHeightFor, getMirroredNormalTexture, getTexture, coldMissList, resetColdMisses, releaseTextures } from './render/assets.js';
 import { animationFor, loadFrames, animationSupported, animationDiagnostic, bodyRectFor } from './render/animation.js';
-import { sfxEventNames, sfxFileNames } from './audio/sfx.js';
+import { sfxEventNames, sfxFileNames, sfxWarmState } from './audio/sfx.js';
 import { trackList as musicTrackList } from './audio/music.js';
 import { AUDIO_CREDIT_HTML } from './ui/menus.js';
 
@@ -739,9 +739,14 @@ export async function runSelfTest(game) {
       // warmed, so the depth is measured the way a player's first visit to a biome actually is.
       releaseTextures();
       game.commonWarmed = false;
+      game.sfxWarmed = false;
       resetColdMisses();
       await game.loadLevel(4);
       const cold = [...new Set(coldMissList())];
+      const sfxState = sfxWarmState();
+      ok('every sound effect is decoded before it can be played',
+        sfxState.wanted > 0 && sfxState.ready === sfxState.wanted,
+        `${sfxState.ready}/${sfxState.wanted} effects decoded${sfxState.failed ? `, ${sfxState.failed} failed` : ''}`);
       ok('a depth is preloaded before it becomes playable', cold.length === 0,
         cold.length
           ? `late requests: ${cold.slice(0, 6).join(', ')}${cold.length > 6 ? ` +${cold.length - 6} more` : ''}`

@@ -426,14 +426,19 @@ src/main.js                   preloadLevelAssets, the DESCENT progress card
 ```
 
 - Boot loads nothing heavy; the menu appears immediately. The art that any moment can need
-  (item icons, effects, HUD frames) rides along with the first descent.
+  (item icons, effects, HUD frames) rides along with the first descent, and the **sound bank is
+  decoded in the background while the menu is up** — 35 files, about 1.4 MB. Fetching an effect
+  on first use cost a round trip inside a sword swing: 56 ms for a single 26 KB effect that was
+  already in the browser cache, because even a cached file pays a `304` revalidation.
 - A cold band costs about 74 images and 13 clips — roughly 2 MB — paid once per biome/tier
   change, not per depth.
-- About two seconds after the level starts, the next band's monsters and biome are warmed in
-  the background, so the descent into a new biome doesn't pay for it at the moment of the
-  transition.
+- About two seconds after the level starts, the next band's monsters, the next biome's surfaces
+  and **this biome's music cues** are warmed in the background, so a transition doesn't pay for
+  them at the moment it happens and a new track starts at its first sample instead of fading in
+  over a download.
 - The self-test empties the texture cache, loads a depth that changes both biome and tier, and
-  fails if the level draws anything that wasn't warmed first.
+  fails if the level draws anything that wasn't warmed first — then checks that all 35 effects
+  were decoded before they could be played.
 
 ## Packing: lossy where there is no alpha to protect
 

@@ -137,6 +137,32 @@ function panner(x, z) {
   return p;
 }
 
+// Decode every shipped effect before it is needed. The bank is small - 35 files, about 1.4 MB -
+// but play() used to fetch and decode on first use, so the first swing, the first orc grunt and
+// the first hurt each paid a network round trip plus a decode in the middle of the action. On a
+// dev server even an already-cached file costs a 304 revalidation, which measured 56 ms for one
+// 26 KB effect, and the browser reports that as a dropped frame.
+export function warmableCount() { return Object.keys(FILE_URLS).length; }
+
+let warmStats = { wanted: 0, ready: 0, failed: 0 };
+export function sfxWarmState() { return { ...warmStats }; }
+
+export function warmAll(onProgress) {
+  if (!ctx) initAudio();
+  const names = Object.keys(FILE_URLS);
+  warmStats = { wanted: names.length, ready: 0, failed: 0 };
+  let done = 0;
+  return Promise.all(names.map(name => {
+    if (!buffers.has(name)) {
+      buffers.set(name, fetch(FILE_URLS[name]).then(r => r.arrayBuffer()).then(b => ctx.decodeAudioData(b)));
+    }
+    return buffers.get(name).then(
+      () => { done++; warmStats.ready++; if (onProgress) onProgress(done, names.length, name); return true; },
+      () => { done++; warmStats.failed++; if (onProgress) onProgress(done, names.length, name); return false; }
+    );
+  })).then(results => ({ loaded: results.filter(Boolean).length, failed: warmStats.failed }));
+}
+
 // play(name, {x, z, gain}) -> void. Falls back to a file in assets/audio/sfx/ if present.
 export function play(name, opts = {}) {
   if (!ctx) return;

@@ -55,23 +55,48 @@ export async function loadManifest() {
   return tracks;
 }
 
+// A cue named for a biome belongs to that biome. Matching is by prefix so `caverns` answers
+// to The Caverns with no config file, and anything unmatched falls back to the whole pool —
+// a soundtrack covering four biomes still plays something everywhere. A boss level prefers
+// the combat cue when one exists.
+export function cueMatches(name, key) {
+  const tag = String(name).split(/[_-]/)[0].toLowerCase();
+  const k = String(key || '').toLowerCase();
+  return tag === k || tag.startsWith(k) || k.startsWith(tag);
+}
+
+// Start the browser pulling this biome's cues before the level does, so the track that begins
+// on arrival at a new depth starts at its first sample instead of fading in over a download.
+// Deliberately not part of the blocking load: a cue is 2-5 MB and the player can hear the
+// difference far more clearly than they can see the bar stall.
+const warmed = new Set();
+export function warmTracksFor(biomeKey) {
+  if (!tracks.length) return 0;
+  const biomePool = tracks.filter(t => cueMatches(t.name, biomeKey));
+  const list = [...(biomePool.length ? biomePool : tracks), ...tracks.filter(t => cueMatches(t.name, 'boss'))];
+  let started = 0;
+  for (const t of list) {
+    if (warmed.has(t.url)) continue;
+    warmed.add(t.url);
+    const el = new Audio();
+    el.preload = 'auto';
+    el.crossOrigin = 'anonymous';
+    el.src = t.url;
+    started++;
+  }
+  return started;
+}
+
+export function musicWarmCount() { return warmed.size; }
+
 export function playNext(reason = 'level', opts = {}) {
   initAudio();
   if (!tracks.length) {
     console.warn('[music] no tracks in assets/music/ — running silent');
     return null;
   }
-  // A cue named for a biome belongs to that biome. Matching is by prefix so `caverns` answers
-  // to The Caverns with no config file, and anything unmatched falls back to the whole pool —
-  // a soundtrack covering four biomes still plays something everywhere. A boss level prefers
-  // the combat cue when one exists.
-  const matches = (n, key) => {
-    const tag = String(n).split(/[_-]/)[0].toLowerCase();
-    const k = String(key || '').toLowerCase();
-    return tag === k || tag.startsWith(k) || k.startsWith(tag);
-  };
-  const bossPool = tracks.filter(t => matches(t.name, 'boss'));
-  const biomePool = opts.biome ? tracks.filter(t => matches(t.name, opts.biome)) : [];
+  const bossPool = tracks.filter(t => cueMatches(t.name, 'boss'));
+  const biomePool = opts.biome ? tracks.filter(t => cueMatches(t.name, opts.biome)) : [];
   const pool = (opts.boss && bossPool.length) ? bossPool : (biomePool.length ? biomePool : tracks);
   const pick = bag.next(pool);
   return play(pick, reason, opts);

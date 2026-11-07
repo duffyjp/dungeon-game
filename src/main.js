@@ -178,6 +178,10 @@ export class Game {
     console.info(`[assets] ${keys.length} generated images available from z_image_turbo${skipArt ? ' (skipped in selftest)' : ''}`);
     this.applyFrameAssets();
     await music.loadManifest();
+    // The sound bank is small (35 files, ~1.4 MB) and the first things a player hears are menu
+    // clicks, so it is fetched in the background while the menu is up rather than on first use.
+    // If the first descent arrives before it finishes, the loading bar picks up the remainder.
+    sfx.warmAll().then((r) => { this.sfxWarmed = true; if (r.failed) console.warn('[sfx] effects failed to decode:', r.failed); }).catch(() => {});
     this.state = 'menu';
     this.menus.showMain();
     // Awaited on the demo/QA path so a harness that photographs or probes a depth does not
@@ -377,21 +381,35 @@ export class Game {
     // along with the first descent rather than delaying the menu.
     if (!this.commonWarmed) { this.commonWarmed = true; for (const k of commonAssetKeys()) keys.add(k); }
     const clips = enemyClipEntries(enemyKeys);
-    const total = keys.size + clips.length;
+    // The sound bank is part of the blocking load on the first depth: 35 files, about 1.4 MB,
+    // and play() used to fetch and decode an effect the first time it fired. That is a network
+    // round trip inside a sword swing - 56 ms for a single already-cached effect on the dev
+    // server, because even a cached file pays a 304 revalidation.
+    const sfxJobs = this.sfxWarmed ? 0 : sfx.warmableCount();
+    const total = keys.size + clips.length + sfxJobs;
     const t0 = performance.now();
     let done = 0;
     this.showLoadProgress(0, total);
     await warmAssets(keys, (d) => { done = d; this.showLoadProgress(done, total); });
+    done = keys.size;
     await Promise.all(clips.map(e => loadFrames(e).then(() => { done++; this.showLoadProgress(done, total); })));
+    if (sfxJobs) {
+      await sfx.warmAll((d) => { done = keys.size + clips.length + d; this.showLoadProgress(done, total); });
+      this.sfxWarmed = true;
+    }
     this.hideLoadProgress();
-    this.lastPreload = { depth: this.depth, images: keys.size, clips: clips.length, ms: Math.round(performance.now() - t0) };
-    console.info(`[preload] depth ${this.depth}: ${keys.size} images and ${clips.length} clips in ${(this.lastPreload.ms / 1000).toFixed(1)}s`);
+    this.lastPreload = { depth: this.depth, images: keys.size, clips: clips.length, sfx: sfxJobs, ms: Math.round(performance.now() - t0) };
+    console.info(`[preload] depth ${this.depth}: ${keys.size} images, ${clips.length} clips and ${sfxJobs} effects in ${(this.lastPreload.ms / 1000).toFixed(1)}s`);
 
     // While the player is fighting, warm what the next band will need. A biome or tier change
     // lands on a descent, and paying for it at the moment of the transition is exactly the
-    // hitch this whole pass is trying to remove.
+    // hitch this whole pass is trying to remove. Music is warmed here rather than in the bar:
+    // a cue is 2-5 MB, and a track that starts mid-download is heard as a slow fade-in.
     const later = [...nextTierAssetKeys(this.depth), ...biomeAssetKeys(biomes[biomeForDepth(this.depth + 3)] || {})];
-    if (later.length) setTimeout(() => { warmAssets(later).catch(() => {}); }, 2500);
+    setTimeout(() => {
+      if (later.length) warmAssets(later).catch(() => {});
+      music.warmTracksFor(level.biome);
+    }, 2500);
   }
 
   showLoadProgress(done, total) {

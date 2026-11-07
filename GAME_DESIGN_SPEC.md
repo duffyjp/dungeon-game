@@ -1105,6 +1105,28 @@ the number rather than shipping it.
 With the dead-weight audit (§13.14), the enemy fallback conversion (§13.16) and this, the site
 went 61.1 → 57.6 → 53.1 → **48.1 MB**, leaving the 30.3 MB soundtrack as the dominant share.
 
+### 13.19 The sound bank was still arriving during play
+
+Per-depth preloading removed the image hitches, but a network panel the owner screenshotted showed
+`orc_grunt.mp3` being fetched from `play()` at 56 ms — and it was *already in the browser cache*,
+paying a `304` revalidation. `sfx.play()` fetched and decoded an effect the first time it fired,
+so every one of the 35 events cost a round trip plus a `decodeAudioData` the first time the player
+did that thing: the first swing, the first grunt, the first hurt. Felt longer than 56 ms because
+the decode is main-thread work and the sound arrives late as well.
+
+Now: `sfx.warmAll()` runs in the background while the menu is up (35 files, ~1.4 MB) so the very
+first clicks are already decoded, and the first descent picks up any remainder inside its progress
+bar rather than letting an undecoded effect into play. Music is warmed in the background after a
+level starts — `music.warmTracksFor(biome)` starts the browser pulling that biome's cues and the
+boss cue — because a cue is 2-5 MB and putting it in the blocking bar would trade one wait for a
+worse one; the payoff is that a track begins at its first sample instead of fading in over a
+download. `cueMatches` moved to module scope so selection and preloading use one rule.
+
+Guard: the self-test asserts `35/35 effects decoded` before it lets a depth count as preloaded.
+Note for later: GitHub Pages serves assets with short cache lifetimes, so revalidations do not
+fully disappear in production either — a service worker would, and is the next lever if the
+second load of a session still feels slow.
+
 
 ---
 
