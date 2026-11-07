@@ -10,12 +10,14 @@
 // twenty-minute clip.
 import fs from 'fs';
 import path from 'path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { decodePng, encodePng } from './pngio.mjs';
 import { pickBackdrop, composeStartFrame, keyFrame, frameStats, silhouetteIoU, shift, spillAxis, contactSheet, motionBetween, scoreClip, alignFrames } from './videoKit.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const IMG = path.join(ROOT, 'assets', 'images');
+const FFMPEG = process.env.FFMPEG || 'C:\\ffmpeg\\bin\\ffmpeg.exe';
 
 let pass = 0, fail = 0;
 const ok = (name, cond, detail = '') => {
@@ -24,8 +26,21 @@ const ok = (name, cond, detail = '') => {
 };
 
 function load(key) {
-  const dec = decodePng(fs.readFileSync(path.join(IMG, key + '.png')));
-  return dec;
+  // Sprites move between containers - the enemy stills became WebP fallbacks and their PNG
+  // masters were archived out of the site - so resolve png, then the archived master, then
+  // WebP decoded through ffmpeg. Hard-coding .png here meant this suite died on a rename.
+  const png = path.join(IMG, `${key}.png`);
+  if (fs.existsSync(png)) return decodePng(fs.readFileSync(png));
+  const master = path.join(ROOT, 'sprite_sources', `${path.basename(path.dirname(key))}_${path.basename(key)}.png`);
+  if (fs.existsSync(master)) return decodePng(fs.readFileSync(master));
+  const web = path.join(IMG, `${key}.webp`);
+  if (!fs.existsSync(web)) throw new Error(`no sprite for ${key}: no png, archived master or webp`);
+  const tmp = path.join(ROOT, 'experiments', 'videokit-frame.png');
+  fs.mkdirSync(path.dirname(tmp), { recursive: true });
+  execFileSync(FFMPEG, ['-y', '-loglevel', 'error', '-i', web, '-pix_fmt', 'rgba', tmp], { stdio: ['ignore', 'pipe', 'pipe'] });
+  const d = decodePng(fs.readFileSync(tmp));
+  fs.rmSync(tmp, { force: true });
+  return d;
 }
 
 // The source sprite's silhouette, laid out exactly the way composeStartFrame lays it out,

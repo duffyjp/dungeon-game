@@ -206,10 +206,19 @@ export class Game {
     this.player.armor = null;
     this.equipInitial();
     this.toasts.clear();
-    // Pointer lock needs a real user gesture, so it is asked for here rather than after the
-    // level's assets have finished arriving.
+    // A page cannot put itself in fullscreen; the browser only allows it on a gesture the user
+    // made. The click that started this run is that gesture, so the screen goes big here rather
+    // than making the player hunt for a button. Opt out with the settings checkbox or
+    // ?fullscreen=0. The QA and harness paths skip it so screenshots and tests keep a stable
+    // viewport, and entering fullscreen can drop the pointer lock, so the lock is asked for
+    // after the transition settles as well as before it.
     this.state = 'loading';
     this.menus.hide();
+    const autoFs = this.settings.autoFullscreen !== false && params.get('fullscreen') !== '0'
+      && !params.get('selftest') && !params.get('demo');
+    if (autoFs && !document.fullscreenElement) {
+      this.toggleFullscreen().then((ok) => { if (ok) this.input.requestLock(); });
+    }
     this.input.requestLock();
     await this.loadLevel(depth);
   }
@@ -1068,6 +1077,6 @@ export class Game {
   }
 }
 
-const DEFAULT_SETTINGS = { sensitivity: 0.0022, fov: CFG.fov, volume: 0.7, compareMode: false };
+const DEFAULT_SETTINGS = { sensitivity: 0.0022, fov: CFG.fov, volume: 0.7, compareMode: false, autoFullscreen: true };
 
 export { CFG, tierFor, bandFor, levels };

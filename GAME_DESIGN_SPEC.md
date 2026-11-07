@@ -1161,6 +1161,30 @@ the fix restored: 86/86.
 The rule worth keeping: a check that filters out a broken state to reduce noise has to be paired
 with a check that asserts that state cannot exist.
 
+### 13.21 Fullscreen happens on the click that starts a run
+
+A page cannot enter fullscreen on its own — the browser only grants it on a gesture the user
+made. The game therefore asks during the click that starts a run, which is a real gesture, so the
+player gets a fullscreen game without hunting for a button: `startRun` calls `toggleFullscreen()`
+before it preloads, and element fullscreen (not F11) so the renderer resizes to the panel's native
+pixel count rather than stretching the same picture.
+
+- Player control: a Settings checkbox, **"Go fullscreen when a run starts"**, default on, and
+  `?fullscreen=0` for a one-off refusal. `Esc` leaves it, `V` toggles it.
+- Harness control: the QA and `?selftest` paths skip it, so screenshots and viewport-sensitive
+  tests keep a stable window.
+- iOS and iPadOS Safari cannot put a page into fullscreen at all; there the game simply fills the
+  window, as before.
+- **A side effect of the preloading work, found here:** `requestLock()` bailed unless
+  `state === 'playing'`, and a run now spends time in `state === 'loading'` — so the pointer lock
+  that used to be won by the NEW RUN click was being dropped, leaving players to click once more
+  before the mouse looked around. `requestLock` accepts `loading` as well, and the lock is asked
+  for again after the fullscreen transition settles, since entering fullscreen can release it.
+- Checks: the suite calls `toggleFullscreen()` with `requestFullscreen` stubbed and asserts the
+  game really asks the browser for element fullscreen, and that `autoFullscreen` is a real
+  setting. The gesture policy itself cannot be exercised headlessly, and the checks don't pretend
+  otherwise.
+
 
 ---
 

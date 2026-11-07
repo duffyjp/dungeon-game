@@ -145,6 +145,7 @@ function settingsHtml(s) {
       <label>FOV <input data-set="fov" type="range" min="75" max="100" step="1" value="${s.fov}"></label>
       <label>Volume <input data-set="volume" type="range" min="0" max="1" step="0.05" value="${s.volume}"></label>
       <label class="chk"><input data-set="compareMode" type="checkbox" ${s.compareMode ? 'checked' : ''}> Ask before equipping better gear</label>
+      <label class="chk"><input data-set="autoFullscreen" type="checkbox" ${s.autoFullscreen ? 'checked' : ''}> Go fullscreen when a run starts</label>
     </div>`;
 }
 

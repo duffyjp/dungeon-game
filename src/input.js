@@ -36,7 +36,10 @@ export class Input {
   }
 
   requestLock() {
-    if (this.game.state !== 'playing') return;
+    // 'loading' counts too: a run now spends time preparing its assets, and the pointer lock
+    // needs the click that started the run. Refusing the request during that window is how the
+    // game ended up needing an extra click before the mouse looked around.
+    if (this.game.state !== 'playing' && this.game.state !== 'loading') return;
     this.canvas.requestPointerLock?.();
   }
 

@@ -35,6 +35,15 @@ the image list is resolved when the server starts (see *Dev notes*).
 | `Esc` | Pause |
 | Paused: `L` then digits | Playtest cheat — jump the run to that depth (`L 0 5` → depth 5, `L 1 0` → depth 10) |
 | `M` | Mute |
+| `V` | Fullscreen (F11 also works, but leaves the canvas at its CSS size) |
+
+### Fullscreen
+
+A run **goes fullscreen by itself** when you press NEW RUN, because a page may only enter
+fullscreen on a gesture you made — the click is that gesture. Decline it in Settings ("Go
+fullscreen when a run starts") or with `?fullscreen=0`. `Esc` leaves fullscreen, and `V` toggles
+it at any time. iPhone and iPad Safari cannot do this for a page, so there the game fills the
+window as usual.
 
 Walk over an item to pick it up. Better gear equips itself into its own slot — a bow never
 replaces the sword in your hand — and worse gear is sold for gold. Bows are fired with

@@ -777,6 +777,23 @@ export async function runSelfTest(game) {
     // one moment the player is paying attention. Depth 4 changes both the biome and the enemy
     // tier, so it is the worst case, and any texture the level drew that was not already warm
     // is listed rather than waved through.
+    // ---- fullscreen --------------------------------------------------------
+    // A page cannot put itself in fullscreen; only a gesture the user made may grant it. What
+    // can be checked is that the game asks the browser for real element fullscreen (not the
+    // browser's own F11, which leaves the canvas at its CSS size) and that a player can decline.
+    {
+      const el = document.documentElement;
+      const realReq = el.requestFullscreen;
+      let asked = 0;
+      el.requestFullscreen = function (opts) { asked++; opts = opts || {}; return Promise.resolve(); };
+      await game.toggleFullscreen();
+      el.requestFullscreen = realReq;
+      ok('the game asks the browser for element fullscreen', asked === 1,
+        asked ? 'requestFullscreen called from the game' : 'requestFullscreen never called');
+      ok('auto-fullscreen is a setting the player can turn off',
+        typeof game.settings.autoFullscreen === 'boolean', `default ${game.settings.autoFullscreen}`);
+    }
+
     if (!game.placeholderArt) {
       const wasDepth = game.depth;
       // The harness warms the whole library at boot, which would let this check pass whether or
