@@ -7,7 +7,7 @@
 // Anything that only works because a dev server papered over it shows up here instead:
 // absolute asset paths that 404 under /<user>/<repo>/, images the build forgot to copy,
 // or a bundle that is too heavy for a browser to fetch.
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, readdirSync, statSync, mkdtempSync } from 'node:fs';
 import { extname, join, resolve, sep } from 'node:path';
@@ -103,6 +103,16 @@ const biggest = files.map(f => ({ f, size: statSync(f).size })).sort((a, b) => b
 if (biggest.size > 90 * 1024 * 1024) problems.push(`largest file is ${(biggest.size / 1048576).toFixed(1)} MB — over the per-file limit`);
 
 console.log(`${files.length} files, ${(total / 1048576).toFixed(1)} MB served from dist/ on http://localhost:${PORT}`);
+// Assets nothing can name are dead weight carried by every visitor, so the audit is part of the
+// build gate rather than a chore someone has to remember: it resolves each file the way the game
+// does (biome tables, prop kinds, animation manifest keys, sfx events, music prefixes) and fails
+// if anything in the shipping globs is unreachable.
+const audit = spawnSync(process.execPath, [resolve('tools/assetAudit.mjs'), '--check'], { encoding: 'utf8' });
+const auditLines = (audit.stdout || '').split('\n').filter(l => /unreachable|MB inside/.test(l));
+if (audit.status !== 0) problems.push(`asset audit: ${auditLines.slice(-2).join(' ') || 'unreachable assets found'}`);
+else console.log(auditLines[0] || 'asset audit passed');
+if (audit.status !== 0) for (const l of (audit.stdout || '').split('\n').filter(x => x.includes('KB  assets/'))) console.log('  ' + l.trim());
+
 console.log(`largest: ${biggest.f.replace(ROOT + sep, '')} (${(biggest.size / 1048576).toFixed(2)} MB)`);
 for (const p of problems) console.log('STATIC CHECK FAILED :: ' + p);
 

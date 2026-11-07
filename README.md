@@ -411,6 +411,28 @@ Batch 1 (16 textures + 23 enemies, seeds 41000–41038) and batch 2 (8 props + 1
 server on the other PC handles a single generation at a time. `items/arrow` took three
 attempts; the two rejected seeds are recorded in its manifest entry.
 
+## What ships: the asset audit
+
+Vite copies whatever the `import.meta.glob` patterns cover, so an asset nothing can name still
+downloads for every visitor. `npm run qa:assets` resolves every file in the shipping globs the
+way the game does — biome tables, prop kinds, the animation manifest's `sprite|action` keys,
+sfx event names, music filename prefixes — and lists what no code path can ask for.
+
+```
+npm run qa:assets                 report
+node tools/assetAudit.mjs --delete
+AUDIT_KEEP="assets/images/ui/menu_bg.png" node tools/assetAudit.mjs --delete
+```
+
+`checkBuild` runs it in `--check` mode, so unreachable assets fail the build instead of piling
+up. Deletions archive the provenance entry (prompt, seed, model, source URL) to
+`assets/images/removed.json` rather than losing it, which keeps regeneration possible if the
+call was wrong.
+
+The first version of this tool guessed at the naming rules and reported 47 of 50 animation
+clips as dead. Reading the code that resolves keys was the fix, and the rule is now written
+down in the tool: an audit that invents deletions is worse than no audit.
+
 ## Dev notes
 
 - **The watcher ignores `assets/` and atomic-save temp files.** Watching those two

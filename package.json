@@ -44,7 +44,8 @@
     "sfx:batch": "node tools/sfxBatch.mjs",
     "music:batch": "node tools/musicBatch.mjs",
     "music:pack": "node tools/musicPack.mjs",
-    "qa:audio": "node tools/audioProfileSelftest.mjs"
+    "qa:audio": "node tools/audioProfileSelftest.mjs",
+    "qa:assets": "node tools/assetAudit.mjs"
   },
   "dependencies": {
     "three": "^0.160.1"

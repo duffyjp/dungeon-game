@@ -957,6 +957,34 @@ question is recorded in `assets/music/credits.json` rather than assumed away. Th
 in the UI now names ACE-Step 1.5 for music and Stable Audio 3 for effects, and still states
 that the audio is machine-generated.
 
+### 13.14 Dead-weight assets, and an audit that first lied
+
+The site had grown to 61 MB and the owner noticed files in `dist/` the game never asked for.
+Because Vite copies whatever the `import.meta.glob` patterns cover, a file no code path can
+name still ships to everyone — so `tools/assetAudit.mjs` resolves each file the way the game
+does and reports the remainder: the biome table for surfaces, prop kind literals from world
+generation, the animation manifest's `sprite|action` keys, the RECIPES table for sound events,
+and the filename-prefix rule for music cues. It removed **10 files, 3.44 MB** — three
+photographic UI frames (the HUD is CSS and canvas), a crosshair frame, the torch-sconce and
+loot-pedestal prop sheets (both props are procedural meshes since the prop rework), and the
+`rubble` texture with its three derived maps (the rubble prop uses the dressed-wall materials).
+Site 61.1 → 57.6 MB.
+
+**The first version of the audit was wrong in a way that would have done damage.** Guessing at
+the naming rules, it reported 47 of 50 animation clips as unreachable — deleting them would
+have thrown away the sprite animation work while the game kept running, because a missing clip
+falls back to a still sprite. It also called every biome texture dead, since `biomes.json`
+stores bare slugs (`wall: "wall_crypt"`) that the code prefixes with `textures/`, and substring
+searching then made QA scripts count as usage. The rules are now read off the resolving code and
+written into the tool, and the suite is the backstop: a wrong verdict has to surface as a
+failing check rather than as a missing texture in play.
+
+The audit runs inside `checkBuild` in `--check` mode, so unreachable assets fail the build
+instead of quietly accumulating, and `npm run qa:assets` reports them. Deletions move the
+provenance record (prompt, seed, model, source URL) into `assets/images/removed.json` rather
+than discarding it, so any file judged dead can be regenerated if that turns out to have been
+the wrong call.
+
 
 ---
 

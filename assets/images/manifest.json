@@ -320,32 +320,6 @@
     "derivedNormal": "normal map computed offline from this tile (luminance -> wrapping box blur -> Sobel -> normalise); no model involved, so no third-party terms attach"
   },
   {
-    "path": "assets/images/textures/rubble.webp",
-    "slug": "rubble",
-    "prompt": "broken masonry rubble, an all-over even scatter of cracked stone blocks, brick fragments and sharp shards covering the entire surface edge to edge, seen perfectly straight-on as a flat close-up, strong painterly brushstrokes, flat colour blocking, graphic game texture, hand-painted stylized game texture, muted grey-taupe and dusty ochre limited palette, bold readable fragment shapes that stay legible at distance, slight visible brushwork, game art, seamless tileable texture, flat top-down lighting, uniform scale, no single centered pile, no single object, no intact brick wall background, no perspective, no depth, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 44029,
-    "steps": 8,
-    "size": [
-      512,
-      512
-    ],
-    "prefix": "strata-tex2-rubble",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex2-rubble_00002_.png&subfolder=&type=output",
-    "rejectedSeeds": [
-      44012
-    ],
-    "generatedAt": "2026-11-05T19:38:47.601Z",
-    "previousSeed": 41012,
-    "previousPrompt": "broken masonry rubble pile against wall, close-up surface, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, seamless tileable texture, flat top-down lighting, uniform scale, no shadows, no vignette, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-tex-rubble_00001_.png&subfolder=&type=output",
-    "normalPath": "assets/images/normals/rubble.webp",
-    "model": "Qwen/Qwen-Image-2.1 (edit mode — conditions on the existing tile, so the composition is preserved)",
-    "licence": "Qwen Research License (https://huggingface.co/Qwen/Qwen-Image-2.1/raw/main/LICENSE). Reviewed by the repository owner on 2026-11-06; shipping its outputs is approved. Record model and licence on every asset made with it.",
-    "editInstruction": "Repaint this game texture as a gritty, weathered, photoreal dungeon surface with high micro-detail, physically plausible wear concentrated where a creature or the player would contact it, cold diffuse torch light, desaturated palette, fine grain and micro-contrast throughout : heap of broken masonry with mortar chunks, spalled stone and splintered timber, fine grit and dust settled in the hollows",
-    "restyleSeed": 45021,
-    "derivedNormal": "normal map computed offline from this tile (luminance -> wrapping box blur -> Sobel -> normalise); no model involved, so no third-party terms attach"
-  },
-  {
     "path": "assets/images/textures/cobweb.webp",
     "slug": "cobweb",
     "prompt": "dark weathered stone surface overlaid with pale wispy dust veils and thin drifting thread-like brush strokes, abstract loose silky streaks drifting horizontally and diagonally, all-over even coverage edge to edge with no focal point and no symmetry, seen perfectly straight-on as a flat close-up, hand-painted stylized game texture, strong painterly brushstrokes, flat colour blocking, graphic game texture, dark charcoal and dusty grey limited palette, bold readable strokes that stay legible at distance, slight visible brushwork, game art, seamless tileable texture, flat top-down lighting, uniform scale, no wheel shape, no radial spokes, no circle, no hub, no web symmetry, no spider, no insects, no border, no frame, no vignette, no shadows, no visible repeat seams, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
@@ -1325,36 +1299,6 @@
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-staircase_down_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
     "generatedAt": "2026-11-05T05:01:30Z"
-  },
-  {
-    "path": "assets/images/props/loot_pedestal.png",
-    "slug": "loot_pedestal",
-    "prompt": "carved stone pedestal with coin resting on it, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42001,
-    "steps": 8,
-    "size": [
-      512,
-      512
-    ],
-    "prefix": "strata-props-loot_pedestal",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-loot_pedestal_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:02:07Z"
-  },
-  {
-    "path": "assets/images/props/torch_sconce.png",
-    "slug": "torch_sconce",
-    "prompt": "iron wall sconce with lit torch, ember glow, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42002,
-    "steps": 8,
-    "size": [
-      1024,
-      1024
-    ],
-    "prefix": "strata-props-torch_sconce",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-torch_sconce_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:02:44Z"
   },
   {
     "path": "assets/images/props/crate.png",
@@ -2461,36 +2405,6 @@
     "generatedAt": "2026-11-05T05:23:42Z"
   },
   {
-    "path": "assets/images/ui/icon_shield_broken.png",
-    "slug": "icon_shield_broken",
-    "prompt": "cracked shield icon, front-facing, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42037,
-    "steps": 8,
-    "size": [
-      512,
-      512
-    ],
-    "prefix": "strata-ui-icon_shield_broken",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-icon_shield_broken_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:24:19Z"
-  },
-  {
-    "path": "assets/images/ui/crosshair.png",
-    "slug": "crosshair",
-    "prompt": "minimal metal ring crosshair with 4 ticks, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42038,
-    "steps": 8,
-    "size": [
-      512,
-      512
-    ],
-    "prefix": "strata-ui-crosshair",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-crosshair_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:24:56Z"
-  },
-  {
     "path": "assets/images/ui/frame_panel.png",
     "slug": "frame_panel",
     "prompt": "dark parchment-and-iron UI panel frame, empty centre, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
@@ -2609,36 +2523,6 @@
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_5_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
     "generatedAt": "2026-11-05T05:29:52Z"
-  },
-  {
-    "path": "assets/images/ui/minimap_frame.png",
-    "slug": "minimap_frame",
-    "prompt": "circular brass compass frame, empty centre, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42047,
-    "steps": 8,
-    "size": [
-      512,
-      512
-    ],
-    "prefix": "strata-ui-minimap_frame",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-minimap_frame_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:30:29Z"
-  },
-  {
-    "path": "assets/images/ui/menu_bg.png",
-    "slug": "menu_bg",
-    "prompt": "cavern corridor fading to black, single torch, heavy vignette, no creatures, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "seed": 42048,
-    "steps": 8,
-    "size": [
-      1024,
-      1024
-    ],
-    "prefix": "strata-ui-menu_bg",
-    "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-menu_bg_00001_.png&subfolder=&type=output",
-    "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:31:06Z"
   },
   {
     "slug": "bone",
