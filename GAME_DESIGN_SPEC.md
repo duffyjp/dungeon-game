@@ -615,6 +615,48 @@ archmage: 0.4 % eaten, still clean).
 
 ---
 
+### 13.7 Alpha conversion pass (second model, Qwen-Image-2.1)
+
+Z-Image Turbo cannot emit alpha, which is why the whole art set sits on a magenta field and
+is keyed at runtime. That costs quality exactly where softness matters — glow, smoke, wet
+splatter — because the feathered band picks up the field colour. Qwen-Image-2.1 on the second
+box can emit real RGBA, **if asked in a particular way**:
+
+- The instruction begins *"the image contains an alpha channel."* and ends
+  *"transparent background"*, with the graph's prompt enhancer switched off, because the
+  enhancer paraphrases the framing away. Asked plainly, the model paints the field white and
+  writes alpha 255 across the frame — an RGBA file with zero transparent pixels.
+- Every result is measured, never eyeballed: fully-clear share ≥ 15%, opaque subject ≥ 10%,
+  and silhouette overlap ≥ 0.35 against the already-approved art (measured 0.94–0.96 in
+  practice, so the subject does hold). The semi-transparent band arrives violet regardless of
+  the input background and is corrected offline, leaving opaque pixels untouched.
+- **Excluded from this pass on purpose:** `textures/**` (walls, floors and ceilings tile and
+  must be solid — transparency there would show through the level), the decal kinds, which
+  already carry code-side alpha masks, and anything rendered as geometry. This pass is for
+  billboards: enemies, items, effects.
+- Promotion over a shipped image is a separate, explicit step: the previous file is copied to
+  `assets/images/_chroma_v1/` and the manifest record gains the conversion's model, licence,
+  seed and measurements while keeping the original generation's provenance.
+
+### 13.8 Animated sprites from a video model (planned, not built)
+
+The second box holds Wan 2.2, LTX-2.3 and MiniMax H3 checkpoints. Licensing decides the
+choice more than quality does: **Wan 2.2 is Apache 2.0** with no revenue or field-of-use
+limits, **LTX-2** is a community licence that is free commercially below $10M annual revenue
+and carries competitive-use and training clauses, and MiniMax terms are proprietary — so the
+animation pass runs on Wan unless that changes.
+
+Planned shape of the work: image-to-video from the approved still as the first frame, one
+short clip per (family, tier, action) for forward walk, attack, hurt and flee; extract a
+fixed frame count into a sprite atlas; the engine gains frame-animated billboards (atlas
+region plus a per-entity phase, in place of today's sine bob), and identity is validated the
+same way — per-frame silhouette overlap against the still, plus a colour-drift measure, with
+a clip rejected if frames wander. Expect minutes per clip at 14B fp8 on a 16 GB card, so the
+work is phased: tier 1 for all six families first (18 clips), then only the tiers a playtest
+actually reaches.
+
+---
+
 ## 14. Project structure
 
 ```

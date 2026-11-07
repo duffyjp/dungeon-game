@@ -11,6 +11,37 @@ import fs from 'fs';
 import { decodePng, encodePng } from './pngio.mjs';
 import { analyzePng } from './pngAlpha.mjs';
 
+// Reusable: take an RGBA PNG buffer, return a corrected buffer and what was changed.
+export function despill(buf) {
+  const { w, h, channels, px } = decodePng(buf);
+  if (channels !== 4) return { buf, touched: 0, core: null, skipped: `not RGBA (channels ${channels})` };
+  let sr = 0, sg = 0, sb = 0, n = 0;
+  for (let i = 0; i < w * h; i++) {
+    if (px[i * 4 + 3] === 255) { sr += px[i * 4]; sg += px[i * 4 + 1]; sb += px[i * 4 + 2]; n++; }
+  }
+  if (!n) return { buf, touched: 0, core: null, skipped: 'no opaque pixels' };
+  const core = [sr / n, sg / n, sb / n];
+  let touched = 0;
+  for (let i = 0; i < w * h; i++) {
+    const o = i * 4;
+    const a = px[o + 3];
+    if (a === 0 || a === 255) continue;
+    const r = px[o], g = px[o + 1], b = px[o + 2];
+    const tint = Math.min(r, b) - g;
+    if (tint <= 6) continue;
+    const k = Math.min(0.8, tint / 90 + 0.35);
+    px[o] = Math.round(r + (core[0] - r) * k);
+    px[o + 1] = Math.round(g + (core[1] - g) * k);
+    px[o + 2] = Math.round(b + (core[2] - b) * k);
+    touched++;
+  }
+  return { buf: encodePng(w, h, 4, px), touched, core };
+}
+
+// Only run the command line when this file is executed directly — tools like alphaBatch
+// import despill(), and a top-level CLI here would try to read the importer's arguments.
+if (process.argv[1] && process.argv[1].replace(/\\/g, '/').endsWith('alphaDespill.mjs')) main();
+function main() {
 const [src, dest] = process.argv.slice(2);
 if (!src || !dest) { console.error('usage: node tools/alphaDespill.mjs in.png out.png'); process.exit(2); }
 
@@ -49,3 +80,4 @@ console.log(`subject core colour rgb(${core.map(Math.round).join(', ')}); edge p
 console.log(`before  clear ${before.clear}%  soft ${before.soft}% (${before.softMean})  opaque ${before.opaque}%`);
 console.log(`after   clear ${after.clear}%  soft ${after.soft}% (${after.softMean})  opaque ${after.opaque}%`);
 console.log(`wrote ${dest}`);
+}
