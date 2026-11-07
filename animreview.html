@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>animation review</title>
+<style>
+  body { margin: 0; background: #0b0d10; color: #e6e8ea; font: 12px/1.45 system-ui; }
+  h1 { font-size: 15px; margin: 14px 16px 4px; letter-spacing: .06em; }
+  p.note { margin: 0 16px 10px; color: #9aa0a6; max-width: 1150px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 14px; padding: 0 16px 24px; }
+  .card { width: 460px; background: rgba(10,12,15,.72); border: 1px solid rgba(255,255,255,.1); }
+  .card.reject { border-color: rgba(224,120,60,.75); }
+  .row { display: flex; gap: 8px; padding: 8px; }
+  .col { text-align: center; }
+  .col img { display: block; border: 1px solid rgba(255,255,255,.12); background: #22262b; }
+  .cap { padding: 4px 10px 10px; color: #9aa0a6; }
+  .cap b { color: #e6e8ea; }
+  .ok { color: #7fd08a; font-weight: 700; }
+  .bad { color: #e08040; font-weight: 700; }
+  #done { position: fixed; right: 14px; top: 12px; background: rgba(10,12,15,.86);
+          border: 1px solid rgba(255,255,255,.12); padding: 6px 10px; }
+</style></head>
+<body>
+<h1 id="title">sprite animation review</h1>
+<p class="note">Wan 2.2 image-to-video, one clip per row. The left tile is the shipped billboard; the middle tile is the exact frame the model was given, flattened onto the backdrop it chose for that sprite; the right tile is every returned frame, keyed back out and re-anchored, laid over a checkerboard so a hole in the matte shows up as floor. The numbers are gates, not opinions — what this sheet is for is the thing gates cannot see: whether the creature still looks like the same creature while it moves.</p>
+<div class="grid" id="grid"></div>
+<div id="done">working…</div>
+<script>
+const params = new URLSearchParams(location.search);
+const want = params.get('verdict') || '';            // ?verdict=REJECTED to see only the bad ones
+function card(e, srcUrl) {
+  const d = document.createElement('div');
+  d.className = 'card' + (e.verdict === 'REJECTED' ? ' reject' : '');
+  const row = document.createElement('div'); row.className = 'row';
+  const mk = (url, w, h, label) => {
+    const c = document.createElement('div'); c.className = 'col';
+    const i = document.createElement('img'); i.src = url; i.width = w; i.height = h;
+    const s = document.createElement('div'); s.textContent = label; s.style.color = '#7b8188'; s.style.fontSize = '11px';
+    c.append(i, s); return c;
+  };
+  row.append(mk(srcUrl, 128, 128, 'in game'), mk(e.start, 128, 128, 'start frame'), mk(e.sheet, 200, 200, 'frames'));
+  d.appendChild(row);
+  const cap = document.createElement('div'); cap.className = 'cap';
+  const gates = e.failedGates && e.failedGates.length
+    ? `<span class="bad">failed: ${e.failedGates.join(', ')}</span>`
+    : '<span class="ok">all gates passed</span>';
+  cap.innerHTML = `<b>${e.sprite}</b> · ${e.action}<br>` +
+    `${e.frames} frames · ${e.backdrop} backdrop · seed ${e.seed} · ${e.fast ? '4-step LoRA' : '20-step'} · ${e.seconds}s<br>` +
+    `consecutive IoU ${e.minIoU} · first frame vs source ${e.startIoU} · worst coverage ${e.worstCoverage}%<br>${gates}`;
+  d.appendChild(cap);
+  return d;
+}
+(async () => {
+  let list = [];
+  try { list = await (await fetch('experiments/anim/list.json')).json(); }
+  catch { document.getElementById('done').textContent = 'no clips yet — run npm run anim:clip'; return; }
+  const grid = document.getElementById('grid');
+  let accepted = 0;
+  for (const e of list) {
+    if (e.verdict === 'ACCEPTED') accepted++;
+    if (want && e.verdict !== want) continue;
+    grid.appendChild(card(e, `assets/images/${e.sprite}.png`));
+  }
+  document.getElementById('title').textContent = `sprite animation review — ${accepted}/${list.length} accepted`;
+  document.getElementById('done').textContent = `${list.length} clip(s)`;
+})();
+</script>
+</body>
+</html>

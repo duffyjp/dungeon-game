@@ -638,7 +638,7 @@ box can emit real RGBA, **if asked in a particular way**:
   `assets/images/_chroma_v1/` and the manifest record gains the conversion's model, licence,
   seed and measurements while keeping the original generation's provenance.
 
-### 13.8 Animated sprites from a video model (planned, not built)
+### 13.8 Animated sprites from a video model (built; phase 1 in flight)
 
 The second box holds Wan 2.2, LTX-2.3 and MiniMax H3 checkpoints. Licensing decides the
 choice more than quality does: **Wan 2.2 is Apache 2.0** with no revenue or field-of-use
@@ -646,14 +646,53 @@ limits, **LTX-2** is a community licence that is free commercially below $10M an
 and carries competitive-use and training clauses, and MiniMax terms are proprietary — so the
 animation pass runs on Wan unless that changes.
 
-Planned shape of the work: image-to-video from the approved still as the first frame, one
-short clip per (family, tier, action) for forward walk, attack, hurt and flee; extract a
-fixed frame count into a sprite atlas; the engine gains frame-animated billboards (atlas
-region plus a per-entity phase, in place of today's sine bob), and identity is validated the
-same way — per-frame silhouette overlap against the still, plus a colour-drift measure, with
-a clip rejected if frames wander. Expect minutes per clip at 14B fp8 on a 16 GB card, so the
-work is phased: tier 1 for all six families first (18 clips), then only the tiers a playtest
-actually reaches.
+**The graph.** The owner-supplied 14B i2v export lives in `workflows/wan22_i2v.json` with a
+metadata header naming the patchable nodes. `tools/graphCheck.mjs` validates a graph against
+a server's *own* `object_info` before anything is queued: every class exists, every input
+name is real (including ComfyUI's flattened `values.a` / `format.codec` sub-widgets), every
+model file named by a loader is in that loader's list, and every link points at a node that
+is present. That check earns its keep — the same graph is structurally invalid on the art
+box, whose `CreateVideo` predates four of its inputs, and the failure would otherwise have
+surfaced as a dead queue slot.
+
+**Shape of the work.** The approved still is the model's first frame, so the clip inherits
+the sprite's identity rather than asking a video model to invent a creature. Wan returns a
+video with no alpha, so the sprite is flattened onto a flat backdrop first, and every frame
+comes back through a keyer. Backdrop choice is measured per sprite, not picked by taste:
+`tools/videoKit.mjs` projects the sprite's own opaque pixels onto each candidate backdrop's
+hue axis and takes the 95th percentile as a collision score. Green loses badly on the slimes
+(0.52) and wins for the spiders (−0.01), which is exactly the case a hand-picked chroma
+colour gets wrong. The runtime keyer's magenta-specific rule became the same maths about an
+arbitrary hue axis, and `npm run test:video` proves the round trip on shipped art before any
+GPU minute is spent (38 checks: compose → key → compare against the source silhouette).
+
+**Settings, from measurement.** Frame counts are 4n+1 because Wan's video VAE compresses
+time by 4 (walk 17, attack/hurt 13, flee 17 at 16 fps), and the graph's duration input is
+set to `(frames − 1) / fps` so its own `floor(a*b+1)` expression yields exactly that. On the
+one clip where both paths were rendered from the same start frame, the **4-step lightx2v
+LoRA path at CFG 1 (15 s) was visually equivalent to the 20-step CFG 3.5 path (57 s)** —
+which means the *wording* of the motion prompt, not the sampler, is what controls the result,
+and a full phase costs minutes. The trade-off is real and measured: as motion rises from
+0.94% to 1.36% of the frame per step, worst silhouette overlap against the still falls from
+0.80 to 0.64. Motion is bought with identity, so both are gated.
+
+**Gates.** `scoreClip` in `tools/videoKit.mjs` is the single judge, called by the runner and
+re-runnable over existing clips by `tools/animMeasure.mjs` with no generation — so a gate
+that turns out too loose can be tightened across a whole phase and the honest re-verdict
+printed. Ten gates: frame count, backdrop keyed every frame, subject never vanishes,
+neighbour-frame agreement, identity held, first frame faithful, camera stayed put, no
+recolouring, **the subject actually moves**, and **subject kept its facing**. The last two
+were added after failure, and their floors come from data: a clip that is really a still
+photograph scores 0% movement, so the floor is 0.6%; the first clips did not fail by going
+still, they failed by quietly *rotating the creature sideways* while the centroid stayed
+put — the rotating clip's silhouette box bottoms out at 0.82 of the first frame while the
+clips that stepped in place stay above 0.87, hence a 0.85 floor, exempt for `flee` whose job
+is to shrink. It is a proxy — a rotation that happened to preserve its box would pass —
+which is why every clip still gets a contact sheet, and why nothing promotes itself.
+
+Promotion is a separate deliberate step, as with the alpha pass: clips land in
+`experiments/anim/<sprite>__<action>/` with `start.png`, the raw clip, per-frame keyed PNGs,
+`sheet.png` and measured `results.json`, indexed by `list.json` for `animreview.html`.
 
 ---
 
