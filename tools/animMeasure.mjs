@@ -14,7 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { decodePng, encodePng } from './pngio.mjs';
-import { pickBackdrop, composeStartFrame, keyFrame, alignFrames, scoreClip } from './videoKit.mjs';
+import { pickBackdrop, composeStartFrame, keyFrame, alignFrames, scoreClip, ACTION_BOX_FLOOR } from './videoKit.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ANIM = path.join(ROOT, 'experiments', 'anim');
@@ -23,10 +23,46 @@ function arg(name, dflt = null) {
   const i = process.argv.indexOf('--' + name);
   return i >= 0 ? process.argv[i + 1] : dflt;
 }
-const motionFloor = Number(arg('motion', 0.6));
+const motionFloor = Number(arg('motion', 3.0));
 const iouFloor = Number(arg('iou', 0.30));
 const write = process.argv.includes('--write');
-const only = process.argv.slice(2).filter(a => !a.startsWith('--'));
+
+// Clip names are the bare arguments. Flags that take a value are skipped along with it, so a
+// waiver sentence cannot be mistaken for the name of a clip to measure.
+const FLAG_WITH_VALUE = new Set(['--motion', '--iou', '--waive']);
+const only = [];
+for (let i = 2; i < process.argv.length; i++) {
+  const a = process.argv[i];
+  if (FLAG_WITH_VALUE.has(a)) { i++; continue; }
+  if (a.startsWith('--')) continue;
+  only.push(a);
+}
+
+// Record a human decision without touching the GPU and without moving the threshold:
+//   node tools/animMeasure.mjs goblin_archer__walk --write \
+//     --waive "subject kept its facing: the bow is a thin protrusion that dominates the
+//             bounding box; stride verified by eye on sheet.png"
+// Only clips named on the command line can be waived, so a waiver cannot be applied to a
+// whole phase by accident, and it has to be written to survive the run.
+const cliWaivers = (() => {
+  const out = [];
+  process.argv.forEach((a, i) => {
+    if (a !== '--waive') return;
+    const s = process.argv[i + 1] || '';
+    const k = s.indexOf(':');
+    out.push(k < 0 ? { gate: s.trim(), reason: '(no reason given)' }
+      : { gate: s.slice(0, k).trim(), reason: s.slice(k + 1).trim() });
+  });
+  return out;
+})();
+if (cliWaivers.length && !only.length) {
+  console.error('refusing to waive gates across a whole phase — name the clip(s) to waive');
+  process.exit(2);
+}
+if (cliWaivers.length && !write) {
+  console.error('a waiver has to be written: add --write, or leave it off to just re-measure');
+  process.exit(2);
+}
 
 function findSprite(base) {
   for (const tier of ['t1', 't2', 't3', 't4']) {
@@ -44,7 +80,7 @@ if (!dirs.length) { console.log('no clips under experiments/anim'); process.exit
 
 console.log(`re-measuring ${dirs.length} clip(s) with motion floor ${motionFloor}% and consecutive-IoU floor ${iouFloor}`);
 console.log('');
-console.log('clip                        frames  clear  worstCov  IoU(prev)  IoU(src)  move%   minBox  verdict');
+console.log('clip                        frames  clear  worstCov  IoU(prev)  IoU(src)  relMove  minBox  verdict');
 
 const rows = [];
 for (const d of dirs) {
@@ -78,12 +114,20 @@ for (const d of dirs) {
     srcKeyed = keyFrame(canvas, W, H, { backdrop: { r: bg[0], g: bg[1], b: bg[2] } }).rgba;
   }
 
+  const act = meta.action || d.split('__')[1];
   const scored = scoreClip({
     frames: aligned, W, H,
     requested: Number(meta.frames || files.length),
-    srcKeyed, motionFloor, iouFloor
+    srcKeyed, motionFloor, iouFloor,
+    boxFloor: meta.boxFloor ?? (ACTION_BOX_FLOOR[act] ?? 0.85)
   });
-  const failed = scored.gates.filter(g => !g[1]).map(g => g[0]);
+  // A waiver recorded by a human survives a re-measure — but only for the gate it names, and
+  // it is reported every time, so a decision made months ago is still visible on the surface
+  // instead of buried in a threshold nobody remembers setting.
+  const waivers = Array.isArray(meta.waivers) ? meta.waivers : [];
+  const waivedNames = waivers.map(w => w.gate);
+  const bogusWaivers = waivers.filter(w => scored.gates.some(([n, h]) => h && n === w.gate));
+  const failed = scored.gates.filter(g => !g[1] && !waivedNames.includes(g[0])).map(g => g[0]);
   rows.push({
     id: d, meta, frames: aligned, scored, failed,
     verdict: failed.length ? 'REJECTED' : 'ACCEPTED'
@@ -92,13 +136,18 @@ for (const d of dirs) {
   console.log(
     `${d.padEnd(26)} ${String(aligned.length).padStart(5)}  ${String(s.minClear).padStart(5)}  ` +
     `${String(s.minCov).padStart(7)}  ${s.minIoU.toFixed(3).padStart(8)}  ${s.minSrc.toFixed(3).padStart(8)}  ` +
-    `${String(s.meanMove).padStart(5)}  ${String(s.minBox).padStart(5)}  ` +
-    `${failed.length ? 'REJECTED: ' + failed.join(', ') : 'accepted'}`
+    `${String(s.relMove).padStart(6)}  ${String(s.minBox).padStart(5)}  ` +
+    `${failed.length ? 'REJECTED: ' + failed.join(', ')
+      : waivedNames.length ? 'accepted (waived: ' + waivedNames.join(', ') + ')' : 'accepted'}` +
+    (bogusWaivers.length ? `\n${''.padEnd(26)}  note: waived gate(s) now pass on their own: ${bogusWaivers.map(w => w.gate).join(', ')}` : '')
   );
 
   if (write) {
+    const prior = Array.isArray(meta.waivers) ? meta.waivers : [];
     fs.writeFileSync(path.join(dir, 'results.json'), JSON.stringify({
       ...meta, framesOnDisk: aligned.length, motionFloor, iouFloor,
+      boxFloor: ACTION_BOX_FLOOR[act] ?? 0.85,
+      waivers: [...prior, ...cliWaivers.filter(w => !prior.some(p => p.gate === w.gate))],
       rows: scored.rows, summary: scored.summary,
       gates: Object.fromEntries(scored.gates.map(([n, h, det]) => [n, { pass: h, detail: det }])),
       verdict: rows.at(-1).verdict, remeasuredAt: new Date().toISOString()
@@ -123,9 +172,11 @@ if (write && rows.length) {
     backdrop: r.meta.backdrop, seed: r.meta.seed, fast: r.meta.fast,
     frames: r.frames.length,
     failedGates: r.failed,
+    waived: (r.meta.waivers || []).map(w => w.gate),
     minIoU: +r.scored.summary.minIoU.toFixed(3),
     startIoU: +r.scored.rows[0].iouSource.toFixed(3),
     meanMove: r.scored.summary.meanMove,
+    relMove: r.scored.summary.relMove,
     loopMove: r.scored.rows.at(-1).loopMoved,
     worstCoverage: +r.scored.summary.minCov.toFixed(1),
     seconds: r.meta.generatedIn

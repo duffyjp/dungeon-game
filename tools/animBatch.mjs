@@ -50,10 +50,13 @@ for (const tier of TIERS) {
 if (LIMIT > 0) jobs.length = LIMIT;
 
 // Read the record the clips themselves maintain, rather than a progress file that can
-// disagree with it.
+// disagree with it — but only trust the parts of it that are still on disk. An index entry
+// whose folder has been deleted is not a finished clip, and skipping it would silently leave
+// a hole in the phase.
 const listPath = path.join(ROOT, 'experiments', 'anim', 'list.json');
 const done = fs.existsSync(listPath) ? JSON.parse(fs.readFileSync(listPath, 'utf8')) : [];
-const accepted = new Set(done.filter(e => e.verdict === 'ACCEPTED').map(e => e.id));
+const stillThere = e => fs.existsSync(path.join(ROOT, 'experiments', 'anim', e.id, 'frames'));
+const accepted = new Set(done.filter(e => e.verdict === 'ACCEPTED' && stillThere(e)).map(e => e.id));
 
 console.log(`phase: ${TIERS.join(',')} × ${ACTIONS.join(',')} = ${jobs.length} clip(s), one at a time`);
 const queue = jobs.filter(j => FORCE || !accepted.has(`${path.basename(j.sprite)}__${j.action}`));

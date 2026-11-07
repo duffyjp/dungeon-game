@@ -277,11 +277,17 @@ export function contactSheet(frames, w, h, cell = 128, cols = 6) {
   return { buffer: out, w: SW, h: SH };
 }
 
+// Per-action floor for the facing gate, shared by the runner and the re-measurer so a clip
+// cannot pass under one rule and fail under the other. A fleeing figure is seen from behind,
+// and from behind a creature legitimately occupies a narrower box — measured at ~0.48 for a
+// spider tucking its legs — while a figure that ran off into the distance reached 0.067.
+export const ACTION_BOX_FLOOR = { flee: 0.45 };
+
 // The single place a clip is judged. tools/animClip.mjs calls it after generating, and
 // tools/animMeasure.mjs calls it again over clips that already exist, so a gate can be
 // tightened across a whole phase without spending a second of GPU time. Keeping it in one
 // function is what stops those two from quietly disagreeing about what "good" meant.
-export function scoreClip({ frames, W, H, requested, srcKeyed, motionFloor = 0.6, iouFloor = 0.30, allowShrink = false }) {
+export function scoreClip({ frames, W, H, requested, srcKeyed, motionFloor = 3.0, iouFloor = 0.30, boxFloor = 0.85 }) {
   const stats = frames.map(f => frameStats(f, W, H));
   const srcCov = srcKeyed ? frameStats(srcKeyed, W, H).coverage : stats[0].coverage;
   const boxArea = b => b ? (b[2] - b[0] + 1) * (b[3] - b[1] + 1) : 0;
@@ -311,6 +317,15 @@ export function scoreClip({ frames, W, H, requested, srcKeyed, motionFloor = 0.6
 
   const moving = rows.slice(1).map(r => r.moved);
   const meanMove = moving.length ? +(moving.reduce((p, q) => p + q, 0) / moving.length).toFixed(2) : 0;
+  // Movement relative to the subject rather than the frame. Measured across this phase: an
+  // archer walk and a slime walk look equally like walks but move 0.54% and 1.02% of the
+  // frame, because the archer simply has fewer pixels to move. As a share of their own
+  // silhouettes both land at 4.4-4.6%, which is the band the eye reads as stepping. A frame
+  // compared with itself still scores zero, so the "it is a still photograph" failure mode
+  // stays caught.
+  const relMove = stats[0].coverage ? +(meanMove / stats[0].coverage * 100).toFixed(1) : 0;
+  const ious = rows.map(r => r.iouSource).sort((p, q) => p - q);
+  const medianIou = ious.length ? ious[Math.floor(ious.length / 2)] : 0;
   const minIoU = Math.min(...rows.map(r => r.iouPrev));
   const minCov = Math.min(...rows.map(r => r.coverage));
   const maxDrift = Math.max(...rows.map(r => r.driftPx));
@@ -325,17 +340,26 @@ export function scoreClip({ frames, W, H, requested, srcKeyed, motionFloor = 0.6
     ['subject never vanishes', minCov >= 0.55 * srcCov, `worst coverage ${minCov}% against source ${srcCov}%`],
     ['neighbour frames agree', minIoU >= iouFloor, `worst consecutive IoU ${minIoU.toFixed(3)}`],
     ['identity held', rows.every(r => r.iouSource >= 0.25), `worst IoU against the source still ${minSrc.toFixed(3)}`],
-    ['first frame faithful', rows[0].iouSource >= 0.6, `IoU ${rows[0].iouSource.toFixed(3)} — low means the model repainted the sprite instead of animating it`],
+    // First frame judged against the clip's own typical overlap, not a fixed number. The
+    // gate exists to catch the model repainting the creature instead of animating it, and a
+    // fixed 0.6 fails thin-limbed sprites for the wrong reason: a spider's legs are a few
+    // pixels wide, so a couple of pixels of wobble drops overlap to ~0.4 for every frame,
+    // first one included. Measured: the spider attack's first frame scores 0.41 against a
+    // clip median of 0.40 — the first frame is no less faithful than any other frame.
+    ['first frame faithful', rows[0].iouSource >= Math.min(0.6, 0.8 * medianIou),
+      `first frame ${rows[0].iouSource.toFixed(3)} against this clip's median ${medianIou.toFixed(3)} (floor ${Math.min(0.6, 0.8 * medianIou).toFixed(3)})`],
     ['camera stayed put', maxDrift <= 40, `largest pre-alignment drift ${maxDrift}px`],
     ['no recolouring', maxColour <= 60, `largest channel drift ${maxColour}`],
-    ['the subject actually moves', meanMove >= motionFloor, `mean silhouette movement ${meanMove}% of the frame per step`],
+    ['the subject actually moves', relMove >= motionFloor,
+      `mean movement ${relMove}% of the subject's own silhouette per step, floor ${motionFloor}%`],
     // 0.85 comes from measurement, not taste: the clip that visibly rotated the creature
-    // away bottoms out at 0.78 here while the ones that stepped in place stay above 0.87.
-    // It is a proxy — a rotation that happened to keep the same box would slip through —
-    // which is why every clip still gets a contact sheet a human looks at.
-    ['subject kept its facing', allowShrink || minBox >= 0.85,
-      allowShrink ? `exempt: this action is meant to shrink (smallest box ${minBox})`
-        : `smallest silhouette box ${(minBox * 100).toFixed(0)}% of the first frame`],
+    // away bottoms out at 0.78-0.82 here while the ones that stepped in place stay above
+    // 0.87. It is a proxy — a rotation that happened to preserve its box would slip through,
+    // and a thin prop swinging through the bounding box can trip it honestly — which is why
+    // every clip still gets a contact sheet and why a human decision is recorded as a waiver
+    // rather than by quietly lowering the number.
+    ['subject kept its facing', minBox >= boxFloor,
+      `smallest silhouette box ${(minBox * 100).toFixed(0)}% of the first frame, floor ${(boxFloor * 100).toFixed(0)}%`],
   ];
-  return { rows, gates, summary: { meanMove, minIoU, minCov, maxDrift, maxColour, minClear, minSrc, minBox, srcCov } };
+  return { rows, gates, summary: { meanMove, relMove, medianIou, minIoU, minCov, maxDrift, maxColour, minClear, minSrc, minBox, srcCov } };
 }

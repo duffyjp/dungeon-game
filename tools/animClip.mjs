@@ -19,7 +19,7 @@ import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { decodePng, encodePng } from './pngio.mjs';
-import { pickBackdrop, composeStartFrame, keyFrame, alignFrames, scoreClip, contactSheet } from './videoKit.mjs';
+import { pickBackdrop, composeStartFrame, keyFrame, alignFrames, scoreClip, contactSheet, ACTION_BOX_FLOOR } from './videoKit.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const HOST = process.env.ANIM_HOST || 'http://10.1.1.1:8188';
@@ -29,6 +29,11 @@ const TIMEOUT_MS = Number(process.env.ANIM_TIMEOUT || 60 * 60 * 1000);
 function arg(name, dflt = null) {
   const i = process.argv.indexOf('--' + name);
   return i >= 0 ? process.argv[i + 1] : dflt;
+}
+function argAll(name) {
+  const out = [];
+  process.argv.forEach((a, i) => { if (a === '--' + name) out.push(process.argv[i + 1]); });
+  return out;
 }
 const key = arg('sprite');
 const action = arg('action');
@@ -70,9 +75,24 @@ const FPS = Number(arg('fps', 16));
 const FAST = arg('fast', 'true') !== 'false';
 const SEED = Number(arg('seed', 44500));
 const SCALE = Number(arg('scale', 1.0));
-// Floor for "the subject actually moves", as a percentage of the frame whose silhouette
-// changes per step. Calibrated from measured clips, not chosen; see README.
-const MOTION_FLOOR = Number(arg('motion', 0.6));
+// Floor for "the subject actually moves", as a percentage of the subject's own silhouette
+// that changes per step. Calibrated from this phase: clips the eye reads as stepping land at
+// 4.4% and up, a still photograph scores 0. See README.
+const MOTION_FLOOR = Number(arg('motion', 3.0));
+// Per-action facing floor. A fleeing figure is seen from behind, and from behind a creature
+// legitimately occupies a narrower box — a spider tucking eight legs to four is the extreme
+// case. Measured: correct back-view clips land around 0.48, while the clip that ran off into
+// the distance reached 0.067. So the floor for flee is lower, not absent.
+const BOX_FLOOR = Number(arg('boxfloor', 0.85));
+const actionBoxFloor = BOX_FLOOR !== 0.85 ? BOX_FLOOR : (ACTION_BOX_FLOOR[action] ?? 0.85);
+// A waiver is a recorded human decision, not a lowered threshold: it names one gate that
+// actually failed and says why the number is wrong in this case. The bar itself stays where
+// the measurements put it, and the exception is auditable in results.json.
+const waivers = argAll('waive').map(s => {
+  const i = s.indexOf(':');
+  return i < 0 ? { gate: s.trim(), reason: '(no reason given)' }
+    : { gate: s.slice(0, i).trim(), reason: s.slice(i + 1).trim() };
+});
 // A variant tag makes a settings comparison leave its own folder behind instead of stamping
 // on the previous attempt. Comparing two ways of rendering one sprite is how the sampling
 // path and the wording get chosen on evidence rather than by preference.
@@ -240,10 +260,11 @@ const srcSil = composeStartFrame(src.px, src.w, src.h, src.channels, { w: W, h: 
 const srcKeyed = keyFrame(srcSil, W, H, { backdrop: { r: bg[0], g: bg[1], b: bg[2] } }).rgba;
 const { rows, gates, summary } = scoreClip({
   frames: aligned, W, H, requested: FRAMES, srcKeyed,
-  motionFloor: MOTION_FLOOR
+  motionFloor: MOTION_FLOOR,
   // No action is exempt from holding its size any more: the first flee clips shrank the
   // creature to a speck, and since the engine already scales sprites with distance, that
-  // shrink was both a double-count and a lost identity.
+  // shrink was both a double-count and a lost identity. What flee gets is a lower floor.
+  boxFloor: actionBoxFloor
 });
 const { minIoU, minCov, maxDrift, maxColour, minClear, srcCov } = summary;
 const startFaithful = rows[0].iouSource;
@@ -254,10 +275,21 @@ for (const r of rows) {
   console.log(`  ${String(r.frame).padStart(3)}   ${String(r.clear).padStart(5)}  ${String(r.coverage).padStart(5)}    ${r.iouPrev.toFixed(3)}    ${r.iouSource.toFixed(3)}  ${String(r.driftPx).padStart(5)}  ${String(r.colourDrift).padStart(4)}   ${String(r.moved).padStart(5)}  ${r.boxRatio.toFixed(2)}`);
 }
 console.log('');
-let failed = 0;
+// A waiver only counts if it names a gate that actually failed: a waiver aimed at a gate the
+// clip passed is a mistake, and accepting it silently is how a rule gets eroded.
+const failing = gates.filter(g => !g[1]).map(g => g[0]);
+const bogus = waivers.filter(w => !failing.includes(w.gate));
+if (bogus.length) {
+  console.error(`--waive names gate(s) that did not fail: ${bogus.map(b => b.gate).join(', ')}`);
+  console.error(`the clip's real failures were: ${failing.join(', ') || 'none'}`);
+  process.exit(2);
+}
+const waived = waivers.map(w => w.gate);
+let failed = failing.filter(n => !waived.includes(n)).length;
 for (const [name, held, detail] of gates) {
-  console.log(`  ${held ? 'ok  ' : 'FAIL'}  ${name}  — ${detail}`);
-  if (!held) failed++;
+  const mark = held ? 'ok  ' : (waived.includes(name) ? 'waiv' : 'FAIL');
+  console.log(`  ${mark}  ${name}  — ${detail}` +
+    (waived.includes(name) ? `\n        waived: ${waivers.find(w => w.gate === name).reason}` : ''));
 }
 
 // Union of every frame's box, so the atlas stage crops a consistent window instead of
@@ -275,13 +307,15 @@ fs.writeFileSync(path.join(outDir, 'results.json'), JSON.stringify({
   seed: SEED, fast: FAST, frames: FRAMES, fps: FPS, size: SIZE, scale: SCALE,
   backdrop: pick.choice.name, backdropRgb: bg, collision: +pick.choice.ratio.toFixed(2),
   generatedIn: seconds, clip: path.basename(clip), rows, summary,
+  boxFloor: actionBoxFloor, waivers,
   unionBox: box, anchor: [ax, ay],
   gates: Object.fromEntries(gates.map(([n, h, d]) => [n, { pass: h, detail: d }])),
   verdict: failed ? 'REJECTED' : 'ACCEPTED',
   at: new Date().toISOString()
 }, null, 2));
 
-console.log(`\n${failed ? 'REJECTED' : 'ACCEPTED'}: ${key} ${action}  (${failed} gate(s) failed)`);
+console.log(`\n${failed ? 'REJECTED' : 'ACCEPTED'}: ${key} ${action}` +
+  (waived.length ? `  (waived: ${waived.join(', ')})` : failed ? `  (${failed} gate(s) failed)` : '  (0 gate(s) failed)'));
 
 // Keep a running index so the review page and the batch driver never have to be told what
 // exists — the folder is the record, and this is the only thing that writes it.
@@ -293,9 +327,10 @@ console.log(`\n${failed ? 'REJECTED' : 'ACCEPTED'}: ${key} ${action}  (${failed}
     sheet: `experiments/anim/${id}/sheet.png`, start: `experiments/anim/${id}/start.png`,
     clip: `experiments/anim/${id}/${path.basename(clip)}`,
     backdrop: pick.choice.name, seed: SEED, fast: FAST, frames: rows.length,
-    failedGates: gates.filter(g => !g[1]).map(g => g[0]),
+    failedGates: gates.filter(g => !g[1] && !waived.includes(g[0])).map(g => g[0]),
+    waived: waivers,
     minIoU: +minIoU.toFixed(3), startIoU: +startFaithful.toFixed(3),
-    meanMove: summary.meanMove, loopMove: rows.at(-1).loopMoved,
+    meanMove: summary.meanMove, relMove: summary.relMove, loopMove: rows.at(-1).loopMoved,
     worstCoverage: +minCov.toFixed(1), seconds
   };
   const at = list.findIndex(e => e.id === id);
