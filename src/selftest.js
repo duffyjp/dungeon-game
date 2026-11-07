@@ -7,7 +7,7 @@ import { CFG } from './config.js';
 import enemiesData from '../data/enemies.json';
 import { makeProp } from './world/propMeshes.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
-import { hasAsset } from './render/assets.js';
+import { hasAsset, hasRealAlpha } from './render/assets.js';
 
 export async function runSelfTest(game) {
   const results = [];
@@ -157,6 +157,19 @@ export async function runSelfTest(game) {
       `path=${game.level.dist[game.level.stair.y * game.level.w + game.level.stair.x]}`);
     ok('a single pair with a leading zero works too (L 0 5)',
       game.cheatToDepth('05') && game.depth === 5, `depth=${game.depth}`);
+
+    // --- alpha art skips the chroma keyer. A generator that returns RGBA (Qwen-Image-2.1)
+    // needs no matte, and the keyer would be actively harmful to it: it samples the border,
+    // finds transparency, and keys into the subject.
+    {
+      const opaque = document.createElement('canvas'); opaque.width = opaque.height = 64;
+      const og = opaque.getContext('2d'); og.fillStyle = '#ff00ff'; og.fillRect(0, 0, 64, 64);
+      const soft = document.createElement('canvas'); soft.width = soft.height = 64;
+      const sg = soft.getContext('2d');
+      sg.fillStyle = 'rgba(220,230,240,0.55)'; sg.beginPath(); sg.arc(32, 32, 22, 0, Math.PI * 2); sg.fill();
+      ok('an opaque chroma-keyed sprite is still recognised as keyed', hasRealAlpha(opaque, og) === false);
+      ok('a sprite with genuine soft transparency is recognised as alpha art', hasRealAlpha(soft, sg) === true);
+    }
 
     // --- damage maths: no armour means full damage to health
     const h0 = game.player.health;

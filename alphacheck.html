@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>alpha vs chroma key</title>
+<style>
+  body { margin: 0; background: #0b0d10; color: #e6e8ea; font: 13px/1.45 system-ui; }
+  h1 { font-size: 15px; margin: 14px 16px 4px; letter-spacing: .08em; }
+  p.note { margin: 0 16px 10px; color: #9aa0a6; }
+  .row { display: flex; gap: 10px; margin: 0 16px 14px; align-items: flex-start; }
+  .cell { width: 260px; }
+  .cell canvas { width: 260px; height: 260px; image-rendering: auto; border: 1px solid rgba(255,255,255,.12); }
+  .cell .lab { color: #9aa0a6; font-size: 11px; margin-top: 3px; }
+  table { border-collapse: collapse; margin: 0 16px 20px; font-size: 12px; }
+  td, th { padding: 4px 10px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; }
+  #done { position: fixed; right: 14px; top: 12px; background: rgba(10,12,15,.86); border: 1px solid rgba(255,255,255,.12); padding: 6px 10px; }
+</style></head>
+<body>
+<h1>EXPERIMENTS: alpha output vs the chroma-key pipeline</h1>
+<p class="note">Left: the shipped sprite through the engine's keyer. Middle: the Qwen-Image-2.1 output over a checkerboard, so the alpha is visible. Right: the same file drawn over crypt floor with additive blending, which is how a luminous effect wants to be drawn. Numbers below count the alpha itself — a soft edge is the point, and colour left in the semi-transparent band is what used to give ghosts a pink halo.</p>
+<div id="rows"></div>
+<table id="stats"><tr><th>file</th><th>fully clear</th><th>soft edge (alpha 1–254)</th><th>mean colour in the soft band</th><th>magenta cast</th></tr></table>
+<div id="done">working…</div>
+<script type="module">
+import { chromaKeyCanvas } from './src/render/chromaKey.js';
+
+const CASES = [
+  ['vfx/ghost_trail', 'experiments/qwen/strata-qwen-ghost_trail_00001.png'],
+  ['vfx/magic_orb', 'experiments/qwen/strata-qwen-magic_orb_00001.png'],
+  ['vfx/slime_splat', 'experiments/qwen/strata-qwen-slime_splat_00001.png']
+];
+const SIZE = 260;
+
+function img(url) {
+  return new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = url; });
+}
+function canvas() { const c = document.createElement('canvas'); c.width = c.height = SIZE; return c; }
+
+function checker(g) {
+  for (let y = 0; y < SIZE; y += 16) for (let x = 0; x < SIZE; x += 16) {
+    g.fillStyle = ((x + y) / 16) % 2 ? '#2a2e33' : '#3c4248';
+    g.fillRect(x, y, 16, 16);
+  }
+}
+
+// Floor backdrop drawn the way the game tiles it: one tile, stretched to fill the cell.
+async function floorBackdrop() {
+  const f = await img('assets/images/textures/floor_crypt.png');
+  const c = canvas(); const g = c.getContext('2d');
+  if (f) g.drawImage(f, 0, 0, SIZE, SIZE); else { g.fillStyle = '#4a4038'; g.fillRect(0, 0, SIZE, SIZE); }
+  g.fillStyle = 'rgba(6,8,10,0.35)'; g.fillRect(0, 0, SIZE, SIZE);   // the game's light level, roughly
+  return c;
+}
+
+function statsOf(source) {
+  const g = source.getContext('2d');
+  const d = g.getImageData(0, 0, SIZE, SIZE).data;
+  let clear = 0, soft = 0, total = 0, r = 0, gg = 0, b = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    total++;
+    const a = d[i + 3];
+    if (a === 0) clear++;
+    else if (a < 255) { soft++; r += d[i]; gg += d[i + 1]; b += d[i + 2]; }
+  }
+  const n = Math.max(1, soft);
+  const magenta = (Math.min(r / n, b / n) - gg / n) / 255;
+  return {
+    clear: (clear / total * 100).toFixed(1) + '%',
+    soft: (soft / total * 100).toFixed(1) + '%',
+    mean: `rgb(${Math.round(r / n)}, ${Math.round(gg / n)}, ${Math.round(b / n)})`,
+    cast: magenta > 0.04 ? `MAGENTA (${magenta.toFixed(2)})` : magenta.toFixed(2)
+  };
+}
+
+(async () => {
+  const floor = await floorBackdrop();
+  const rows = document.getElementById('rows');
+  const stats = document.getElementById('stats');
+  let built = 0;
+
+  for (const [key, expUrl] of CASES) {
+    const shippedUrl = `assets/images/${key}.png`;
+    const [a, b, c] = [await img(shippedUrl), await img(expUrl), null];
+    if (!b) { console.warn('missing experiment output', expUrl); continue; }
+
+    // column 1: the shipped asset through the engine's keyer, over floor
+    const c1 = canvas(); const g1 = c1.getContext('2d');
+    g1.drawImage(floor, 0, 0);
+    if (a) {
+      const work = canvas(); const wg = work.getContext('2d');
+      wg.drawImage(a, 0, 0, SIZE, SIZE);
+      chromaKeyCanvas(work);
+      g1.drawImage(work, 0, 0);
+    }
+
+    // column 2: the alpha result over a checkerboard
+    const c2 = canvas(); const g2 = c2.getContext('2d');
+    checker(g2); g2.drawImage(b, 0, 0, SIZE, SIZE);
+
+    // column 3: the alpha result over floor, normal then additive
+    const c3 = canvas(); const g3 = c3.getContext('2d');
+    g3.drawImage(floor, 0, 0);
+    g3.globalCompositeOperation = 'lighter';
+    g3.drawImage(b, 0, 0, SIZE, SIZE);
+    g3.globalCompositeOperation = 'source-over';
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `<div class="cell"><div class="lab"><b>${key}</b><br>shipped, chroma-keyed</div></div>
+                     <div class="cell"><div class="lab">Qwen output, alpha over checker</div></div>
+                     <div class="cell"><div class="lab">Qwen output, additive over floor</div></div>`;
+    const cellNodes = [...row.querySelectorAll('.cell')];
+    [c1, c2, c3].forEach((cv, i) => cellNodes[i].prepend(cv));
+    rows.appendChild(row);
+
+    const s = statsOf(c2);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${expUrl.split('/').pop()}</td><td>${s.clear}</td><td>${s.soft}</td><td>${s.mean}</td><td>${s.cast}</td>`;
+    stats.appendChild(tr);
+    built++;
+  }
+
+  document.getElementById('done').textContent = `alpha cases composited: ${built}`;
+  window.__alphacheckDone = true;
+})();
+</script>
+</body>
+</html>

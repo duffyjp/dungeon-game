@@ -115,6 +115,18 @@ function spriteSize(key) {
   return isKeyed(key) && !key.startsWith('props/staircase_down') ? MAX_SPRITE_PX : 0;
 }
 
+// Does this image carry a real alpha channel? Detect it from the pixels rather than from a
+// naming convention: a chroma-keyed file and a genuinely transparent one can then live in
+// the same folder and behave correctly without anyone remembering which is which. An RGBA
+// generation needs no keying pass at all, which is the whole reason to prefer one for soft
+// subjects — no matte, no colour picked up from the key field at the feathered edge.
+export function hasRealAlpha(canvas, g) {
+  const d = g.getImageData(0, 0, canvas.width, canvas.height).data;
+  let sampled = 0, transparent = 0;
+  for (let i = 3; i < d.length; i += 4 * 61) { sampled++; if (d[i] < 250) transparent++; }
+  return sampled > 0 && transparent / sampled > 0.02;
+}
+
 export async function loadTexture(key, { keyed = isKeyed(key), repeat = null } = {}) {
   const existing = cache.get(key);
   if (existing && !existing.userData.placeholder) return existing;
@@ -122,6 +134,7 @@ export async function loadTexture(key, { keyed = isKeyed(key), repeat = null } =
 
   const p = (async () => {
     let canvas;
+    let artHasAlpha = false;
     if (URLS[key]) {
       const img = await loadImage(URLS[key]);
       const cap = spriteSize(key);
@@ -132,7 +145,8 @@ export async function loadTexture(key, { keyed = isKeyed(key), repeat = null } =
       canvas.height = h;
       const g = canvas.getContext('2d');
       g.drawImage(img, 0, 0, w, h);
-      if (keyed) chromaKeyCanvas(canvas);
+      artHasAlpha = keyed && hasRealAlpha(canvas, g);
+      if (keyed && !artHasAlpha) chromaKeyCanvas(canvas);
     } else {
       canvas = placeholderCanvas(key);
       console.info(`[assets] not generated yet: ${key} (placeholder in use)`);
@@ -145,6 +159,9 @@ export async function loadTexture(key, { keyed = isKeyed(key), repeat = null } =
       tex.userData.placeholder = false;
     }
     tex.colorSpace = THREE.SRGBColorSpace;
+    // Recorded for the QA pages: an alpha asset has no keying step to measure, so the
+    // chroma report treats it as out of scope rather than as a failure.
+    tex.userData.alphaArt = artHasAlpha;
     tex.anisotropy = 8;
     tex.wrapS = tex.wrapT = repeat ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
     if (repeat) tex.repeat.set(repeat[0], repeat[1]);

@@ -47,7 +47,7 @@ Health comes back only from potions.
 ```
 npm test              # levels + loot + movement + file-name case (headless Node, ~30 s)
 npm run test:case     # every asset key the code names matches the spelling on disk
-npm run test:game     # boots the real game in headless Edge, 40 integration checks
+npm run test:game     # boots the real game in headless Edge, 42 integration checks
 npm run test:keys     # chroma-key QA: measures every generated sprite, non-zero exit if one keys badly
 npm run build && npm run check:build   # the built site, served as plain static files, not the dev server
 ```
@@ -55,7 +55,8 @@ npm run build && npm run check:build   # the built site, served as plain static 
 All currently pass: 200/200 generated levels solvable, the loot spread
 checks, the collision checks, the file-name case audit (every asset key the code names
 matches the spelling on disk, which any case-sensitive host such as Pages requires),
-40/40 integration checks (including that WASD and the arrow
+42/42 integration checks (including that opaque chroma art and genuinely transparent RGBA art
+are told apart and keyed accordingly, and that WASD and the arrow
 keys move the way the camera actually points, that every prop kind resolves to geometry or
 real art, that no torch floats free of a wall, that each enemy family ramps its silhouette
 by tier, that the splat and trail effects are wired to the creatures they were drawn for,
@@ -74,6 +75,7 @@ npm run qa:props      # propcheck.png — every solid prop, front view and turne
 npm run qa:props:one -- "?only=staircase"   # one prop, framed from standing eye height
 npm run qa:props:one -- "?only=torch"         # in that mode the lighting is copied from the game
 npm run qa:fx         # fxcheck.png — every effect composited the way the engine draws it
+npm run qa:alpha      # alphacheck.png — keyed sprites vs RGBA ones, with alpha measurements
 npm run qa:arrow      # an archer's arrow frozen in flight, coming at the camera
 npm run qa:bow        # the player's own arrow frozen in flight down the corridor
 npm run qa:art        # which manifest assets nothing in the source references
@@ -186,6 +188,38 @@ node tools/probeHost.mjs 10.1.1.1         # which port a given machine actually 
   writing down: **nothing produced by that box may enter `assets/images/` for this game
   unless a commercial licence is in hand.** Record the model and licence in the manifest for
   every asset so that rule is auditable rather than remembered.
+
+## Trying the second box: real transparency instead of a magenta field
+
+The chroma-key pipeline is a workaround for a generator that cannot emit alpha. The Qwen box
+can, so the experiment was worth running — and it works, with one caveat that changes how it
+should be used.
+
+```
+node tools/comfyRun.mjs --graph workflows/qwen_image_edit.json \
+  --upload assets/images/vfx/magic_orb.png --image-node 470 \
+  --set "459:500.prompt=Remove the flat background around the subject so it sits on full transparency, keeping the subject itself unchanged" \
+  --set "459:484.on_false=the same instruction" \
+  --set "459:458.seed=44201" --set "461.filename_prefix=strata-qwen" --out experiments/qwen
+npm run qa:alpha        # alphacheck.png: shipped-and-keyed vs the alpha result, with measurements
+```
+
+- **All three test sprites came back as genuine RGBA** (colour type 6), with soft feathered
+  edges that carry no colour cast — the glow halo the magic orb wanted but the keyer kept
+  eating is simply there now, and the vapour has real depth instead of a matte outline.
+- **It is a generator, not a cutout tool.** Given "remove the background, keep the subject
+  unchanged", it removed the background and *repainted the subject*: the vapour came back
+  bigger and billowier, the orb gained detail. Useful for commissioning soft effects; useless
+  as a lossless conversion of art you already approved.
+- **Engine side:** `render/assets.js` now detects a real alpha channel from the pixels and
+  skips chroma keying for that asset, so keyed and alpha art can sit in the same folder. The
+  integration suite asserts the detection both ways (42/42).
+- **Nothing from `experiments/` ships.** That folder is gitignored and outside the asset glob;
+  promoting an experiment means moving it into `assets/images/` and recording the model and
+  licence in `assets/images/manifest.json` at the same time.
+- The graph itself lives at `workflows/qwen_image_edit.json` with its patch rules written next
+  to it: only the edit instruction, the input image, the seed, the step count and the filename
+  prefix may be touched — same discipline as the `z_image_turbo` template, different model.
 
 ## Adding music
 
