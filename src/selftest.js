@@ -15,6 +15,8 @@ import { rollDrops, spawnLevelLoot } from './world/spawner.js';
 import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, hasHeightFor, getMirroredNormalTexture, getTexture } from './render/assets.js';
 import { animationFor, loadFrames, animationSupported, animationDiagnostic } from './render/animation.js';
 import { sfxEventNames, sfxFileNames } from './audio/sfx.js';
+import { trackList as musicTrackList } from './audio/music.js';
+import { AUDIO_CREDIT_HTML } from './ui/menus.js';
 
 export async function runSelfTest(game) {
   const results = [];
@@ -471,6 +473,25 @@ export async function runSelfTest(game) {
     const strays = [...sfxFiles].filter(f => !sfxEvents.includes(f));
     ok('no shipped sound file is unreferenced by an event', strays.length === 0,
       strays.length ? strays.join(', ') : `${sfxFiles.size} files, every one named by an event`);
+
+    // ---- soundtrack --------------------------------------------------------
+    // music.js picks by filename prefix, so a biome with no matching cue silently gets the
+    // wrong mood two thirds of the way down. That is a naming failure and it can be checked.
+    const cues = musicTrackList();
+    const cueMatches = (n, key) => {
+      const tag = String(n).split(/[_-]/)[0].toLowerCase();
+      const k = String(key).toLowerCase();
+      return tag === k || tag.startsWith(k) || k.startsWith(tag);
+    };
+    const biomeKeys = Array.isArray(biomeData.order) ? biomeData.order : Object.keys(biomeData).filter(k => k !== 'order');
+    const uncovered = biomeKeys.filter(k => !cues.some(t => cueMatches(t, k)));
+    ok('every biome has a cue of its own', cues.length > 0 && uncovered.length === 0,
+      `${cues.length} cues (${cues.join(', ')})${uncovered.length ? ` — no cue for: ${uncovered.join(', ')}` : ''}`);
+    ok('a boss cue and a title cue exist', cues.some(t => cueMatches(t, 'boss')) && cues.some(t => cueMatches(t, 'title')),
+      cues.join(', '));
+    ok('the music licence credit names the model in the interface',
+      /MiniMax-Music3/.test(AUDIO_CREDIT_HTML),
+      AUDIO_CREDIT_HTML.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
 
     // "Is bump mapping active?" has two parts, and only the second is interesting. The
     // texture has to be bound to the live material — not a placeholder that happens to be

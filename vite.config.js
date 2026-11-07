@@ -24,6 +24,11 @@ export default defineConfig({
         const to = path.join(outDir, 'music');
         fs.mkdirSync(to, { recursive: true });
         fs.copyFileSync(from, path.join(to, 'manifest.json'));
+        // The music credits ship with the build: the MiniMax-Music3 community licence requires
+        // the model to be named in the product, and provenance that only lives in the repo is
+        // not provenance for whoever plays the hosted game.
+        const credits = path.join(HERE, 'assets/music/credits.json');
+        if (fs.existsSync(credits)) fs.copyFileSync(credits, path.join(to, 'credits.json'));
       }
     },
     {

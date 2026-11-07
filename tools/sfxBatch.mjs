@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { measure } from './audioMeter.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FFMPEG = process.env.FFMPEG || 'C:\\ffmpeg\\bin\\ffmpeg.exe';
@@ -46,64 +47,9 @@ async function json(url, opts) {
   return res.json();
 }
 
-// --- measurement from decoded PCM --------------------------------------------------------
-function pcm(file) {
-  const raw = execFileSync(FFMPEG, ['-v', 'error', '-i', file, '-f', 's16le', '-ac', '1', '-ar', '22050', '-'],
-    { maxBuffer: 64 * 1024 * 1024 });
-  const n = raw.length >> 1;
-  const s = new Float64Array(n);
-  for (let i = 0; i < n; i++) s[i] = raw.readInt16LE(i * 2) / 32768;
-  return { s, rate: 22050 };
-}
-
-function measure(file) {
-  const { s, rate } = pcm(file);
-  const win = Math.floor(rate * 0.02);                       // 20 ms frames
-  const frames = [];
-  let peak = 0, zeroCross = 0, energy = 0;
-  // Real clipping is a run of samples pinned at full scale, not merely a loud peak: a file
-  // that touches -0.2 dBFS is fine and gets levelled down anyway, while flat-topped runs are
-  // permanent distortion. Counting runs is what separates the two, and it stopped a second
-  // good armour-break generation from being rejected for being loud.
-  let clipRun = 0, clipWorst = 0;
-  for (let i = 0; i < s.length; i++) {
-    const a = Math.abs(s[i]);
-    if (a > peak) peak = a;
-    energy += s[i] * s[i];
-    if (a >= 0.995) { clipRun++; if (clipRun > clipWorst) clipWorst = clipRun; } else clipRun = 0;
-    if (i > 0 && (s[i] > 0) !== (s[i - 1] > 0)) zeroCross++;
-  }
-  for (let f = 0; f + win <= s.length; f += win) {
-    let acc = 0;
-    for (let i = f; i < f + win; i++) acc += s[i] * s[i];
-    frames.push(Math.sqrt(acc / win));
-  }
-  const db = (v) => 20 * Math.log10(Math.max(v, 1e-7));
-  const maxFrame = Math.max(...frames, 1e-7);
-  const tail = frames.slice(Math.floor(frames.length * 0.9));
-  const onsetIdx = frames.findIndex(v => v > 0.3 * maxFrame);
-  // The active span matters more than the silence ratio. A one-second impact is *supposed*
-  // to be mostly decay: the first version of this gate rejected every honest sound because
-  // it counted a fading tail as silence. What is actually wrong is a clip with no audible
-  // body, a long dead lead-in, or a hard cut at the end.
-  const first = frames.findIndex(v => v > 0.1 * maxFrame);
-  let last = frames.length - 1;
-  while (last > 0 && frames[last] <= 0.1 * maxFrame) last--;
-  return {
-    duration: s.length / rate,
-    peakDb: db(peak),
-    rmsDb: db(Math.sqrt(energy / s.length)),
-    silenceRatio: frames.filter(v => v < 0.012).length / frames.length,
-    activeSec: first < 0 ? 0 : (last - first + 1) * 0.02,
-    leadSec: first < 0 ? 99 : first * 0.02,
-    onsetSec: onsetIdx < 0 ? 99 : onsetIdx * 0.02,
-    endDb: db(frames[frames.length - 1] / maxFrame),
-    tailRatio: (tail.reduce((a, b) => a + b, 0) / Math.max(tail.length, 1)) / maxFrame,
-    zcr: zeroCross / (s.length / rate),
-    clipRun: clipWorst
-  };
-}
-
+// --- measurement ------------------------------------------------------------------------
+// Measurement lives in tools/audioMeter.mjs, shared with the music batch so an effect and a
+// cue are judged on the same numbers rather than on two copies that can drift apart.
 function gates(m, want, cat) {
   const fail = [];
   if (m.duration < want - 0.35 || m.duration > want + 0.8) fail.push(`length ${m.duration.toFixed(2)}s for a ${want}s request`);

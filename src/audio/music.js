@@ -55,14 +55,26 @@ export async function loadManifest() {
   return tracks;
 }
 
-export function playNext(reason = 'level') {
+export function playNext(reason = 'level', opts = {}) {
   initAudio();
   if (!tracks.length) {
     console.warn('[music] no tracks in assets/music/ — running silent');
     return null;
   }
-  const pick = bag.next(tracks);
-  return play(pick, reason);
+  // A cue named for a biome belongs to that biome. Matching is by prefix so `caverns` answers
+  // to The Caverns with no config file, and anything unmatched falls back to the whole pool —
+  // a soundtrack covering four biomes still plays something everywhere. A boss level prefers
+  // the combat cue when one exists.
+  const matches = (n, key) => {
+    const tag = String(n).split(/[_-]/)[0].toLowerCase();
+    const k = String(key || '').toLowerCase();
+    return tag === k || tag.startsWith(k) || k.startsWith(tag);
+  };
+  const bossPool = tracks.filter(t => matches(t.name, 'boss'));
+  const biomePool = opts.biome ? tracks.filter(t => matches(t.name, opts.biome)) : [];
+  const pool = (opts.boss && bossPool.length) ? bossPool : (biomePool.length ? biomePool : tracks);
+  const pick = bag.next(pool);
+  return play(pick, reason, opts);
 }
 
 export function playTrack(name, reason = 'menu') {
@@ -70,17 +82,26 @@ export function playTrack(name, reason = 'menu') {
   return t ? play(t, reason) : null;
 }
 
-function play(t, reason) {
+function play(t, reason, opts = {}) {
   const bus = getMusicBus();
   const el = new Audio(t.url);
-  el.loop = true;
+  // Not a hard loop. The generated cues were measured at start and end levels differing by up
+  // to 17 dB, so looping the element restarts the piece with an audible bump. Instead the
+  // element ends and the next cue starts through the crossfade that depth changes already use:
+  // with one cue per biome that is usually the same piece, but crossfaded rather than clicked.
+  el.loop = false;
   el.crossOrigin = 'anonymous';
   const gain = new GainWrapper(el);
   el.volume = muted ? 0 : 1;
 
   const prev = current;
-  current = { name: t.name, url: t.url, el, gain };
+  const entry = { name: t.name, url: t.url, el, gain, opts, reason };
+  current = entry;
   el.play().catch(err => console.warn('[music] blocked by browser gesture policy:', err.message));
+  el.addEventListener('ended', () => {
+    if (current !== entry) return;   // a manual change superseded this cue
+    playNext(`${entry.reason} · continue`, entry.opts);
+  });
 
   if (prev) {
     fadeOut(prev, CFG.musicCrossfade);

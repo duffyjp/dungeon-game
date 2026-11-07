@@ -335,7 +335,7 @@ export class Game {
     const tier = tierForDepth(depth);
     this.hud.banner(`DEPTH ${depth}`, `${biome.name}${tier > 1 ? ` · ${['', 'Tier 2', 'Tier 3', 'Tier 4'][tier - 1]} threat` : ''}`, 2200);
     sfx.play('level_start');
-    music.playNext(`depth ${depth}`);
+    music.playNext(`depth ${depth}`, { biome: level.biome, boss: this.enemies.some(e => e.isBoss) });
     console.info(`[level] depth=${depth} seed=${level.seed} size=${level.w} path=${check.stairDist}/${check.diameter} enemies=${this.enemies.length}`);
   }
 

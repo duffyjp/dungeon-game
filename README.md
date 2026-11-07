@@ -344,12 +344,38 @@ npm run qa:animprobe                                   # what the browser can an
   that virtual time does not fast-forward, and the failure mode was a misleading "page did not
   boot".
 
-## Adding music
+## Music
 
-Drop `.mp3`/`.ogg`/`.wav` files into `assets/music/`. Each new depth plays one at
-random with a shuffle bag, so no track repeats until the pool is exhausted, with a
-1.2 s crossfade. `manifest.json` is optional — it exists only to name or exclude
-tracks. With no files the game runs silent.
+`assets/music/` holds six generated cues: one per biome (`crypt`, `caverns`, `foundry`,
+`vault`), a `boss` cue that takes over on a boss depth, and a `title` theme. They are composed
+with **MiniMax-Music3** on the 5070 Ti box.
+
+```
+node tools/graphCheck.mjs workflows/minimax_music3.json http://10.1.1.1:8188
+npm run music:batch -- --all
+npm run music:batch -- --only vault --force --seeds-from 47200
+```
+
+The game picks by filename prefix: `caverns.mp3` plays in The Caverns, and a depth with a
+boss prefers the boss cue. Nothing matches a biome, or there is no manifest, and it falls back
+to a shuffle bag over everything in the folder — so a partial soundtrack still plays
+something. `manifest.json` can pin the order; `credits.json` is provenance and ships with the
+build.
+
+Cues loop, so the briefs ask for a seamless ending that matches the opening. That instruction
+is also what fixed the length: on the first pass five of six cues came back at 17–35 s of a
+60–75 s request, because their briefs described layers fading into silence and the model heard
+"the end". `tools/musicBatch.mjs` measures every cue (level in four quarters, clipping, dead
+air at the start, silence at the end) and rejects what you would otherwise notice while
+playing rather than while reviewing.
+
+Licence: MiniMax-Music3 is under the **MiniMax-Music3 Community License**, which requires the
+model name to appear in the product's UI and machine-generated content to be disclosed as
+such. Both are on the main menu and in How to Play, and the notice plus upstream attributions
+(Qwen3-8B Apache-2.0, stable-audio-tools MIT, Descript Audio Codec MIT) live in
+`assets/music/credits.json`. It also requires separate written authorisation from MiniMax above
+$20M aggregate yearly revenue — irrelevant here, worth knowing if it ever stops being
+irrelevant.
 
 ## Sound effects
 

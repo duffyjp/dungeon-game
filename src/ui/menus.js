@@ -5,6 +5,12 @@ import { hasMusic, trackList, playTrack, stopMusic } from '../audio/music.js';
 import { saveSettings, bestRuns } from '../util/storage.js';
 import * as sfx from '../audio/sfx.js';
 
+// The MiniMax-Music3 community licence requires the model name to be displayed on the user
+// interface of a product using it, and its acceptable-use policy requires machine-generated
+// content shared publicly to be disclosed as such. This is that credit — kept as one exported
+// constant so the test can assert it exists and no screen can quietly drop it.
+export const AUDIO_CREDIT_HTML = `<p class="fine">Soundtrack generated with <b>MiniMax-Music3</b>; sound effects with Stable Audio 3. Music and audio are machine-generated.</p>`;
+
 export class Menus {
   constructor(game) {
     this.game = game;
@@ -56,6 +62,7 @@ export class Menus {
           <button data-act="showHow">HOW TO PLAY</button>
         </div>
         <p class="fine">${hasMusic() ? `${tracks.length} music tracks found` : 'assets/music is empty — the game runs silent'}</p>
+        ${AUDIO_CREDIT_HTML}
         <p class="fine">ComfyUI art: ${this.game.loadedAssetCount ?? 0} generated images</p>
       </div>`);
   }
@@ -107,6 +114,7 @@ export class Menus {
           <li>Enemies telegraph every attack. Watch for the wind-up, step out, then hit.</li>
           <li><b>Esc</b> pause · <b>M</b> mute music · <b>V</b> fullscreen (escape leaves it) · <b>E</b> accept an equipment prompt.</li>
         </ul>
+        ${AUDIO_CREDIT_HTML}
         <div class="row btns"><button data-act="showMain">BACK</button></div>
       </div>`);
   }

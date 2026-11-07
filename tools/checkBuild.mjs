@@ -75,6 +75,12 @@ const html = readFileSync(join(ROOT, 'index.html'), 'utf8');
 if (/(src|href)="\//.test(html)) problems.push('index.html references an absolute path (src="/..." or href="/...")');
 if (!existsSync(join(ROOT, '.nojekyll'))) problems.push('dist/.nojekyll missing — Jekyll would process the site');
 if (!existsSync(join(ROOT, 'music/manifest.json'))) problems.push('dist/music/manifest.json missing — music pinning would 404 when hosted');
+// Music provenance and the licence credit have to be in the shipped site, not just the repo.
+if (existsSync(join(ROOT, 'music/credits.json'))) {
+  const c = JSON.parse(readFileSync(join(ROOT, 'music/credits.json'), 'utf8'));
+  if (!/MiniMax-Music3/.test(c.credit || '')) problems.push('dist/music/credits.json does not name MiniMax-Music3, which its licence requires');
+  else console.log(`music credits in dist: ${c.tracks.length} tracks credited to MiniMax-Music3`);
+}
 // Sprite animation is addressed by path, so a hosted build must actually contain the files
 // the manifest names — a missing clip would show up as a motionless monster, not an error.
 if (existsSync(join(ROOT, 'anim/manifest.json'))) {

@@ -1,0 +1,48 @@
+{
+  "note": "Score briefs for the dungeon. Written in MiniMax Music 3's own caption shape — Global Metadata, Vocal Details, Arrangement — because that is the structure the model was demonstrated with, and because naming the sections is what makes a cue end deliberately: the game crossfades between tracks when the depth changes, so a cue that resolves at the end sounds composed and one that stops mid-bar sounds broken. All cues are instrumental by explicit instruction.",
+  "playback": "This cue loops continuously during play. Write it to run the full requested length: it must not resolve or fade out early, there must be no silence at the start or the end, and the final bars must match the opening in tempo, key and texture so the loop is seamless.",
+  "sections": [
+    "[Intro]",
+    "[Main]",
+    "[Instrumental]",
+    "[Main]",
+    "[Development]",
+    "[Instrumental]",
+    "[Main]",
+    "[Coda]"
+  ],
+  "note_about_length": "Two failed attempts, recorded so nobody re-tries them. (1) Five of six cues came back at 17-35 s of a 60-75 s request; adding a 'do not fade out, this loops' paragraph to the caption changed nothing (13-28 s on the re-roll). (2) The cue that did hit exactly 75 s differed from the others only by chance — seeds, not wording. The structural signal is in the lyrics field: the owner's working example carried ten named section markers, while these briefs carried only '[Instrumental]'. Music3's text encoder returns the duration it settled on, and EmptyMiniMaxMusic3LatentAudio is built from that value, so max_duration is a ceiling the model may come in under and the section list is what tells it how long the piece should be.",
+  "model": "MiniMaxAI/MiniMax-Music3 (MiniMax-Music3 Community License: credit 'MiniMax-Music3' in the UI, disclose machine-generated content, attribution notice kept in assets/music/manifest.json)",
+  "cues": {
+    "crypt": {
+      "biome": "crypt",
+      "seconds": 60,
+      "caption": "Global Metadata: Dark dungeon ambient score. 66 BPM, D minor with natural and harmonic minor colour. Slow, oppressive and patient throughout — dread that deepens rather than resolves, ending on an unresolved low drone. Music for walking stone corridors alone.\n\nVocal Details: Instrumental. No vocals, no humming, no voice of any kind.\n\nArrangement: Intro: distant low drone and one sparse struck note with a long decay. Main: slow plucked low strings over a bowed cello line in long notes, hand percussion — one deep skin drum every two bars, sparse iron bells, no backbeat. Middle: the drone thickens, a detuned music-box figure appears high and far away, wood creaks and stone resonance fill the space. Outro: layers drop away one at a time until only the drone and one last struck note remain, decaying into silence."
+    },
+    "caverns": {
+      "biome": "cavern",
+      "seconds": 60,
+      "caption": "Global Metadata: Underground cavern score. 74 BPM, A minor with raised sixth flickers. Damp, skittering and close, restless but not threatening, resolving softly at the end. Music for wet rock passages and small moving things.\n\nVocal Details: Instrumental. No vocals, no humming, no voice of any kind.\n\nArrangement: Intro: dripping percussion of stone on stone and a breathy low wooden flute holding one note. Main: the flute takes a winding folk-like figure, answered by plucked strings, with light scurrying percussion of pebbles and seeds keeping an uneven pulse over a low drone. Middle: two flutes chase each other in close canon while the drone drops an octave; texture thins to pebble rhythm and breath. Outro: the flute figure slows and fragments, the drone fades to water strikes and one final soft stone note."
+    },
+    "foundry": {
+      "biome": "foundry",
+      "seconds": 60,
+      "caption": "Global Metadata: Industrial forge score. 92 BPM, E phrygian dominant with heavy low ostinato. Grim, mechanical and hot — hammering rhythm, grim determination, ending on a locked low repeated note. Music for iron plates, furnaces and machinery.\n\nVocal Details: Instrumental. No vocals, no humming, no voice of any kind.\n\nArrangement: Intro: a single anvil-like metallic hit on the downbeat with furnace hiss, then a low two-note ostinato in the bass. Main: hammering percussion in a four-square pattern with chained metallic accents, low brass stabbing on the offbeats, distorted cello doubling the ostinato, a sour lead whistle playing a short threatening motif. Middle: percussion drops to a heartbeat kick and ringing metal while the brass ostinato swells and detunes slightly. Outro: the ostinato repeats, layers are switched off one by one, ending with two final anvil hits and hiss decay."
+    },
+    "vault": {
+      "biome": "vault",
+      "seconds": 60,
+      "caption": "Global Metadata: Buried vault score. 58 BPM, C harmonic minor with sustained pedal. Vast, sacred and wrong — slow grandeur with a sense of something watched, ending on a bright unresolved chord. Music for marble halls that were never meant to be opened.\n\nVocal Details: Instrumental. No vocals, no humming, no choral voice of any kind; sustained organ pads stand in for a choir.\n\nArrangement: Intro: huge pipe-organ pedal note with long stone reverberation and a single high string harmonic. Main: slow strings in close dissonant harmony rise over the pedal, organ chords arrive rarely and heavily, sparse tolling bells mark the bar changes. Middle: strings break into a slow descending lament while the organ holds the pedal; a bell motif repeats a fifth higher each time. Outro: the lament thins to one violin line, the pedal subsides, ending on a high organ chord decaying into reverberant silence."
+    },
+    "boss": {
+      "biome": "boss",
+      "seconds": 50,
+      "caption": "Global Metadata: Dungeon boss combat score. 132 BPM, D phrygian dominant. Violent, driving and relentless with a heroic edge, ending on a decisive low stinger. Music for a fight the player can win.\n\nVocal Details: Instrumental. No vocals, no chanting, no voice of any kind.\n\nArrangement: Intro: two bars of accelerating taiko drums and a low brass swell. Main: driving taiko and frame-drum pattern in sixteenths, distorted low strings playing an obsessive riff, brass stabs on the accents, dissonant string clusters as transitions. Middle: riff transposes up a step, percussion doubles in density, brief half-time break with pulsing low brass before snapping back to full tempo. Outro: riff crashes down an octave, final taiko roll into one decisive low stinger with a short decay."
+    },
+    "title": {
+      "biome": "menu",
+      "seconds": 75,
+      "caption": "Global Metadata: Dungeon crawler main theme. 72 BPM, A minor with a Picardy third at the end. Melancholy, wandering and quietly hopeful, ending resolved and calm. Music for a title screen and the first descent.\n\nVocal Details: Instrumental. No vocals, no humming, no voice of any kind.\n\nArrangement: Intro: solo lute stating a simple four-bar theme in free time with room tone. Main: the theme repeats with a soft cello countermelody and light hand percussion entering halfway; acoustic guitar arpeggios answer the lute phrases. Middle: theme passes to strings, harmony lifts through the relative major, a distant bell echoes the third bar of the motif. Outro: instruments drop out one at a time back to solo lute, which slows and settles on a major chord with a gentle natural decay."
+    }
+  }
+}

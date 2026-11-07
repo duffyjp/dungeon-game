@@ -1,0 +1,66 @@
+{
+  "credit": "Music generated with MiniMax-Music3 (MiniMax-Music3 Community License). All cues are machine-generated.",
+  "attribution": "MiniMax-Music3 is fine-tuned from Qwen3-8B (Apache 2.0); its DiT derives from Stability AI stable-audio-tools (MIT) and its VAE from Descript Audio Codec (MIT).",
+  "tracks": [
+    {
+      "name": "boss",
+      "biome": "boss",
+      "seed": 47401,
+      "seconds": 50,
+      "model": "MiniMax-Music3",
+      "licence": "MiniMax-Music3 Community License",
+      "machineGenerated": true,
+      "loudnessDb": -20
+    },
+    {
+      "name": "caverns",
+      "biome": "cavern",
+      "seed": 47301,
+      "seconds": 60,
+      "model": "MiniMax-Music3",
+      "licence": "MiniMax-Music3 Community License",
+      "machineGenerated": true,
+      "loudnessDb": -20
+    },
+    {
+      "name": "crypt",
+      "biome": "crypt",
+      "seed": 47500,
+      "seconds": 60,
+      "model": "MiniMax-Music3",
+      "licence": "MiniMax-Music3 Community License",
+      "machineGenerated": true,
+      "loudnessDb": -20
+    },
+    {
+      "name": "foundry",
+      "biome": "foundry",
+      "seed": 47302,
+      "seconds": 60,
+      "model": "MiniMax-Music3",
+      "licence": "MiniMax-Music3 Community License",
+      "machineGenerated": true,
+      "loudnessDb": -20
+    },
+    {
+      "name": "title",
+      "biome": "menu",
+      "seed": 47006,
+      "seconds": 75,
+      "model": "MiniMax-Music3",
+      "licence": "MiniMax-Music3 Community License",
+      "machineGenerated": true,
+      "loudnessDb": -20
+    },
+    {
+      "name": "vault",
+      "biome": "vault",
+      "seed": 47303,
+      "seconds": 60,
+      "model": "MiniMax-Music3",
+      "licence": "MiniMax-Music3 Community License",
+      "machineGenerated": true,
+      "loudnessDb": -21
+    }
+  ]
+}

@@ -851,6 +851,59 @@ a code change.
   clip is unreferenced, because a missing clip falls back to the synthesised placeholder and
   would otherwise survive the whole suite sounding merely thin.
 
+### 13.13 The soundtrack (MiniMax-Music3)
+
+Six cues in `assets/music/`: one per biome plus a boss cue and a title theme. The owner
+planned to compose these themselves and had better luck with MiniMax and Ace Step than with
+Stable Audio for music, so their MCP graph became `workflows/minimax_music3.json` with node
+ids preserved — the only change being the default caption and lyrics, since their example is a
+lo-fi hip-hop song with verses.
+
+**Licence, read rather than inferred.** The Music3 weights carry a *MiniMax-Music3 Community
+License* and the full text is readable in the public `MiniMaxAI/MiniMax-Music3` repository,
+unlike Stability's, which sits behind a gated repo. It permits distribution and commercial
+use, subject to naming the model in the product UI, disclosing machine-generated content, and
+separate written authorisation above $20M aggregate yearly revenue; the heavier obligations in
+§4 apply only to products that let third parties generate with the model, which this is not.
+Both applicable obligations are implemented: `AUDIO_CREDIT_HTML` in `src/ui/menus.js` names
+MiniMax-Music3 on the main menu and in How to Play, and `assets/music/credits.json` ships
+inside the build with the attribution chain (fine-tuned from Qwen3-8B Apache-2.0, DiT from
+stable-audio-tools MIT, VAE from Descript Audio Codec MIT). `tools/checkBuild.mjs` fails the
+build if that credit is absent from `dist/`.
+
+**Length is structural, not a parameter.** The first pass produced cues of 17–35 s against a
+60–75 s request; one cue happened to hit exactly 75 s. Adding "this loops, do not fade out" to
+the caption did nothing (13–28 s on the re-roll). The real lever is the `lyrics` field:
+`MiniMaxMusic3TextEncode` returns a duration of its own choosing and
+`EmptyMiniMaxMusic3LatentAudio` is built from that value, so `max_duration` is only a ceiling
+the model is free to come in under. The owner's working example carried ten named section
+markers; the briefs carried only `[Instrumental]`. With eight markers the same cue came back
+at 53.7 s. The asks were then set to what that structure delivers (60 s per biome, 50 s boss)
+rather than loosening the length gate — a 54 s seamless loop is a perfectly good biome bed,
+and asking for 75 s while the gate punishes 54 s is just a way of manufacturing rejects.
+
+**Cues loop, so the briefs stop asking for endings.** `music.js` sets `loop = true`, and the
+first briefs asked for layers dropping away into silence; a fade-out is an ending, and every
+cycle would have restarted from a gap. The shared playback instruction now asks for an ending
+that matches the opening in tempo, key and texture.
+
+**Gates** (`tools/musicBatch.mjs`, measuring through the shared `tools/audioMeter.mjs`): length
+against the ask, silence before the first note, a hard cut instead of decay at the end, and
+**loudness in four quarters with a 12 dB ceiling on the spread** — the check that matters for
+music, because a cue that dies in its middle or swells into a wall at the end is invisible to
+a single average and immediately obvious under a crossfade. The clipping threshold is far
+looser than the SFX one (120 flat samples in a row rather than 8): this model masters hot,
+brief overs that touch full scale are inaudible and the level-match pulls them down, while a
+sustained run is real distortion. Shipped copies are level-matched to a −20 dBFS mean and
+re-encoded at a lower bitrate than the master (~1 MB per 75 s cue) because the soundtrack is
+the largest single asset group in the site.
+
+**Selection is by filename prefix**, so `caverns.mp3` answers to The Caverns and a boss depth
+prefers the boss cue, with a shuffle bag over everything as the fallback — a soundtrack
+covering three biomes still plays something everywhere. The self-test asserts every biome in
+`biomes.order` has a cue, that a boss and title cue exist, and that the licence credit names
+the model.
+
 
 ---
 

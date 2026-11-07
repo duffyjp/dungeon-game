@@ -1,0 +1,102 @@
+{
+  "name": "minimax_music3",
+  "model": "MiniMaxAI/MiniMax-Music3 (Comfy-Org repackaged: minimax_music3_dit_fp16.safetensors + minimax_music3_dav.safetensors + minimax_music3_text_encoder_pruned_int8_convrot.safetensors)",
+  "licence": "MiniMax-Music3 COMMUNITY LICENSE, read in full on 2026-11-07 from https://huggingface.co/MiniMaxAI/MiniMax-Music3/raw/main/LICENSE. It permits use, modification, distribution and sublicensing of the Software, subject to: (1) keeping the copyright and permission notice in all copies; (2) complying with law and the Acceptable Use Policy; (3) COMMERCIAL TERMS — \"you shall prominently display MiniMax-Music3 on the user interface\" of a product that uses the Software, and separate written authorisation from MiniMax is required above $20M aggregate yearly revenue; (4) extra obligations only apply to products that let third parties generate outputs with the model, which a game with baked-in tracks does not. AUP item 11 also requires that machine-generated content shared publicly be disclosed as such. Upstream it is fine-tuned from Qwen3-8B (Apache 2.0), with DiT derived from Stable Audio tools (MIT) and a VAE derived from Descript Audio Codec (MIT). CONSEQUENCE FOR THIS PROJECT: the game must credit \"MiniMax-Music3\" visibly in its UI and say the music is machine-generated — both are wired in src/ui/menus.js and README.md.",
+  "server": "http://10.1.1.1:8188 (RTX 5070 Ti, 17.1 GB)",
+  "purpose": "Dungeon soundtrack. src/audio/music.js plays one random track per depth with a crossfade, so tracks are self-contained pieces with a real beginning and end, not loops.",
+  "derived_from": "The owner's graph audio_minimax_music_3_mcp.json, node ids preserved. The only change is the default caption/lyrics: the example in the owner's file is a lo-fi hip-hop song with verses, which is a fine demonstration but not dungeon music. Their original file is unchanged on their machine; nothing structural was altered.",
+  "patch_only": {
+    "37:13.caption": "MiniMaxMusic3TextEncode.caption — the score brief: Global Metadata (genre, instrumentation, tempo, key, mood arc), Vocal Details (here: instrumental), Arrangement (section-by-section)",
+    "37:13.lyrics": "use '[Instrumental]' for score cues; lyrics are only for songs",
+    "37:13.max_duration": "seconds; the model may end the piece earlier than this",
+    "37:38.seed": "SeedNode.seed",
+    "35": "SaveAudioAdvanced.filename_prefix — one prefix per cue",
+    "37:9": "KSampler steps/cfg if the drafts come out thin"
+  },
+  "do_not_touch": "37:6 / 37:3 / 37:7 (DiT, text encoder, audio VAE), 37:10 ConditioningZeroOut for the negative branch, 37:15 latent sized from the encode output, 37:43 switch set to true so decode is TILED — 1536-sample tiles with 64 overlap, which is what keeps a 90 s piece inside the card's memory.",
+  "notes": {
+    "tiled_decode": "37:43 on_true is VAEDecodeAudioTiled. Do not route it to the plain VAEDecodeAudio for long pieces: the graph was built this way because the full decode does not fit.",
+    "structure": "The captions name sections (intro, main, middle, outro) because the game crossfades between tracks at depth changes, so a cue that resolves at the end sounds deliberate and a cue that ends mid-bar sounds broken."
+  },
+  "graph": {
+    "35": {
+      "inputs": { "filename_prefix": "audio/audio_minimax_music3", "format": "mp3", "format.quality": "V0", "audio": ["37:43", 0] },
+      "class_type": "SaveAudioAdvanced",
+      "_meta": { "title": "Save Audio (Advanced)" }
+    },
+    "37:6": {
+      "inputs": { "unet_name": "minimax_music3_dit_fp16.safetensors", "weight_dtype": "default" },
+      "class_type": "UNETLoader",
+      "_meta": { "title": "Load Diffusion Model" }
+    },
+    "37:3": {
+      "inputs": { "clip_name": "minimax_music3_text_encoder_pruned_int8_convrot.safetensors", "type": "minimax", "device": "default" },
+      "class_type": "CLIPLoader",
+      "_meta": { "title": "Load CLIP" }
+    },
+    "37:7": {
+      "inputs": { "vae_name": "minimax_music3_dav.safetensors" },
+      "class_type": "VAELoader",
+      "_meta": { "title": "Load VAE" }
+    },
+    "37:13": {
+      "inputs": {
+        "caption": "Global Metadata: Dark dungeon ambient score. 68 BPM, D minor with natural and harmonic minor colour. Slow, oppressive and patient throughout, dread that deepens rather than resolves, ending on an unresolved low drone. Instrumental cue for exploring stone corridors.\n\nVocal Details: Instrumental. No vocals, no humming, no voice of any kind.\n\nArrangement: Intro: distant low drone and a single sparse struck note with long decay. Main: slow plucked low strings and a bowed cello line in long notes, hand percussion — deep skin drum once every two bars, sparse bells, no backbeat. Middle: the drone thickens, a detuned music-box figure appears high and far, wood creaks and stone resonance in the space. Outro: layers drop away one at a time until only the drone and one last struck note remain, decaying into silence.",
+        "lyrics": "[Instrumental]",
+        "seed": ["37:38", 0],
+        "max_duration": 75,
+        "cfg_scale": 1.7,
+        "top_k": 50,
+        "clip": ["37:3", 0]
+      },
+      "class_type": "MiniMaxMusic3TextEncode",
+      "_meta": { "title": "MiniMax Music3 Text Encode" }
+    },
+    "37:10": {
+      "inputs": { "conditioning": ["37:13", 0] },
+      "class_type": "ConditioningZeroOut",
+      "_meta": { "title": "Conditioning Zero Out" }
+    },
+    "37:15": {
+      "inputs": { "seconds": ["37:13", 1], "batch_size": 1 },
+      "class_type": "EmptyMiniMaxMusic3LatentAudio",
+      "_meta": { "title": "Empty MiniMax Music3 Latent Audio" }
+    },
+    "37:38": {
+      "inputs": { "seed": 47001 },
+      "class_type": "SeedNode",
+      "_meta": { "title": "Seed" }
+    },
+    "37:9": {
+      "inputs": {
+        "seed": ["37:38", 0],
+        "steps": 30,
+        "cfg": 1.7,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1,
+        "model": ["37:6", 0],
+        "positive": ["37:13", 0],
+        "negative": ["37:10", 0],
+        "latent_image": ["37:15", 0]
+      },
+      "class_type": "KSampler",
+      "_meta": { "title": "KSampler" }
+    },
+    "37:12": {
+      "inputs": { "samples": ["37:9", 0], "vae": ["37:7", 0] },
+      "class_type": "VAEDecodeAudio",
+      "_meta": { "title": "VAE Decode Audio" }
+    },
+    "37:42": {
+      "inputs": { "tile_size": 1536, "overlap": 64, "samples": ["37:9", 0], "vae": ["37:7", 0] },
+      "class_type": "VAEDecodeAudioTiled",
+      "_meta": { "title": "VAE Decode Audio (Tiled)" }
+    },
+    "37:43": {
+      "inputs": { "switch": true, "on_false": ["37:12", 0], "on_true": ["37:42", 0] },
+      "class_type": "ComfySwitchNode",
+      "_meta": { "title": "If/Else Switch" }
+    }
+  }
+}

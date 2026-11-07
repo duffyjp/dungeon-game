@@ -41,7 +41,8 @@
     "qa:props:one": "node tools/pageShot.mjs propcheck.html propcheck.png 900 620",
     "shot": "node tools/pageShot.mjs",
     "qa:bump": "node tools/pageShot.mjs bumpcheck.html bumpcheck.png 1000 1700",
-    "sfx:batch": "node tools/sfxBatch.mjs"
+    "sfx:batch": "node tools/sfxBatch.mjs",
+    "music:batch": "node tools/musicBatch.mjs"
   },
   "dependencies": {
     "three": "^0.160.1"
