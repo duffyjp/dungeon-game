@@ -312,7 +312,16 @@ export class Game {
   // anything else, waits for a depth that was started by a key press rather than by a call site
   // it controls.
   loadLevel(depth, retry = 0, opts = {}) {
-    this.loading = this._loadLevel(depth, retry, opts);
+    // Loads are serialized behind one another. The menu backdrop builds a level in the
+    // background, and without this a player pressing NEW RUN mid-build would interleave two
+    // level builds: the backdrop's clearLevel would wipe the run's level, and its tail would put
+    // the menu chrome back over a game that had already started - a blurred, unplayable screen.
+    const run = () => {
+      if (opts.menu && this.state !== 'menu') return undefined;   // the player left the menu first
+      return this._loadLevel(depth, retry, opts);
+    };
+    const prev = this.loading || Promise.resolve();
+    this.loading = prev.then(run, run);
     return this.loading;
   }
 

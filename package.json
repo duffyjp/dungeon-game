@@ -48,7 +48,8 @@
     "qa:assets": "node tools/assetAudit.mjs",
     "anim:anchor": "node tools/animAnchor.mjs",
     "pack:lossy": "node tools/lossyWebp.mjs",
-    "pack:stills": "node tools/stillToWebp.mjs"
+    "pack:stills": "node tools/stillToWebp.mjs",
+    "qa:secrets": "node tools/secretScan.mjs"
   },
   "dependencies": {
     "three": "^0.160.1"

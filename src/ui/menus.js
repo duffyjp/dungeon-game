@@ -49,7 +49,9 @@ export class Menus {
 
   showMain() {
     stopMusic();
-    const tracks = trackList();
+    // The main card carries the author and the source, nothing else. The model/attribution
+    // notice the audio licences ask for lives on the How to Play card (AUDIO_CREDIT_HTML), which
+    // the self-test still asserts - the menu being clean is not a reason to drop a disclosure.
     this.show(`
       <div class="menu-card">
         <h1 class="title">STRATA</h1>
@@ -61,9 +63,8 @@ export class Menus {
           <button data-act="showSettings">SETTINGS</button>
           <button data-act="showHow">HOW TO PLAY</button>
         </div>
-        ${AUDIO_CREDIT_HTML}
-        <p class="fine stat">${hasMusic() ? `${tracks.length} music tracks` : 'assets/music is empty — the game runs silent'}
-          · ${this.game.loadedAssetCount ?? 0} generated images · a live depth turns behind this card</p>
+        <p class="fine stat">a game by <b>duffyjp</b> ·
+          <a href="https://github.com/duffyjp/dungeon-game" target="_blank" rel="noopener">github.com/duffyjp/dungeon-game</a></p>
       </div>`);
   }
 

@@ -116,6 +116,10 @@ body.menu-view #scene { filter: blur(6px) brightness(0.58) saturate(0.92); trans
 .menu-card .big { font-size: 18px; font-weight: 700; }
 .menu-card .fine { color: var(--dim); font-size: 11px; line-height: 1.55; margin: 0 0 14px; }
 .menu-card .fine.stat { margin: 16px 0 0; padding-top: 11px; border-top: 1px solid rgba(215,196,138,0.16); font-size: 10px; letter-spacing: 0.03em; }
+/* Links in the card are the author line and the source, so they get a visible affordance
+   without shouting: dim gold, underline only on hover. */
+.menu-card a { color: #d7c48a; text-decoration: none; border-bottom: 1px solid rgba(215,196,138,0.3); }
+.menu-card a:hover { color: #f1e5c0; border-bottom-color: rgba(215,196,138,0.75); }
 .seedrow { margin: 0 0 16px; }
 .seedrow input { width: 100%; }
 .btngrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }

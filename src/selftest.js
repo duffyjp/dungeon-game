@@ -43,6 +43,23 @@ export async function runSelfTest(game) {
         `viewmodel visible=${game.viewmodel.group.visible}, body.menu-view=${document.body.classList.contains('menu-view')}`);
       ok('the menu cannot hurt you', game.player.health > 0 && game.player.health === game.player.maxHealth && game.enemies.every(e => e.state !== 'hunt'),
         `health=${game.player.health}/${game.player.maxHealth}, hunting=${game.enemies.filter(e => e.state === 'hunt').length}`);
+      const cardHtml = game.menus.panel.innerHTML;
+      ok('the menu credits the author and links to the source',
+        /duffyjp/.test(cardHtml) && /github\.com\/duffyjp\/dungeon-game/.test(cardHtml),
+        (cardHtml.match(/fine stat">\s*([^<]*)/) || [])[1]?.trim() || 'no attribution line found');
+      ok('the menu is not cluttered with pipeline stats', !/generated images/.test(cardHtml), 'one attribution line');
+    }
+
+    // The race the screenshots surfaced: the menu backdrop builds a level in the background, and
+    // a player who presses NEW RUN before it finishes must end up in a playable game, not in a
+    // blurred menu with the run quietly destroyed.
+    {
+      game.showMenu();
+      await game.startRun('race', 1);
+      ok('starting a run while the menu backdrop is still building wins',
+        game.state === 'playing' && !document.body.classList.contains('menu-view') &&
+        game.viewmodel.group.visible && Boolean(game.levelView) && game.enemies.length > 0,
+        `state=${game.state} depth=${game.depth} monsters=${game.enemies.length} menu-view=${document.body.classList.contains('menu-view')}`);
     }
 
     // Awaited: a run now spends time preloading the depth's art before it exists, so the suite
@@ -522,6 +539,13 @@ export async function runSelfTest(game) {
     ok('the audio credit names the models and says the content is machine-generated',
       /ACE-Step/.test(AUDIO_CREDIT_HTML) && /Stable Audio/.test(AUDIO_CREDIT_HTML) && /machine-generated/i.test(AUDIO_CREDIT_HTML),
       AUDIO_CREDIT_HTML.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
+    // The main menu was cleaned up on purpose; the licence disclosure moved with it, it did not
+    // disappear. Assert the How to Play card still carries it.
+    game.menus.showHow();
+    ok('the licence notice lives on the How to Play card',
+      /machine-generated/i.test(game.menus.panel.innerHTML) && /ACE-Step/.test(game.menus.panel.innerHTML),
+      'visible from the menu in one click');
+    game.menus.showMain();
 
     // "Is bump mapping active?" has two parts, and only the second is interesting. The
     // texture has to be bound to the live material — not a placeholder that happens to be
