@@ -371,6 +371,21 @@ export async function runSelfTest(game) {
     ok('flee cycles exist only where the AI can retreat', withFlee.length === 3,
       `${withFlee.length} flee cycles — spiders back off in the AI, nothing else runs`);
 
+    // Decode a sample across the tiers, not just the one sprite: a corrupt or mis-encoded
+    // file at tier 4 should fail here rather than show up as a motionless monster three
+    // screens deep into a run.
+    const sample = ['enemies/t2/grave_spider', 'enemies/t3/void_archmage', 'enemies/t4/iron_reaver'];
+    let sampledOk = 0, sampledDetail = [];
+    for (const key of sample) {
+      const sEntry = animationFor(key, 'walk');
+      if (!sEntry) { sampledDetail.push(`${key.split('/').pop()}=no clip`); continue; }
+      const sTex = await loadFrames(sEntry);
+      if (sTex && sTex.length === sEntry.frames) sampledOk++;
+      else sampledDetail.push(`${key.split('/').pop()}=${sTex ? sTex.length : 'decode failed'}/${sEntry.frames}`);
+    }
+    ok('a sampled clip from each of tiers 2-4 decodes fully', sampledOk === sample.length,
+      `${sampledOk}/${sample.length} decoded` + (sampledDetail.length ? ` — ${sampledDetail.join(', ')}` : ''));
+
     if (entry) {
       ok('this browser can decode animated frames', animationSupported(),
         animationSupported() ? 'ImageDecoder present' : 'no WebCodecs: billboards stay static by design');

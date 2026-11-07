@@ -52,9 +52,14 @@ const server = await createServer({
 await server.listen();
 
 const profile = mkdtempSync(join(tmpdir(), 'strata-selftest-'));
+// The suite now decodes several animated WebPs frame by frame, which is real work the
+// virtual-time clock does not fast-forward through. A hard-coded 25 s made the run fail
+// intermittently with "the page never reported" — the wrong diagnosis and expensive to chase
+// — so the budget is generous and overridable with SELFTEST_BUDGET=.
+const budget = Number(process.env.SELFTEST_BUDGET || 60000);
 const flags = [
   `--user-data-dir=${profile}`, '--headless', '--disable-gpu', '--no-first-run',
-  '--no-default-browser-check', '--window-size=1100,900', '--virtual-time-budget=25000'
+  '--no-default-browser-check', '--window-size=1100,900', `--virtual-time-budget=${budget}`
 ];
 if (shot) flags.push(`--screenshot=${shot}`);
 // Extra query fragments (e.g. "&at=stair") are appended so debug placements and other
