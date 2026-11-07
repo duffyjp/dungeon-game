@@ -1056,6 +1056,55 @@ to the still sprite` was green for weeks while describing the bug. It now assert
 that a stopping creature parks on a clip frame and keeps the same source and quad — and a second
 check verifies that a standing monster's material and geometry both come from the clip.
 
+### 13.17 Each depth loads its own assets, with a progress bar
+
+Playing any asset for the first time fetched it just-in-time, which the owner felt as hitching:
+the first monster of a new tier downloading its sprite during a fight, the first wall of a new
+biome arriving as the player rounded a corner, and worst of the three an animated clip decoding
+its 18 frames through `ImageDecoder` and canvas copies the moment a monster first moved. A
+texture request costs bandwidth; a clip decode costs the main thread.
+
+`src/world/levelAssets.js` enumerates a depth's needs from the same rules the renderer and
+spawner use — biome wall/floor/ceiling plus their derived maps, the prop kinds that level
+actually generated (surface-backed props like `textures/pillar` versus mesh props like
+`props/crate`, mirroring levelView), the enemy families `eligibleFamilies(depth)` may place, and
+their walk/attack/flee clips. `main.js` warms all of it before the level is built, with
+`state = 'loading'` so the loop keeps rendering and ignores input, behind a DESCENT progress
+card that counts images and clips rather than guessing at a percentage.
+
+- Boot decodes nothing heavy, so the menu appears immediately. Item icons, effects and HUD
+  frames ride along with the first descent. The old behaviour was to decode the entire library
+  before the menu: slower first play, and it still left every clip arriving during the game.
+- A cold band costs about **74 images and 13 clips (roughly 2 MB)**, paid once per biome or tier
+  change rather than per depth — depths 2 and 3 reuse depth 1's art entirely.
+- About 2.5 s after the level starts, the next band's monsters and biome are warmed in the
+  background, so a transition is not paid for at the moment it happens.
+- **Guard**: the self-test calls `releaseTextures()` to empty the texture cache — otherwise the
+  harness's own `?assets=1` boot warm would let the check pass whether or not the preloader
+  worked — then loads a depth that changes both biome and tier and fails on anything the level
+  drew that was not warmed first. It immediately found two misses (armour icons arriving late),
+  which is the whole point of writing it.
+
+Making a synchronous path async cost a round of harness fixes, and they were real races rather
+than test fussing: the suite had to await `startRun`, the playtest cheat, a staircase descent
+and each death-respawn, because all of them now begin a load that finishes later. `game.loading`
+holds the in-flight promise so anything can wait for it, and the `?demo=1` boot path awaits the
+run so QA screenshots do not photograph a progress bar.
+
+### 13.18 Lossy containers where there is no alpha to protect
+
+Opaque art does not need a lossless container — the same 512 px wall tile costs 583 KB as PNG and
+82 KB as WebP. `tools/lossyWebp.mjs` converts only files whose alpha channel is fully opaque,
+decodes every result back, and compares it against the master: **anything under 30 dB PSNR is
+rejected and left as PNG** rather than shipped. 17 files went from 5.43 MB to 0.40 MB at 38.6–45.1
+dB; 26 were skipped for carrying transparency, including every item icon, effect and HUD sprite.
+PNG masters move to `asset_sources/`, git-ignored. The first version of the comparison indexed a
+3-channel re-decode with a 4-channel stride and reported NaN for every file — caught by reading
+the number rather than shipping it.
+
+With the dead-weight audit (§13.14), the enemy fallback conversion (§13.16) and this, the site
+went 61.1 → 57.6 → 53.1 → **48.1 MB**, leaving the 30.3 MB soundtrack as the dominant share.
+
 
 ---
 

@@ -15,7 +15,10 @@ export function bandForDepth(depth) {
   return Math.min(3, Math.floor((depth - 1) / 3));
 }
 
-function eligibleFamilies(depth) {
+// Exported because the preloader has to ask the same question the spawner does: which families
+// may appear at this depth. Duplicating the rule would let the two drift, and a level that
+// spawns something unprepared hitches exactly as badly as one with no preloading at all.
+export function eligibleFamilies(depth) {
   const band = bandForDepth(depth);
   return enemiesData.families
     .filter(f => depth >= f.fromDepth)

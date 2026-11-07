@@ -114,3 +114,20 @@ input[type="text"], input:not([type]) { width: 100%; padding: 9px 11px; backgrou
 .runs { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
 .runs th, .runs td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--edge); }
 .runs th { color: var(--dim); font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; }
+
+/* ---------------- level preloading ----------------
+   The wait for a depth's art has a shape, so it reads as loading rather than a freeze.
+   pointer-events: none keeps the card from eating clicks; the game is not accepting any
+   while the state is 'loading' anyway. */
+.loadcard {
+  position: fixed; left: 50%; bottom: 12%; transform: translateX(-50%);
+  width: min(420px, 72vw); padding: 14px 16px 12px;
+  background: rgba(10, 9, 8, 0.84); border: 1px solid rgba(245, 165, 36, 0.35);
+  color: var(--ink); font: 12px/1.4 ui-monospace, monospace; text-align: center;
+  pointer-events: none; z-index: 40;
+}
+.loadcard[hidden] { display: none; }
+.loadtitle { letter-spacing: 0.28em; color: var(--gold); font-size: 11px; margin-bottom: 8px; }
+.loadbar { height: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); }
+.loadbar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #8a5a20, #f5a524); transition: width 120ms linear; }
+.loadfine { margin-top: 7px; color: var(--dim); font-size: 11px; }

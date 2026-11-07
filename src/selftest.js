@@ -12,7 +12,7 @@ import { wallMount, textureHasAlpha } from './world/levelView.js';
 import { mapWindow } from './ui/minimap.js';
 import { isOpen } from './util/grid.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
-import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, hasHeightFor, getMirroredNormalTexture, getTexture } from './render/assets.js';
+import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, hasHeightFor, getMirroredNormalTexture, getTexture, coldMissList, resetColdMisses, releaseTextures } from './render/assets.js';
 import { animationFor, loadFrames, animationSupported, animationDiagnostic, bodyRectFor } from './render/animation.js';
 import { sfxEventNames, sfxFileNames } from './audio/sfx.js';
 import { trackList as musicTrackList } from './audio/music.js';
@@ -27,7 +27,9 @@ export async function runSelfTest(game) {
   const step = (n, dt = 1 / 60) => { for (let i = 0; i < n; i++) game.update(dt); };
 
   try {
-    game.startRun('selftest', 1);
+    // Awaited: a run now spends time preloading the depth's art before it exists, so the suite
+    // has to wait for it rather than poking at a level that is still arriving.
+    await game.startRun('selftest', 1);
     step(3);
 
     ok('level built', Boolean(game.level && game.levelView));
@@ -158,6 +160,8 @@ export async function runSelfTest(game) {
     game.pause();
     for (const code of ['KeyL', 'Digit1', 'Digit0']) game.input.onKey({ code }, true);
     step(3);
+    // The cheat starts an async depth load; wait for the level's art before judging the state.
+    await game.loading;
     ok('L 1 0 on the pause screen drops the run into depth 10',
       game.depth === 10 && game.state === 'playing' && Boolean(game.level),
       `depth=${game.depth} state=${game.state}`);
@@ -166,6 +170,7 @@ export async function runSelfTest(game) {
       `path=${game.level.dist[game.level.stair.y * game.level.w + game.level.stair.x]}`);
     ok('a single pair with a leading zero works too (L 0 5)',
       game.cheatToDepth('05') && game.depth === 5, `depth=${game.depth}`);
+    await game.loading;
 
     // --- alpha art skips the chroma keyer. A generator that returns RGBA (Qwen-Image-2.1)
     // needs no matte, and the keyer would be actively harmful to it: it samples the border,
@@ -228,6 +233,7 @@ export async function runSelfTest(game) {
     game.player.x = stair.x; game.player.z = stair.z;
     const depth0 = game.depth;
     step(120, 1 / 60);              // 2 s of standing on the stairs
+    await game.loading;             // the new depth preloads its art before it exists
     ok('standing on the staircase descends', game.depth === depth0 + 1, `depth ${depth0} -> ${game.depth}`);
     ok('new level rebuilt after descent', Boolean(game.level && game.levelView) && game.enemies.length > 0, `${game.enemies.length} enemies`);
 
@@ -334,13 +340,16 @@ export async function runSelfTest(game) {
     const lives1 = game.player.lives;
     game.player.invuln = 0;
     game.damagePlayer(9999, null);
+    await game.loading;
     ok('death costs a life', game.player.lives === lives1 - 1 && game.state === 'playing', `lives=${game.player.lives} state=${game.state}`);
 
-    // Drain whatever lives remain (the earlier ghost drop may have added one).
+    // Drain whatever lives remain (the earlier ghost drop may have added one). Each death
+    // rebuilds the depth, and a rebuilding depth is loading, so the wait is part of the loop.
     let guard = 0;
-    while (game.state === 'playing' && guard++ < 12) {
+    while ((game.state === 'playing' || game.state === 'loading') && guard++ < 12) {
       game.player.invuln = 0;
       game.damagePlayer(9999, null);
+      await game.loading;
     }
     ok('running out of lives ends the run', game.state === 'gameover' && game.player.lives <= 0,
       `lives=${game.player.lives} state=${game.state} after ${guard} deaths`);
@@ -716,6 +725,28 @@ export async function runSelfTest(game) {
           spider.tell = tell0; spider.retreatUntil = retreat0;
         }
       }
+    }
+
+    // ---- nothing arrives late ----------------------------------------------
+    // The whole reason for preloading: an asset first requested during play is a hitch in the
+    // one moment the player is paying attention. Depth 4 changes both the biome and the enemy
+    // tier, so it is the worst case, and any texture the level drew that was not already warm
+    // is listed rather than waved through.
+    if (!game.placeholderArt) {
+      const wasDepth = game.depth;
+      // The harness warms the whole library at boot, which would let this check pass whether or
+      // not the per-depth preloader worked. Empty the cache and tell the game nothing has been
+      // warmed, so the depth is measured the way a player's first visit to a biome actually is.
+      releaseTextures();
+      game.commonWarmed = false;
+      resetColdMisses();
+      await game.loadLevel(4);
+      const cold = [...new Set(coldMissList())];
+      ok('a depth is preloaded before it becomes playable', cold.length === 0,
+        cold.length
+          ? `late requests: ${cold.slice(0, 6).join(', ')}${cold.length > 6 ? ` +${cold.length - 6} more` : ''}`
+          : `depth 4 took ${(game.lastPreload.images || 0)} images and ${(game.lastPreload.clips || 0)} clips, ${(game.lastPreload.ms / 1000).toFixed(1)}s, nothing late`);
+      await game.loadLevel(wasDepth);
     }
   } catch (err) {
     results.push(`FAIL :: self-test threw :: ${err.message}`);

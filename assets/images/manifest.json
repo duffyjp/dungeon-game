@@ -1331,7 +1331,7 @@
     "masterPreservedIn": "sprite_sources"
   },
   {
-    "path": "assets/images/props/staircase_down.png",
+    "path": "assets/images/props/staircase_down.webp",
     "slug": "staircase_down",
     "prompt": "stone staircase descending into darkness, warm light from below, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42000,
@@ -1343,10 +1343,16 @@
     "prefix": "strata-props-staircase_down",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-staircase_down_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:01:30Z"
+    "generatedAt": "2026-11-05T05:01:30Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 41,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/props/crate.png",
+    "path": "assets/images/props/crate.webp",
     "slug": "crate",
     "prompt": "weathered wooden dungeon crate with iron corners, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42003,
@@ -1358,10 +1364,16 @@
     "prefix": "strata-props-crate",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-crate_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:03:21Z"
+    "generatedAt": "2026-11-05T05:03:21Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 38.6,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/props/barrel.png",
+    "path": "assets/images/props/barrel.webp",
     "slug": "barrel",
     "prompt": "rotting barrel with iron bands, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42004,
@@ -1373,10 +1385,16 @@
     "prefix": "strata-props-barrel",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-barrel_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:03:58Z"
+    "generatedAt": "2026-11-05T05:03:58Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 40.1,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/props/bones.png",
+    "path": "assets/images/props/bones.webp",
     "slug": "bones",
     "prompt": "scattered human bones and skull pile, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42005,
@@ -1388,10 +1406,16 @@
     "prefix": "strata-props-bones",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-bones_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:04:35Z"
+    "generatedAt": "2026-11-05T05:04:35Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 38.9,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/props/chain_hanging.png",
+    "path": "assets/images/props/chain_hanging.webp",
     "slug": "chain_hanging",
     "prompt": "heavy rusted chain hanging from ceiling, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42006,
@@ -1403,10 +1427,16 @@
     "prefix": "strata-props-chain_hanging",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-chain_hanging_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:05:12Z"
+    "generatedAt": "2026-11-05T05:05:12Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 39.4,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/props/stone_arch.png",
+    "path": "assets/images/props/stone_arch.webp",
     "slug": "stone_arch",
     "prompt": "ornate broken stone archway, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, isolated on flat solid magenta (#ff00ff) background, no floor, no cast shadow, no reflection, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42007,
@@ -1418,7 +1448,13 @@
     "prefix": "strata-props-stone_arch",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-props-stone_arch_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:05:49Z"
+    "generatedAt": "2026-11-05T05:05:49Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 39,
+      "quality": 90
+    }
   },
   {
     "path": "assets/images/items/sword_worn.png",
@@ -2405,7 +2441,7 @@
     }
   },
   {
-    "path": "assets/images/ui/bar_frame_health.png",
+    "path": "assets/images/ui/bar_frame_health.webp",
     "slug": "bar_frame_health",
     "prompt": "ornate dark metal horizontal bar frame, empty centre, symmetrical, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42034,
@@ -2417,10 +2453,16 @@
     "prefix": "strata-ui-bar_frame_health",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-bar_frame_health_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:22:28Z"
+    "generatedAt": "2026-11-05T05:22:28Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 43.6,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/bar_frame_armor.png",
+    "path": "assets/images/ui/bar_frame_armor.webp",
     "slug": "bar_frame_armor",
     "prompt": "dark metal horizontal bar frame with riveted steel motif, empty centre, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42035,
@@ -2432,10 +2474,16 @@
     "prefix": "strata-ui-bar_frame_armor",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-bar_frame_armor_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:23:05Z"
+    "generatedAt": "2026-11-05T05:23:05Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 45.1,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/icon_skull_life.png",
+    "path": "assets/images/ui/icon_skull_life.webp",
     "slug": "icon_skull_life",
     "prompt": "carved bone skull icon, front-facing, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42036,
@@ -2447,10 +2495,16 @@
     "prefix": "strata-ui-icon_skull_life",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-icon_skull_life_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:23:42Z"
+    "generatedAt": "2026-11-05T05:23:42Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 42.3,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/frame_panel.png",
+    "path": "assets/images/ui/frame_panel.webp",
     "slug": "frame_panel",
     "prompt": "dark parchment-and-iron UI panel frame, empty centre, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42039,
@@ -2462,10 +2516,16 @@
     "prefix": "strata-ui-frame_panel",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-frame_panel_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:25:33Z"
+    "generatedAt": "2026-11-05T05:25:33Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 43.4,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/frame_banner.png",
+    "path": "assets/images/ui/frame_banner.webp",
     "slug": "frame_banner",
     "prompt": "gothic horizontal banner frame for level titles, empty centre, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42040,
@@ -2477,10 +2537,16 @@
     "prefix": "strata-ui-frame_banner",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-frame_banner_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:26:10Z"
+    "generatedAt": "2026-11-05T05:26:10Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 43.9,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/rarity_0.png",
+    "path": "assets/images/ui/rarity_0.webp",
     "slug": "rarity_0",
     "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour grey, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42041,
@@ -2492,10 +2558,16 @@
     "prefix": "strata-ui-rarity_0",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_0_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:26:47Z"
+    "generatedAt": "2026-11-05T05:26:47Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 42,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/rarity_1.png",
+    "path": "assets/images/ui/rarity_1.webp",
     "slug": "rarity_1",
     "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour bone-white, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42042,
@@ -2507,10 +2579,16 @@
     "prefix": "strata-ui-rarity_1",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_1_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:27:24Z"
+    "generatedAt": "2026-11-05T05:27:24Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 41,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/rarity_2.png",
+    "path": "assets/images/ui/rarity_2.webp",
     "slug": "rarity_2",
     "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour blue, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42043,
@@ -2522,10 +2600,16 @@
     "prefix": "strata-ui-rarity_2",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_2_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:28:01Z"
+    "generatedAt": "2026-11-05T05:28:01Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 39.1,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/rarity_3.png",
+    "path": "assets/images/ui/rarity_3.webp",
     "slug": "rarity_3",
     "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour green, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42044,
@@ -2537,10 +2621,16 @@
     "prefix": "strata-ui-rarity_3",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_3_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:28:38Z"
+    "generatedAt": "2026-11-05T05:28:38Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 40.3,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/rarity_4.png",
+    "path": "assets/images/ui/rarity_4.webp",
     "slug": "rarity_4",
     "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour purple, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42045,
@@ -2552,10 +2642,16 @@
     "prefix": "strata-ui-rarity_4",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_4_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:29:15Z"
+    "generatedAt": "2026-11-05T05:29:15Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 39.6,
+      "quality": 90
+    }
   },
   {
-    "path": "assets/images/ui/rarity_5.png",
+    "path": "assets/images/ui/rarity_5.webp",
     "slug": "rarity_5",
     "prompt": "square ornate metal item frame, empty transparent-looking centre, patina colour gold, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, symmetrical composition, flat even lighting, dark neutral background, empty centre, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
     "seed": 42046,
@@ -2567,7 +2663,13 @@
     "prefix": "strata-ui-rarity_5",
     "sourceUrl": "http://10.0.0.99:8000/view?filename=strata-ui-rarity_5_00001_.png&subfolder=&type=output",
     "rejectedSeeds": [],
-    "generatedAt": "2026-11-05T05:29:52Z"
+    "generatedAt": "2026-11-05T05:29:52Z",
+    "convertedAt": "2026-11-07",
+    "masterPreservedIn": "asset_sources",
+    "fidelity": {
+      "psnr": 39.8,
+      "quality": 90
+    }
   },
   {
     "slug": "bone",

@@ -184,6 +184,10 @@ export async function loadTexture(key, { keyed = isKeyed(key), repeat = null } =
 // or a synchronously generated placeholder so rendering never breaks.
 export function getTexture(key, opts = {}) {
   if (cache.has(key)) return cache.get(key);
+  // Arriving here during play means the preloader did not list this asset, and the player is
+  // about to watch a texture pop in. Counted so the self-test can fail on it instead of
+  // leaving it to be noticed by eye.
+  coldMisses.push(key);
   const tex = new THREE.CanvasTexture(placeholderCanvas(key));
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.userData.placeholder = true;
@@ -191,6 +195,40 @@ export function getTexture(key, opts = {}) {
   // Kick off the real load too, so a late-arriving asset replaces the placeholder.
   loadTexture(key, opts).catch(() => {});
   return tex;
+}
+
+const coldMisses = [];
+export function coldMissList() { return coldMisses.slice(); }
+export function resetColdMisses() { coldMisses.length = 0; }
+
+// Forget every decoded texture. The test harness deliberately warms the whole library at boot,
+// which would make a "nothing arrived late" check pass whether or not the preloader worked, so
+// the suite empties the cache first and measures a cold depth the way a player's first visit to
+// a biome actually is.
+export function releaseTextures() {
+  cache.clear();
+  pending.clear();
+  mirrorCache.clear();
+}
+
+// Fetch and decode an asset before it is needed. The expensive part is usually not the request
+// but the decode plus the mirror/downscale passes, which otherwise land inside the frame where
+// the player first sees the thing.
+export function warmAsset(key, opts = {}) {
+  if (!hasAsset(key)) return Promise.resolve(null);
+  const have = cache.get(key);
+  if (have && !have.userData.placeholder) return Promise.resolve(have);
+  return loadTexture(key, opts).catch(() => null);
+}
+
+export function warmAssets(keys, onProgress) {
+  const list = [...new Set(keys)].filter(k => hasAsset(k));
+  let done = 0;
+  return Promise.all(list.map(k => warmAsset(k).then(t => {
+    done++;
+    if (onProgress) onProgress(done, list.length, k);
+    return t;
+  })));
 }
 
 // Mirror-tiling pass.

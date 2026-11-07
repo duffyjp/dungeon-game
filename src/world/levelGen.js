@@ -15,6 +15,9 @@ const BANDS = [
 
 export function bandFor(depth) { return Math.min(3, Math.floor((depth - 1) / 3)); }
 export function tierFor(depth) { return Math.min(4, 1 + Math.floor((depth - 1) / 3)); }
+// Which biome a depth sits in. Exported so the preloader can warm the next band's art before
+// the player descends into it, instead of restating the band table somewhere else.
+export function biomeForDepth(depth) { return BANDS[Math.min(bandFor(depth), BANDS.length - 1)].biomes[0]; }
 export function sizeFor(depth) {
   const band = bandFor(depth);
   return CFG.sizes[Math.min(CFG.sizes.length - 1, band)];

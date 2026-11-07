@@ -411,6 +411,42 @@ Batch 1 (16 textures + 23 enemies, seeds 41000–41038) and batch 2 (8 props + 1
 server on the other PC handles a single generation at a time. `items/arrow` took three
 attempts; the two rejected seeds are recorded in its manifest entry.
 
+## Loading: what a depth needs, before it plays
+
+Assets used to arrive just-in-time, which meant the first wraith of a new tier, the first wall
+of a new biome and the first step of any animated monster each downloaded and decoded mid-fight.
+A depth now works out what it will draw — biome surfaces and their derived maps, the prop kinds
+that level actually generated, the enemy families the spawner is allowed to place at that tier,
+and their animation clips — and loads all of it behind a progress card before the level exists.
+
+```
+src/world/levelAssets.js      what a depth needs (the same rules the renderer and spawner use)
+src/render/assets.js          warmAssets / warmAsset, plus the cold-request counter
+src/main.js                   preloadLevelAssets, the DESCENT progress card
+```
+
+- Boot loads nothing heavy; the menu appears immediately. The art that any moment can need
+  (item icons, effects, HUD frames) rides along with the first descent.
+- A cold band costs about 74 images and 13 clips — roughly 2 MB — paid once per biome/tier
+  change, not per depth.
+- About two seconds after the level starts, the next band's monsters and biome are warmed in
+  the background, so the descent into a new biome doesn't pay for it at the moment of the
+  transition.
+- The self-test empties the texture cache, loads a depth that changes both biome and tier, and
+  fails if the level draws anything that wasn't warmed first.
+
+## Packing: lossy where there is no alpha to protect
+
+```
+npm run pack:lossy      # opaque PNGs -> lossy WebP, with a measured PSNR floor
+npm run pack:stills     # enemy stills -> WebP fallbacks
+```
+
+`tools/lossyWebp.mjs` converts only files whose alpha channel is fully opaque, and decodes each
+result back to compare it against the master: anything under 30 dB PSNR is rejected and left as
+PNG rather than shipped. 17 files went from 5.43 MB to 0.40 MB at 38.6–45.1 dB. PNG masters move
+to `asset_sources/` (git-ignored), the same arrangement as `sprite_sources/` and `music_sources/`.
+
 ## What ships: the asset audit
 
 Vite copies whatever the `import.meta.glob` patterns cover, so an asset nothing can name still

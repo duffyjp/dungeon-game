@@ -46,7 +46,9 @@
     "music:pack": "node tools/musicPack.mjs",
     "qa:audio": "node tools/audioProfileSelftest.mjs",
     "qa:assets": "node tools/assetAudit.mjs",
-    "anim:anchor": "node tools/animAnchor.mjs"
+    "anim:anchor": "node tools/animAnchor.mjs",
+    "pack:lossy": "node tools/lossyWebp.mjs",
+    "pack:stills": "node tools/stillToWebp.mjs"
   },
   "dependencies": {
     "three": "^0.160.1"

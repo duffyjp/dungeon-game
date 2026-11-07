@@ -8,7 +8,7 @@
 import * as THREE from 'three';
 import { CFG } from './config.js';
 import { Rng } from './util/rng.js';
-import { buildLevel, validateLevel, tierFor, bandFor } from './world/levelGen.js';
+import { buildLevel, validateLevel, tierFor, bandFor, biomeForDepth } from './world/levelGen.js';
 import { buildLevelView, billboardTowards, cellToWorld } from './world/levelView.js';
 import { hasLineOfSight, findOpenSpot } from './world/collision.js';
 import { spawnLevelEnemies, spawnLevelLoot, rollDrops, tierForDepth, enemiesData } from './world/spawner.js';
@@ -23,7 +23,9 @@ import { Toasts } from './ui/toasts.js';
 import { Menus } from './ui/menus.js';
 import * as sfx from './audio/sfx.js';
 import * as music from './audio/music.js';
-import { preloadAll, hasAsset, assetKeys, assetUrl } from './render/assets.js';
+import { preloadAll, hasAsset, assetKeys, assetUrl, warmAssets } from './render/assets.js';
+import { loadFrames } from './render/animation.js';
+import { biomeAssetKeys, propAssetKeys, enemyAssetKeys, enemyClipEntries, commonAssetKeys, nextTierAssetKeys } from './world/levelAssets.js';
 import { loadSettings, saveRun, bestRuns } from './util/storage.js';
 import { isBetter, useQualityTable } from './loot/quality.js';
 import biomes from '../data/biomes.json';
@@ -165,18 +167,26 @@ export class Game {
     // megabytes of generated art. Use ?selftest=1&assets=1 to test the art path too.
     const skipArt = params.get('selftest') && params.get('assets') !== '1';
     if (skipArt) this.placeholderArt = true;
-    const { failed } = skipArt ? { loaded: 0, failed: [] } : await preloadAll(keys);
+    // Nothing heavy is decoded before the menu: the library used to be loaded up front, which
+    // delayed first play by several seconds and still left the animated clips arriving during
+    // play. Boot loads only what the harness asks for (?assets=1 warms everything so the art
+    // checks have real pixels), and the first descent takes the common set behind the progress
+    // bar along with its own level art.
+    const wantAll = params.get('assets') === '1';
+    const { failed } = skipArt || !wantAll ? { loaded: 0, failed: [] } : await preloadAll(keys);
     if (failed.length) console.warn('[assets] failed to load:', failed.slice(0, 8));
     console.info(`[assets] ${keys.length} generated images available from z_image_turbo${skipArt ? ' (skipped in selftest)' : ''}`);
     this.applyFrameAssets();
     await music.loadManifest();
     this.state = 'menu';
     this.menus.showMain();
-    if (params.get('demo')) this.startRun(params.get('seed') || 'demo', Number(params.get('depth') || 1));
+    // Awaited on the demo/QA path so a harness that photographs or probes a depth does not
+    // arrive while its art is still loading.
+    if (params.get('demo')) await this.startRun(params.get('seed') || 'demo', Number(params.get('depth') || 1));
     this.loop();
   }
 
-  startRun(seed = this.runSeed, depth = 1) {
+  async startRun(seed = this.runSeed, depth = 1) {
     sfx.initAudio();
     sfx.resumeAudio();
     this.runSeed = String(seed);
@@ -192,10 +202,12 @@ export class Game {
     this.player.armor = null;
     this.equipInitial();
     this.toasts.clear();
-    this.loadLevel(depth);
-    this.state = 'playing';
+    // Pointer lock needs a real user gesture, so it is asked for here rather than after the
+    // level's assets have finished arriving.
+    this.state = 'loading';
     this.menus.hide();
     this.input.requestLock();
+    await this.loadLevel(depth);
   }
 
   equipInitial() {
@@ -207,7 +219,15 @@ export class Game {
     this.hud.setGear(this.player);
   }
 
+  // Wrapped so the in-flight load is reachable: `await game.loading` is how the harness, and
+  // anything else, waits for a depth that was started by a key press rather than by a call site
+  // it controls.
   loadLevel(depth, retry = 0) {
+    this.loading = this._loadLevel(depth, retry);
+    return this.loading;
+  }
+
+  async _loadLevel(depth, retry = 0) {
     const level = buildLevel(depth, this.runSeed);
     const check = validateLevel(level);
     if (!check.ok) {
@@ -219,7 +239,7 @@ export class Game {
         return;
       }
       this.runSeed = `${this.runSeed}!${retry + 1}`;
-      this.loadLevel(depth, retry + 1);
+      await this.loadLevel(depth, retry + 1);
       return;
     }
     this.clearLevel();
@@ -229,6 +249,12 @@ export class Game {
 
     const biome = biomes[level.biome];
     this.biome = biome;
+    // Everything this depth is going to draw arrives before it is playable. Loading it lazily
+    // instead meant a new biome's walls, a tier's first monster and that monster's first step
+    // each downloaded and decoded mid-fight, which is the hitching the owner heard about.
+    this.state = 'loading';
+    await this.preloadLevelAssets(level, biome);
+    if (this.state === 'loading') this.state = 'playing';
     this.levelView = buildLevelView(level, biome);
     this.scene.add(this.levelView.group);
 
@@ -339,6 +365,52 @@ export class Game {
     console.info(`[level] depth=${depth} seed=${level.seed} size=${level.w} path=${check.stairDist}/${check.diameter} enemies=${this.enemies.length}`);
   }
 
+  // Download and decode everything this depth will draw before it becomes playable, with a
+  // progress bar so the wait has a shape. The expensive part is usually not the request but the
+  // decode plus the mirror/downscale passes, and animation clips are worse still: a clip is 18
+  // frames pushed through ImageDecoder and canvas copies, which is the stutter people feel when
+  // a monster first moves.
+  async preloadLevelAssets(level, biome) {
+    const enemyKeys = enemyAssetKeys(this.depth);
+    const keys = new Set([...biomeAssetKeys(biome), ...propAssetKeys(level), ...enemyKeys]);
+    // Item icons, effects and HUD frames can be needed at any moment in the run, so they ride
+    // along with the first descent rather than delaying the menu.
+    if (!this.commonWarmed) { this.commonWarmed = true; for (const k of commonAssetKeys()) keys.add(k); }
+    const clips = enemyClipEntries(enemyKeys);
+    const total = keys.size + clips.length;
+    const t0 = performance.now();
+    let done = 0;
+    this.showLoadProgress(0, total);
+    await warmAssets(keys, (d) => { done = d; this.showLoadProgress(done, total); });
+    await Promise.all(clips.map(e => loadFrames(e).then(() => { done++; this.showLoadProgress(done, total); })));
+    this.hideLoadProgress();
+    this.lastPreload = { depth: this.depth, images: keys.size, clips: clips.length, ms: Math.round(performance.now() - t0) };
+    console.info(`[preload] depth ${this.depth}: ${keys.size} images and ${clips.length} clips in ${(this.lastPreload.ms / 1000).toFixed(1)}s`);
+
+    // While the player is fighting, warm what the next band will need. A biome or tier change
+    // lands on a descent, and paying for it at the moment of the transition is exactly the
+    // hitch this whole pass is trying to remove.
+    const later = [...nextTierAssetKeys(this.depth), ...biomeAssetKeys(biomes[biomeForDepth(this.depth + 3)] || {})];
+    if (later.length) setTimeout(() => { warmAssets(later).catch(() => {}); }, 2500);
+  }
+
+  showLoadProgress(done, total) {
+    if (!this.loadEl) {
+      const el = document.createElement('div');
+      el.className = 'loadcard';
+      el.setAttribute('aria-live', 'polite');
+      el.innerHTML = '<div class="loadtitle">DESCENT</div><div class="loadbar"><i></i></div><div class="loadfine"></div>';
+      document.body.appendChild(el);
+      this.loadEl = el;
+    }
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    this.loadEl.querySelector('.loadbar i').style.width = `${pct}%`;
+    this.loadEl.querySelector('.loadfine').textContent = `depth ${this.depth} · ${done}/${total} assets`;
+    this.loadEl.hidden = false;
+  }
+
+  hideLoadProgress() { if (this.loadEl) this.loadEl.hidden = true; }
+
   clearLevel() {
     for (const e of this.enemies) this.scene.remove(e.group);
     for (const p of this.pickups) { this.scene.remove(p.group); p.dispose(); }
@@ -363,12 +435,14 @@ export class Game {
   // fire by accident mid-fight, and it goes through the ordinary level-load path so a
   // jumped-to depth is a real generated level with real spawns, not a shortcut past the
   // generator.
-  cheatToDepth(digits) {
+  async cheatToDepth(digits) {
     const n = parseInt(String(digits), 10);
     if (!Number.isFinite(n) || n < 1) return false;
     const depth = Math.min(99, n);
     this.depth = depth;
-    this.loadLevel(depth);
+    // Awaited, so the resume does not hand the player back control before the jumped-to depth
+    // has finished preparing.
+    await this.loadLevel(depth);
     this.resume();
     this.toast(`cheat: depth ${depth}`, '#f5a524', 2000);
     console.info(`[cheat] jumped to depth ${depth}`);
