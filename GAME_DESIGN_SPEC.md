@@ -1255,6 +1255,43 @@ Also fixed from the same log: `requestPointerLock()` after a fullscreen transiti
 gesture, so Chrome's rejected promise surfaced as an uncaught `DOMException` in the console. The
 rejection is now swallowed, since a failed follow-up lock request is expected and harmless.
 
+### 13.26 Two different problems hiding behind "frametime"
+
+Four profile runs separated what had been one complaint:
+
+| run | p50 | draws | submit |
+|---|---|---|---|
+| `?profile=1` | 31–32 ms | 197–395 | 2 ms |
+| `?profile=1&noscene=1` | 31 ms | **0** | 0.0 ms |
+| `?profile=1&ratio=0.75` | 31–32 ms | 209–407 | 2–3 ms |
+
+A 7× change in pixel count moved the median not at all, and drawing **nothing at all** left it at
+31 ms. So the floor is the frame clock, not the renderer: 31–33 ms is a ~30 Hz cadence, and
+`pixel ratio 2` points at a 4K/HiDPI panel — the classic 4K-over-HDMI-1.4 30 Hz mode. That is an
+OS/cable setting, and no amount of work inside the game will lift it.
+
+The hitches *were* ours, and they are the `p99`/`max` columns: programs climbing
+`12 → 21 → 30 → 40` during a fight, each jump accompanied by a 12–23 ms submit spike. Mechanism:
+every effect, projectile and damage number created its own material and **disposed it when it
+faded**. three.js refcounts compiled programs per material, so releasing one freed the program and
+the next sword swing recompiled it — synchronously, because this GPU reports
+`KHR_parallel_shader_compile` as unsupported. Hundreds of transient materials per minute, each one
+a possible shader build in the worst place.
+
+The fix has three parts: one `PlaneGeometry(1,1)` shared by all effects with size taken from
+`mesh.scale`; **effect materials are never disposed** (they stay per-instance so fades remain
+independent, and identical configs share one program anyway, so nothing leaks at the driver
+level); and `prewarmEffects()` spawns one of every effect kind, a crit and non-crit damage number
+and a pickup glint far below the level before `compileAsync` runs, then clears them away. The
+guard is `spawning effects during play does not compile new shaders` — measured `45 → 45` after a
+spark, two numbers and a glint.
+
+Two honesty notes. The `raf min` field was lying: the first sample of each run was seeded with the
+clock delta, which injected 2–16 ms values into a stream of 31 ms ones; that seed is gone and the
+line now reports measured loop rate (`loops/s`) beside it. And `?ratio=1` was never a test at all
+on a panel whose `devicePixelRatio` is already 2 — a factor I read wrong in the earlier pass, which
+is why the first A/B looked like fill was free.
+
 
 ---
 

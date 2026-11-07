@@ -825,6 +825,21 @@ export async function runSelfTest(game) {
           ? `depth ${game.lastGpuWarm.depth ?? game.depth}: ${game.lastGpuWarm.uploads} textures, ${game.lastGpuWarm.programs} programs in ${(game.lastGpuWarm.ms / 1000).toFixed(1)}s`
           : 'warmGpu never ran');
 
+      // The mechanism behind the mid-fight stalls: an effect's material used to be disposed when
+      // the effect faded, releasing its compiled program, so the next effect of that kind
+      // recompiled one on the spot. Nothing about that shows in a network panel.
+      {
+        const pBefore = game.renderer.info.programs.length;
+        game.spawnVfx('vfx/hit_spark', game.player.x, game.player.z, 0.9, 0.28);
+        game.showDamage(game.player.x, 1, game.player.z, 12, false);
+        game.showDamage(game.player.x, 1, game.player.z, 34, true);
+        game.showGlint(game.player.x, game.player.z, 0.2);
+        step(10);
+        ok('spawning effects during play does not compile new shaders',
+          game.renderer.info.programs.length === pBefore,
+          `programs ${pBefore} -> ${game.renderer.info.programs.length} after a spark, two numbers and a glint`);
+      }
+
       ok('loot does not change the compiled shader count',
         during.programs === before.programs && after.programs === before.programs,
         `programs ${before.programs} -> ${during.programs} -> ${after.programs}, lights ${before.p} -> ${during.p} -> ${after.p}; ` +

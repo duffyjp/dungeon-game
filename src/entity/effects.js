@@ -44,9 +44,10 @@ export class Projectile {
     const size = this.arrow ? Math.max(cfg.size || 0, 0.44) : (cfg.size || 0.4);
     this.size = size;
     this.mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(size, size),
+      unitQuad,
       new THREE.MeshBasicMaterial({ map: getTexture(cfg.sprite), transparent: true, alphaTest: 0.2, toneMapped: false })
     );
+    this.mesh.scale.set(size, size, 1);
     this.mesh.position.set(this.x, this.y, this.z);
     this.mesh.userData.billboard = true;
     this.mesh.userData.ignoreScale = true;
@@ -142,10 +143,23 @@ export class Projectile {
   }
 
   dispose() {
-    this.mesh.geometry.dispose();
-    this.mesh.material.dispose();
+    releaseMesh(this.mesh);
   }
 }
+
+// One quad shared by every effect, projectile and damage number; sizes come from mesh.scale.
+//
+// This is not only an allocation saving. three.js refcounts compiled shader programs per
+// material, so disposing an effect's material released its program and the next effect of that
+// kind recompiled one on the spot. This GPU reports KHR_parallel_shader_compile as unsupported,
+// so each compile blocks the main thread: the profiler caught program counts climbing
+// 12 -> 21 -> 30 -> 40 across one fight, with 12-23 ms submit spikes attached - sword swings
+// paying for a shader build. Materials stay per instance, because they fade independently, but
+// they are never disposed, so the program stays warm and the driver never rebuilds it.
+export const unitQuad = new THREE.PlaneGeometry(1, 1);
+// Nothing to free: the geometry is shared, the textures come from caches, and disposing the
+// material is exactly what forces a recompile later. The mesh leaves the scene and is collected.
+function releaseMesh(_mesh) {}
 
 export class Vfx {
   // maxOpacity caps the effect below full strength for its whole life. Translucent effects
@@ -156,10 +170,12 @@ export class Vfx {
     this.life = life;
     this.maxLife = life;
     this.maxOpacity = maxOpacity;
+    this.size = size;
     this.mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(size, size),
+      unitQuad,
       new THREE.MeshBasicMaterial({ map: getTexture(key), transparent: true, depthWrite: false, toneMapped: false })
     );
+    this.mesh.scale.setScalar(size);
     this.mesh.position.set(x, y ?? 1.2, z);
     this.mesh.userData.billboard = true;
   }
@@ -167,10 +183,10 @@ export class Vfx {
     this.life -= dt;
     const t = Math.max(0, this.life / this.maxLife);
     this.mesh.material.opacity = t * this.maxOpacity;
-    this.mesh.scale.setScalar(1 + (1 - t) * 0.6);
+    this.mesh.scale.setScalar(this.size * (1 + (1 - t) * 0.6));
     return this.life > 0;
   }
-  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); }
+  dispose() { releaseMesh(this.mesh); }
 }
 
 // Floating damage numbers: canvas-textured sprites, DOM-free so they sit in the world.
@@ -203,9 +219,10 @@ export class DamageNumber {
     this.vy = 1.4;
     const s = crit ? 1.5 : 1.1;
     this.mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(s, s * 0.5),
+      unitQuad,
       new THREE.MeshBasicMaterial({ map: numberTexture(text, color, crit), transparent: true, depthWrite: false, toneMapped: false })
     );
+    this.mesh.scale.set(s, s * 0.5, 1);
     this.mesh.position.set(x, y, z);
     this.mesh.userData.billboard = true;
   }
@@ -217,5 +234,5 @@ export class DamageNumber {
     this.mesh.material.opacity = Math.min(1, this.life / this.maxLife * 1.6);
     return this.life > 0;
   }
-  dispose() { this.mesh.geometry.dispose(); this.mesh.material.dispose(); }
+  dispose() { releaseMesh(this.mesh); }
 }

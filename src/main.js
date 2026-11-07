@@ -15,7 +15,7 @@ import { spawnLevelEnemies, spawnLevelLoot, rollDrops, tierForDepth, enemiesData
 import { Enemy } from './entity/enemy.js';
 import { Pickup } from './entity/pickup.js';
 import { Player, Viewmodel } from './entity/player.js';
-import { Projectile, Vfx, DamageNumber } from './entity/effects.js';
+import { Projectile, Vfx, DamageNumber, unitQuad } from './entity/effects.js';
 import { Input } from './input.js';
 import { Hud } from './ui/hud.js';
 import { Minimap } from './ui/minimap.js';
@@ -25,7 +25,7 @@ import * as sfx from './audio/sfx.js';
 import * as music from './audio/music.js';
 import { preloadAll, hasAsset, assetKeys, assetUrl, warmAssets } from './render/assets.js';
 import { loadFrames, cachedFrameTextures } from './render/animation.js';
-import { biomeAssetKeys, propAssetKeys, enemyAssetKeys, enemyClipEntries, commonAssetKeys, nextTierAssetKeys } from './world/levelAssets.js';
+import { biomeAssetKeys, propAssetKeys, enemyAssetKeys, enemyClipEntries, commonAssetKeys, nextTierAssetKeys, vfxAssetKeys } from './world/levelAssets.js';
 import { loadSettings, saveRun, bestRuns } from './util/storage.js';
 import { isBetter, useQualityTable } from './loot/quality.js';
 import biomes from '../data/biomes.json';
@@ -237,9 +237,13 @@ export class Game {
     const autoFs = this.settings.autoFullscreen !== false && params.get('fullscreen') !== '0'
       && !params.get('selftest') && !params.get('demo');
     if (autoFs && !document.fullscreenElement) {
+      // Do not also ask for the lock here: Chrome refuses a pointer lock requested while the
+      // fullscreen transition is in flight and logs a scary denial for it. The lock is requested
+      // when the transition lands, and the click-to-lock fallback covers any refusal after that.
       this.toggleFullscreen().then((ok) => { if (ok) this.input.requestLock(); });
+    } else {
+      this.input.requestLock();
     }
-    this.input.requestLock();
     await this.loadLevel(depth);
   }
 
@@ -402,9 +406,33 @@ export class Game {
     // The profiler showed a 1078 ms spike at entry and programs climbing from 12 to 21 in the
     // middle of a fight, neither of which a network panel can reveal: the bytes were already
     // there, it was the driver doing the work at the worst possible moment.
+    // Effects, projectiles and damage numbers make their materials the first time they are
+    // used, and this GPU has no parallel shader compile - each new variant blocks the main
+    // thread where the player feels it. Put one of each off-level so the compile pass below
+    // covers them, then clear the props away. The materials stay cached either way.
+    const fxWarmed = this.prewarmEffects();
     await this.warmGpu();
+    this.clearWarmEffects();
     this.hideLoadProgress();
     if (this.state === 'loading') this.state = 'playing';
+  }
+
+  // Spawn one of every effect kind (and a damage number, crit and normal, plus a pickup glint)
+  // far below the level, where the camera will never see it.
+  prewarmEffects() {
+    let n = 0;
+    for (const key of vfxAssetKeys()) { this.spawnVfx(key, -900, -900, 1, 0.05); n++; }
+    this.showGlint(-900, -900, 0.05);
+    this.showDamage(-900, 1, -900, 12, false);
+    this.showDamage(-900, 1, -900, 34, true);
+    return n;
+  }
+
+  clearWarmEffects() {
+    for (const f of this.effects) this.scene.remove(f.mesh);
+    for (const nm of this.numbers) this.scene.remove(nm.mesh);
+    for (const g of this.glints) this.scene.remove(g.mesh);
+    this.effects.length = 0; this.numbers.length = 0; this.glints.length = 0;
   }
 
   // Push every texture this depth can draw to the GPU and compile every shader variant the
@@ -609,7 +637,9 @@ export class Game {
     // our drawing at all.
     if (!this.noScene) this.renderer.render(this.scene, this.camera);
     const t2 = performance.now();
-    this.samplePerf(this._lastFrame ? t2 - this._lastFrame : dt * 1000, t1 - t0, t2 - t1);
+    // Only measure a real gap between two rAF callbacks. Seeding the first sample with the clock
+    // delta put a fake 2-16 ms value into the buffer and made `raf min` meaningless.
+    if (this._lastFrame) this.samplePerf(t2 - this._lastFrame, t1 - t0, t2 - t1);
     this._lastFrame = t2;
   }
 
@@ -628,7 +658,7 @@ export class Game {
     const q = f => s[Math.min(s.length - 1, Math.floor(s.length * f))];
     const info = this.renderer.info.render;
     const line = `[perf] frame p50 ${q(0.5).toFixed(1)}ms p95 ${q(0.95).toFixed(1)} p99 ${q(0.99).toFixed(1)} ` +
-      `max ${s[s.length - 1].toFixed(1)} (raf min ${p.minIv.toFixed(1)}) | ` +
+      `max ${s[s.length - 1].toFixed(1)} (raf min ${p.minIv.toFixed(1)}, ${p.iv.length ? (1000 / (s.reduce((a, b) => a + b, 0) / s.length)).toFixed(0) : 0} loops/s) | ` +
       `cpu update ${(p.upSum / p.n).toFixed(1)}ms + submit ${(p.rdSum / p.n).toFixed(1)}ms | ` +
       `${info.calls} draws, ${(info.triangles / 1000).toFixed(0)}k tris, ${this.renderer.info.programs.length} programs | ` +
       `pixel ratio ${this.renderer.getPixelRatio()}, ${this.lightPool.length} pooled lights`;
@@ -1075,9 +1105,10 @@ export class Game {
 
   showGlint(x, z, life) {
     const mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.9, 0.9),
+      unitQuad,
       new THREE.MeshBasicMaterial({ map: undefined, color: 0xfff2c0, transparent: true, opacity: 0.5, toneMapped: false })
     );
+    mesh.scale.set(0.9, 0.9, 1);
     mesh.position.set(x, 1.35, z);
     mesh.userData.billboard = true;
     this.glints.push({ mesh, t: Math.min(0.3, life) });

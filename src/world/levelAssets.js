@@ -92,6 +92,12 @@ export function commonAssetKeys() {
   return out;
 }
 
+// Effect sprites are a closed set and each one is a separate material, so each is a separate
+// chance for the driver to build a shader mid-fight. Listing them lets the loader prewarm them.
+export function vfxAssetKeys() {
+  return assetKeys().filter(k => k.startsWith('vfx/'));
+}
+
 // The next tier's monsters are worth warming in the background: at three depths per tier the
 // first level of a new band is exactly where a cold download hurts most, and waiting for a
 // quiet moment keeps that download off the moment of descent.

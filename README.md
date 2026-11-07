@@ -455,6 +455,14 @@ Known costs at a mid depth: **158 draw calls, 175k triangles, 12 point lights + 
 compiled into every material, pixel ratio up to 2.** Dropping loot does not recompile anything,
 and the minimap repaints at 20 Hz rather than every frame.
 
+What the four runs above actually showed on the owner's machine: `p50` stayed at 31–32 ms with
+**nothing drawn** and with a 7× smaller framebuffer, so that number is the display's frame clock
+(≈30 Hz — check Windows → Display → Advanced display → refresh rate, and the cable), not the
+game. The hitches were `p99`/`max`: shader programs climbing `12 → 40` mid-fight because every
+effect disposed its material on fade-out, which frees the compiled program, and this GPU has no
+parallel shader compile. Effects now share one quad, never dispose their materials, and get
+prewarmed before play begins.
+
 ## Loading: what a depth needs, before it plays
 
 Assets used to arrive just-in-time, which meant the first wraith of a new tier, the first wall
