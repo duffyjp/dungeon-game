@@ -35,6 +35,15 @@ useQualityTable(qualityTable);
 
 const params = new URLSearchParams(location.search);
 
+// ?bump=N re-scales every surface normal map in the scene. It exists because "is the bump
+// mapping even on?" is a question that should be answered by a number on screen, not by
+// squinting: load the same depth with ?bump=0 and ?bump=8 and the difference is undeniable,
+// while the shipped value is deliberately modest.
+{
+  const b = Number(params.get('bump'));
+  if (params.has('bump') && Number.isFinite(b)) CFG.bumpScale = b;
+}
+
 export class Game {
   constructor() {
     this.canvas = document.getElementById('scene');

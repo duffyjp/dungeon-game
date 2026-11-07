@@ -44,7 +44,7 @@ function tex(key, rx = 1, ry = rx) {
 // normals/door_oak) and returns null when there is none, so a prop is built exactly as
 // before. The normal already arrives as the mirrored composite, which is what stops seams
 // showing on the four faces of a column.
-const BUMP_SCALE = 1.4;
+const bumpVec = () => new THREE.Vector2(CFG.bumpScale, CFG.bumpScale);   // read at build time; see levelView
 function nrm(key, rx = 1, ry = rx) {
   if (!hasNormalFor(key)) return null;
   const ck = `nrm:${key}@${rx},${ry}`;
@@ -95,27 +95,27 @@ function mat(key, make) {
 
 const M = {
   wood: () => mat('wood', () => new THREE.MeshStandardMaterial({
-    color: 0x8a6a44, roughness: 0.82, metalness: 0.02, map: tex('textures/door_oak'), normalMap: nrm('textures/door_oak'), roughnessMap: rm('textures/door_oak'), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0x8a6a44, roughness: 0.82, metalness: 0.02, map: tex('textures/door_oak'), normalMap: nrm('textures/door_oak'), roughnessMap: rm('textures/door_oak'), normalScale: bumpVec()
   })),
   woodPlain: () => mat('woodPlain', () => new THREE.MeshStandardMaterial({ color: 0x9a7a52, roughness: 0.86, metalness: 0.02 })),
   iron: () => mat('iron', () => new THREE.MeshStandardMaterial({ color: 0x6b7076, roughness: 0.68, metalness: 0.22 })),
   stone: (biome) => mat(`stone:${biome.wall}`, () => new THREE.MeshStandardMaterial({
-    color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`), normalMap: nrm(`textures/${biome.wall}`), roughnessMap: rm(`textures/${biome.wall}`), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`), normalMap: nrm(`textures/${biome.wall}`), roughnessMap: rm(`textures/${biome.wall}`), normalScale: bumpVec()
   })),
   // uprights and lintels: repeat the wall tile along V so it keeps its aspect
   stoneTall: (biome) => mat(`stoneTall:${biome.wall}`, () => new THREE.MeshStandardMaterial({
-    color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`, 1, 3), normalMap: nrm(`textures/${biome.wall}`, 1, 3), roughnessMap: rm(`textures/${biome.wall}`, 1, 3), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0x9a958c, roughness: 0.9, metalness: 0.04, map: tex(`textures/${biome.wall}`, 1, 3), normalMap: nrm(`textures/${biome.wall}`, 1, 3), roughnessMap: rm(`textures/${biome.wall}`, 1, 3), normalScale: bumpVec()
   })),
   bone: () => mat('bone', () => new THREE.MeshStandardMaterial({ color: 0xd9d2bf, roughness: 0.7, metalness: 0.02 })),
   brass: () => mat('brass', () => new THREE.MeshStandardMaterial({ color: 0x8f7338, roughness: 0.5, metalness: 0.3 })),
   door: () => mat('doorSlab', () => new THREE.MeshStandardMaterial({
-    color: 0xbfae94, roughness: 0.8, metalness: 0.03, map: tex('textures/door_oak'), normalMap: nrm('textures/door_oak'), roughnessMap: rm('textures/door_oak'), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0xbfae94, roughness: 0.8, metalness: 0.03, map: tex('textures/door_oak'), normalMap: nrm('textures/door_oak'), roughnessMap: rm('textures/door_oak'), normalScale: bumpVec()
   })),
   column: () => mat('column', () => new THREE.MeshStandardMaterial({
-    color: 0xb9b3a8, roughness: 0.9, metalness: 0.03, map: tex('textures/pillar'), normalMap: nrm('textures/pillar'), roughnessMap: rm('textures/pillar'), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0xb9b3a8, roughness: 0.9, metalness: 0.03, map: tex('textures/pillar'), normalMap: nrm('textures/pillar'), roughnessMap: rm('textures/pillar'), normalScale: bumpVec()
   })),
   plinth: () => mat('plinth', () => new THREE.MeshStandardMaterial({
-    color: 0x8f8a80, roughness: 0.85, map: tex('textures/pillar', 0.5), normalMap: nrm('textures/pillar', 0.5), roughnessMap: rm('textures/pillar', 0.5), normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE)
+    color: 0x8f8a80, roughness: 0.85, map: tex('textures/pillar', 0.5), normalMap: nrm('textures/pillar', 0.5), roughnessMap: rm('textures/pillar', 0.5), normalScale: bumpVec()
   })),
   plinthTop: () => mat('plinthTop', () => new THREE.MeshStandardMaterial({ color: 0x9c968b, roughness: 0.8 })),
   // Dressed stone with no map: on small blocks a wall tile stretches into something that

@@ -4,7 +4,7 @@
 // damage in the first place.
 import fs from 'node:fs';
 
-const PAIRS = [['â€”', '\u2014'], ['â€“', '\u2013'], ['Ã©', '\u00e9'], ['â€œ', '\u201c'], ['â€\u009d', '\u201d']];
+const PAIRS = [['â€”', '\u2014'], ['â€“', '\u2013'], ['Ã©', '\u00e9'], ['â€œ', '\u201c'], ['â€\u009d', '\u201d'], ['Â§', '\u00a7']];
 const files = process.argv.slice(2);
 for (const f of files) {
   let t = fs.readFileSync(f, 'utf8');

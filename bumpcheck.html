@@ -86,16 +86,26 @@ const normal = await loadMirroredNormalTexture('textures/wall_crypt');
 const rough = await loadMirroredRoughnessTexture('textures/wall_crypt');
 for (const t of [albedo, normal, rough]) if (t) t.repeat.set(1, 0.85);
 
+// The alternative albedo: the same wall re-rendered by the image model as a flat, evenly lit
+// diffuse surface, because these tiles have their shading baked in and a baked-in shadow is
+// exactly what makes a normal map redundant — the picture already says "crevice", so tilting
+// the micro-normal changes almost nothing. If relief is to come from the light, the albedo has
+// to stop pre-empting it.
+const flatAlb = await new Promise((res, rej) => new THREE.TextureLoader().load('/experiments/grit/flat_wall_crypt.webp', res, undefined, rej));
+flatAlb.colorSpace = THREE.SRGBColorSpace;
+flatAlb.wrapS = flatAlb.wrapT = THREE.RepeatWrapping;
+flatAlb.repeat.set(1, 0.85);
+
 const setups = [
   { label: 'head-on (today)', off: [0, 0, 0] },
   { label: 'torch on the wall', off: [0, 0, 0], torch: [1.6, 1.85, -2.35] }
 ];
 const mats = [
-  { label: 'matte 0.88, no sheen', roughness: 0.88, metalness: 0.08, roughnessMap: null },
-  { label: 'engine wall + sheen', roughness: 0.88, metalness: 0.08, roughnessMap: rough },
-  { label: 'worn 0.62 + sheen', roughness: 0.62, metalness: 0.1, roughnessMap: rough }
+  { label: 'baked albedo, no sheen', roughness: 0.88, metalness: 0.08, roughnessMap: null, albedo: albedo },
+  { label: 'baked albedo + sheen', roughness: 0.88, metalness: 0.08, roughnessMap: rough, albedo: albedo },
+  { label: 'FLAT albedo + sheen', roughness: 0.88, metalness: 0.08, roughnessMap: rough, albedo: flatAlb }
 ];
-const scales = [0, 1.4, 2.4];
+const scales = [0, 1.4, 8.0];
 
 const px2 = () => {
   const g = document.createElement('canvas');
@@ -112,7 +122,7 @@ for (const s of setups) {
   for (const mt of mats) {
     const one = makeScene(s.off, s.torch);
     const m = one.wall.material;
-    m.map = albedo;
+    m.map = mt.albedo || albedo;
     m.roughness = mt.roughness;
     m.metalness = mt.metalness;
     m.roughnessMap = mt.roughnessMap;

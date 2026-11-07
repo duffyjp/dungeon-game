@@ -2,6 +2,14 @@
 // and is expected to move under the §19 tuning harness. Nothing gameplay-critical is
 // hard-coded inside system code; import from here.
 export const CFG = {
+  // art
+  // Bump strength for every surface that ships a normal map, overridable with ?bump=N so a
+  // scene can be compared against itself. Measured in the live game, not by eye: at 1.4 the
+  // framebuffer barely moves (0.03% of pixels) and the effect is invisible; by 4 the relief is
+  // unmistakable and returns are already flattening (3.5% of the frame at 4 against 3.9% at
+  // 8), so 3.0 sits at the point where it reads clearly without the masonry looking embossed.
+  bumpScale: 3.0,
+
   // world
   cell: 2.0,                 // metres per grid cell
   wallH: 3.6,                // wall height

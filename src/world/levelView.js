@@ -32,7 +32,9 @@ function tileTex(key, repeat) {
 // exactly as before, so the feature can be rolled out tile by tile. The scale is a taste
 // knob: below ~0.4 the relief disappears under torch light, above ~1.2 the mortar joints
 // start casting their own shadow and read as carved rather than weathered.
-const BUMP_SCALE = 1.4;
+// Read at material-build time, not captured at import: ?bump=N is applied by main.js after
+// this module has already loaded, so a module-level constant would freeze the default.
+const bumpVec = () => new THREE.Vector2(CFG.bumpScale, CFG.bumpScale);
 function tileNormal(key, repeat) {
   if (!hasNormalFor(key)) return null;
   const t = getMirroredNormalTexture(key);
@@ -93,7 +95,7 @@ export function buildLevelView(level, biome) {
     new THREE.MeshStandardMaterial({
       map: floorTex,
       normalMap: tileNormal(`textures/${biome.floor}`, [level.w, level.h]),
-      normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE),
+      normalScale: bumpVec(),
       roughnessMap: tileRough(`textures/${biome.floor}`, [level.w, level.h]),
       roughness: 0.92, metalness: 0.04
     })
@@ -111,7 +113,7 @@ export function buildLevelView(level, biome) {
     new THREE.MeshStandardMaterial({
       map: ceilTex,
       normalMap: tileNormal(ceilKey, [level.w, level.h]),
-      normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE),
+      normalScale: bumpVec(),
       roughnessMap: tileRough(ceilKey, [level.w, level.h]),
       roughness: 0.98, metalness: 0
     })
@@ -143,7 +145,7 @@ export function buildLevelView(level, biome) {
     new THREE.MeshStandardMaterial({
       map: wallTex,
       normalMap: tileNormal(`textures/${biome.wall}`, [1, CFG.wallH / CFG.cell]),
-      normalScale: new THREE.Vector2(BUMP_SCALE, BUMP_SCALE),
+      normalScale: bumpVec(),
       roughnessMap: tileRough(`textures/${biome.wall}`, [1, CFG.wallH / CFG.cell]),
       roughness: 0.88, metalness: 0.08
     }),

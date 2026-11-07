@@ -392,6 +392,55 @@ export async function runSelfTest(game) {
     ok('the wall material carries both a normal map and a roughness map',
       Boolean(wm2 && wm2.normalMap && wm2.roughnessMap),
       wm2 ? `normal ${Boolean(wm2.normalMap)} roughness ${Boolean(wm2.roughnessMap)}` : 'no wall material found');
+
+    // "Is bump mapping active?" has two parts, and only the second is interesting. The
+    // texture has to be bound to the live material — not a placeholder that happens to be
+    // the right type — and turning it up has to change the pixels the player is actually
+    // shown. Both are measured against the running scene's own framebuffer, because a number
+    // from a purpose-built test page is not evidence about the game.
+    if (wm2 && wm2.normalMap && !game.placeholderArt) {
+      const gl = game.renderer.getContext();
+      const buf = game.renderer.domElement;
+      const w = buf.width, h = buf.height;
+      const grab = () => {
+        game.renderer.render(game.scene, game.camera);
+        const px = new Uint8Array(w * h * 4);
+        gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);
+        return px;
+      };
+      const lum = (p, i) => 0.2126 * p[i] + 0.7152 * p[i + 1] + 0.0722 * p[i + 2];
+      const saved = wm2.normalScale.x;
+      const shipped = grab();
+      wm2.normalScale.set(0, 0);
+      const off = grab();
+      wm2.normalScale.set(8, 8);
+      const maxed = grab();
+      wm2.normalScale.set(saved, saved);
+      let dMax = 0, dShip = 0, n = 0;
+      for (let i = 0; i < shipped.length; i += 4) {
+        dMax += Math.abs(lum(off, i) - lum(maxed, i));
+        dShip += Math.abs(lum(shipped, i) - lum(off, i));
+        n++;
+      }
+      ok('the bound normal map is real art, not a placeholder',
+        Boolean(wm2.normalMap.image && wm2.normalMap.image.width >= 1024),
+        `${wm2.normalMap.image && wm2.normalMap.image.width}px composite, colorSpace ${wm2.normalMap.colorSpace}`);
+      // Asserts activity, not visibility: a bound real texture whose strength moves the
+      // framebuffer at all is wired correctly. Whether the effect is big enough to notice is
+      // a separate, reported number — the shipped strength moves a few hundredths of a
+      // percent, which is why it reads as absent, and the honest thing is to print that
+      // rather than to set the bar where the assertion would fail.
+      // Logged on every run, not only on failure: this number is the standing answer to "is
+      // bump mapping doing anything", and it should be in the log rather than re-derived by
+      // hand whenever someone doubts it.
+      console.info(`[bump] live game, wall ${game.biome && game.biome.wall}: ` +
+        `strength 0 vs 8 moves ${(dMax / n / 255 * 100).toFixed(2)}% of the frame, ` +
+        `shipped ${saved} vs off moves ${(dShip / n / 255 * 100).toFixed(2)}%`);
+      ok('raising bump to 8 moves the live framebuffer',
+        (dMax / n / 255 * 100) > 0.05,
+        `wall ${game.biome && game.biome.wall}: bump 0 vs 8 moves ${(dMax / n / 255 * 100).toFixed(2)}% of the frame; ` +
+        `shipped strength ${saved} vs off moves ${(dShip / n / 255 * 100).toFixed(2)}%`);
+    }
     if (hasNormalFor('textures/wall_crypt')) {
       const cv = getMirroredNormalTexture('textures/wall_crypt').image;
       const g2 = cv.getContext('2d', { willReadFrequently: true });

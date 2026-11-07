@@ -55,7 +55,13 @@ const child = spawn(browser, [
   `--screenshot=${target}`, targetUrl
 ], { stdio: 'ignore', windowsHide: true });
 
-const deadline = Date.now() + Math.max(150000, budget * 3);
+// Two different clocks, deliberately separate knobs. SHOT_BUDGET is how much *page* time the
+// browser simulates; SHOT_WAIT_MS is how long we wait in wall clock for the file to appear.
+// Conflating them produced bad advice: the game now carries normal and roughness maps, and in
+// software GL every simulated frame costs much more real CPU time, so raising the page-time
+// budget made the wait longer without ever producing a shot.
+const waitMs = Number(process.env.SHOT_WAIT_MS || Math.max(150000, budget * 3));
+const deadline = Date.now() + waitMs;
 while (Date.now() < deadline && !existsSync(target)) {
   await new Promise(r => setTimeout(r, 500));
 }
@@ -63,7 +69,8 @@ const ok = existsSync(target);
 try { child.kill('SIGKILL'); } catch { /* already gone */ }
 if (server) await server.close();
 
-const waitSeconds = Math.max(150, budget * 3) / 1000;
+const waitSeconds = waitMs / 1000;
 console.log(ok ? `wrote ${out} (${Math.round(statSync(target).size / 1024)} KB)`
-  : `no screenshot produced: ${targetUrl} did not settle within ${waitSeconds}s (raise SHOT_BUDGET, or check whether a browser is holding the profile)`);
+  : `no screenshot produced: ${targetUrl} did not settle within ${waitSeconds}s of wall clock while simulating ` +
+    `${budget}ms of page time. In software GL each frame costs real CPU time — try lowering SHOT_BUDGET and raising SHOT_WAIT_MS.`);
 process.exit(ok ? 0 : 1);
