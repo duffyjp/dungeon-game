@@ -80,6 +80,10 @@ export const CFG = {
   torchSpacingMin: 3,
   maxTorches: 16,
 
+  // How often the minimap repaints. It is 2D canvas work on the main thread, and nothing on it
+  // moves faster than the player's dot.
+  minimapHz: 20,
+
   // Idle monsters: a standing creature works slowly through a window of its walk cycle rather
   // than freezing on the pose the clip was generated from. Raise idleSpan for more sway,
   // idleRate for faster; set idleSpan to 2 if you want it nearly still.

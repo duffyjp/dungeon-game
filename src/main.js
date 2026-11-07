@@ -55,11 +55,30 @@ export class Game {
     this.canvas = document.getElementById('scene');
     this.overlay = document.getElementById('overlay');
 
-    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Performance A/B knobs, so a suspected cause can be tested without editing code:
+    //   ?ratio=1    render at 1 device pixel per CSS pixel instead of up to 2 (that is 4x the
+    //               fragments, and every fragment runs every light)
+    //   ?lights=6   size the pooled torch lights - each one is a BRDF evaluation per fragment
+    //   ?aa=0       drop multisample antialiasing (cheap to lose above 1x, costly at 2x)
+    //   ?disp=0     flat walls instead of height-displaced ones
+    //   ?profile=1  frame-time percentiles on screen, with the CPU/GPU split
+    const q = new URLSearchParams(location.search);
+    this.q = q;
+    if (Number(q.get('lights')) > 0) CFG.lightPool = Number(q.get('lights'));
+    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: q.get('aa') !== '0', powerPreference: 'high-performance' });
+    this.ratioCap = Number(q.get('ratio')) > 0 ? Number(q.get('ratio')) : 2;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, this.ratioCap));
     this.renderer.setSize(innerWidth, innerHeight);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.08;
+    this.perfOn = q.get('profile') === '1';
+    this.perf = { iv: [], upSum: 0, rdSum: 0, n: 0, since: 0 };
+    if (this.perfOn) {
+      const d = document.createElement('div');
+      d.className = 'perfhud';
+      document.body.appendChild(d);
+      this.perfHud = d;
+    }
 
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(CFG.fov, innerWidth / innerHeight, 0.05, 160);
@@ -531,8 +550,50 @@ export class Game {
   loop() {
     requestAnimationFrame(() => this.loop());
     const dt = Math.min(0.05, this.clock.getDelta());
+    if (!this.perfOn) {
+      if (this.state === 'playing') this.update(dt);
+      this.renderer.render(this.scene, this.camera);
+      return;
+    }
+    // With ?profile=1 the loop reports what a frame actually cost. render() returns before the
+    // GPU is done, so the number that matters is the interval between frames - that is the one
+    // the player feels, and it includes whatever the GPU is holding back. The update/render split
+    // is the CPU attribution: if the interval is 30 ms and the CPU parts are 3 ms, the cost is
+    // in the fragment work, not the game logic.
+    const t0 = performance.now();
     if (this.state === 'playing') this.update(dt);
+    const t1 = performance.now();
     this.renderer.render(this.scene, this.camera);
+    const t2 = performance.now();
+    this.samplePerf(this._lastFrame ? t2 - this._lastFrame : dt * 1000, t1 - t0, t2 - t1);
+    this._lastFrame = t2;
+  }
+
+  samplePerf(intervalMs, updateMs, renderMs) {
+    const p = this.perf;
+    p.iv.push(intervalMs);
+    if (p.iv.length > 900) p.iv.shift();
+    p.upSum += updateMs; p.rdSum += renderMs; p.n++;
+    p.since += intervalMs;
+    if (p.since < 2000) return;
+    p.since = 0;
+    const s = p.iv.slice().sort((a, b) => a - b);
+    const q = f => s[Math.min(s.length - 1, Math.floor(s.length * f))];
+    const info = this.renderer.info.render;
+    const line = `[perf] frame p50 ${q(0.5).toFixed(1)}ms p95 ${q(0.95).toFixed(1)} p99 ${q(0.99).toFixed(1)} ` +
+      `max ${s[s.length - 1].toFixed(1)} | cpu update ${(p.upSum / p.n).toFixed(1)}ms + submit ${(p.rdSum / p.n).toFixed(1)}ms | ` +
+      `${info.calls} draws, ${(info.triangles / 1000).toFixed(0)}k tris, ${this.renderer.info.programs.length} programs | ` +
+      `pixel ratio ${this.renderer.getPixelRatio()}, ${this.lightPool.length} pooled lights`;
+    console.info(line);
+    this.perfLine = line;
+    if (this.perfHud) {
+      this.perfHud.textContent =
+        `frame p50 ${q(0.5).toFixed(1)}  p95 ${q(0.95).toFixed(0)}  p99 ${q(0.99).toFixed(0)}  max ${s[s.length - 1].toFixed(0)} ms` +
+        `  ·  cpu ${(p.upSum / p.n).toFixed(1)}+${(p.rdSum / p.n).toFixed(1)} ms` +
+        `  ·  ${info.calls} draws ${(info.triangles / 1000).toFixed(0)}k tris` +
+        `  ·  ${this.renderer.getPixelRatio()}x pixels, ${this.lightPool.length} lights`;
+    }
+    p.upSum = 0; p.rdSum = 0; p.n = 0;
   }
 
   update(dt) {
@@ -577,7 +638,15 @@ export class Game {
     this.updateVisibility(dt);
 
     this.minimap.reveal(this.player.x, this.player.z, 5.5);
-    this.minimap.draw(this.player, this.enemies, this.biome, this.depth >= CFG.stairSenseDepth);
+    // The map used to be repainted every frame: a 2D canvas full of cell rectangles, inside the
+    // frame budget, for something that only needs to keep up with the player's dot. At 20 Hz it
+    // looks identical and stops competing with the scene.
+    this._mapT = (this._mapT || 0) - dt;
+    if (this._mapT <= 0) {
+      this._mapT = 1 / CFG.minimapHz;
+      this._mapDraws = (this._mapDraws || 0) + 1;
+      this.minimap.draw(this.player, this.enemies, this.biome, this.depth >= CFG.stairSenseDepth);
+    }
     this.hud.update(this.player, {
       drawing: this.player.drawT > 0,
       stairHint: this.stairHold > 0,

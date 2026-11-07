@@ -1185,6 +1185,37 @@ pixel count rather than stretching the same picture.
   setting. The gesture policy itself cannot be exercised headlessly, and the checks don't pretend
   otherwise.
 
+### 13.23 Frametime with an empty network panel
+
+After preloading (§13.17–13.19) the owner still felt frametime problems while the network tab was
+quiet — the honest reading of that is fill and CPU work, not fetches. Rather than guess, the game
+can now measure itself: `?profile=1` reports frame-interval percentiles (`p50` for smoothness,
+`p95`/`p99`/`max` for stutters) beside the CPU split, draw calls, triangles, compiled programs,
+pixel ratio and light count, on screen and one line every two seconds. Four URL knobs let a
+suspect be A/B'd without editing code: `?ratio=`, `?lights=`, `?aa=0`, `?disp=0`.
+
+What the numbers say at a mid depth: **158 draw calls, 175k triangles, 12 point lights plus 1
+spotlight compiled into every material, pixel ratio up to 2.** The expensive combination is fill
+times lights: at 2x device pixels a 1440p panel is about 4x the fragments of a 1x render, and each
+fragment evaluates all 13 lights in a physically based shader. Auto-fullscreen, shipped the same
+day, put the canvas at the panel's native size, so this cost went up exactly when the owner
+started noticing it.
+
+Two dead ends worth recording, because both looked likely:
+
+- **Shader recompiles on loot.** Pickup glows are real lights, so a drop changing the scene's
+  light count would make three.js rebuild every material — a spike no network panel can show.
+  Measured: programs `12 -> 12 -> 12` and lights `12 -> 12 -> 12` across spawning a high-tier
+  pickup and taking it back. Not the cause.
+- **Main-thread canvas work every frame.** The minimap was repainting its whole cell grid inside
+  the frame budget. Now throttled to `CFG.minimapHz` (20 Hz): measured 15 repaints across 60
+  frames, with a check that fails if the throttle stops working.
+
+`render()` returning before the GPU finishes means submit time is not GPU time, and headless
+browsers run software rendering — so the percentiles can only be read on the owner's machine. The
+profiler exists to turn "it feels bad" into "p50 is 17 ms and p99 is 90 ms, and the CPU parts are
+7 ms", which says where to cut.
+
 
 ---
 

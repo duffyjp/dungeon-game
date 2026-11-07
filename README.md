@@ -420,6 +420,32 @@ Batch 1 (16 textures + 23 enemies, seeds 41000–41038) and batch 2 (8 props + 1
 server on the other PC handles a single generation at a time. `items/arrow` took three
 attempts; the two rejected seeds are recorded in its manifest entry.
 
+## Performance: measure, then guess
+
+`?profile=1` puts a frame-time readout on screen and prints one line every two seconds:
+
+```
+[perf] frame p50 16.7ms p95 23.1 p99 41.0 max 88.0 | cpu update 2.4ms + submit 5.1ms
+       | 158 draws, 175k tris, 12 programs | pixel ratio 2, 6 pooled lights
+```
+
+`p50` is smoothness, `p95`/`p99`/`max` are the stutters — a game can feel bad with a good median.
+`cpu` is what the game itself costs; the gap between that and the frame interval is the GPU. Note
+`render()` returns before the GPU finishes, so submit time is not GPU time.
+
+A/B the suspects without editing code:
+
+| URL | What it tests |
+|---|---|
+| `?ratio=1` | fragment count: the game renders at up to 2x device pixels, which is 4x the work per light |
+| `?lights=4` | the torch light pool — every light is a full BRDF evaluation in every fragment |
+| `?disp=0` | height-displaced walls (223 wall instances, most of the triangles) |
+| `?aa=0` | multisample antialiasing, mostly wasted above 1x |
+
+Known costs at a mid depth: **158 draw calls, 175k triangles, 12 point lights + 1 spotlight
+compiled into every material, pixel ratio up to 2.** Dropping loot does not recompile anything
+(programs stay at 12), and the minimap repaints at 20 Hz rather than every frame.
+
 ## Loading: what a depth needs, before it plays
 
 Assets used to arrive just-in-time, which meant the first wraith of a new tier, the first wall

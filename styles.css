@@ -131,3 +131,7 @@ input[type="text"], input:not([type]) { width: 100%; padding: 9px 11px; backgrou
 .loadbar { height: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); }
 .loadbar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #8a5a20, #f5a524); transition: width 120ms linear; }
 .loadfine { margin-top: 7px; color: var(--dim); font-size: 11px; }
+
+
+/* ?profile=1 frame-time readout */
+.perfhud { position: fixed; left: 10px; top: 8px; z-index: 40; font: 11px/1.45 ui-monospace, Consolas, monospace; color: #d7c48a; background: rgba(6,6,8,0.66); border: 1px solid rgba(215,196,138,0.28); padding: 4px 8px; pointer-events: none; }

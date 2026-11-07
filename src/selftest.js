@@ -794,6 +794,51 @@ export async function runSelfTest(game) {
         typeof game.settings.autoFullscreen === 'boolean', `default ${game.settings.autoFullscreen}`);
     }
 
+    // ---- frametime diagnostics (print only) --------------------------------
+    {
+      const lightCount = () => { let p = 0, s = 0; game.scene.traverse(o => { if (o.isPointLight) p++; else if (o.isSpotLight) s++; }); return { p, s }; };
+      const info = () => ({ calls: game.renderer.info.render.calls, tris: game.renderer.info.render.triangles, programs: game.renderer.info.programs.length });
+      const before = { ...lightCount(), ...info() };
+      console.info(`[perf] depth ${game.depth} before loot: lights=${before.p}p/${before.s}s calls=${before.calls} tris=${before.tris} programs=${before.programs}`);
+      // Drop something and take it back: does the scene's light count change, and do the
+      // compiled GPU programs grow with it? Changing NUM_POINT_LIGHTS makes three.js rebuild
+      // every material on the next frame, which is a CPU-side hitch no network panel can show.
+      const p = game.makePickup(game.items.items.find(i => i.tierIndex >= 2) || game.items.items[0], game.player.x + 0.4, game.player.z);
+      step(4);
+      const during = { ...lightCount(), ...info() };
+      console.info(`[perf] with one more pickup:     lights=${during.p}p/${during.s}s calls=${during.calls} tris=${during.tris} programs=${during.programs}`);
+      // And picking it up: the light leaves with it.
+      p.group.removeFromParent();
+      game.pickups.splice(game.pickups.indexOf(p), 1);
+      step(4);
+      const after = { ...lightCount(), ...info() };
+      console.info(`[perf] after taking it:          lights=${after.p}p/${after.s}s calls=${after.calls} tris=${after.tris} programs=${after.programs}`);
+      game._mapDraws = 0;
+      step(60);                       // one second of play at the harness's 60 Hz
+      ok('the minimap is throttled instead of repainted every frame',
+        game._mapDraws > 0 && game._mapDraws <= 30,
+        `${game._mapDraws} repaints across 60 frames (target ${CFG.minimapHz} Hz)`);
+
+      ok('loot does not change the compiled shader count',
+        during.programs === before.programs && after.programs === before.programs,
+        `programs ${before.programs} -> ${during.programs} -> ${after.programs}, lights ${before.p} -> ${during.p} -> ${after.p}; ` +
+        `frame costs: ${before.calls} draw calls, ${(before.tris / 1000).toFixed(0)}k triangles, ` +
+        `${before.p} point + ${before.s} spot lights in every material, ` +
+        `${game.enemies.length} monsters, ${game.pickups.length} pickups, ${game.torchCount || 0} torches, ` +
+        `${game.levelView ? game.levelView.wallMesh.count : '?'} wall instances`);
+    }
+
+    // ---- the frame profiler itself (?profile=1) ----------------------------
+    {
+      game.perfOn = true;
+      game.perf = { iv: [], upSum: 0, rdSum: 0, n: 0, since: 0 };
+      for (let i = 0; i < 200; i++) game.samplePerf(16 + (i % 9), 2.5, 4.0);
+      ok('the frame profiler reports percentiles and a CPU split',
+        /frame p50 \d+\.\d+ms p95 \d+\.\d+ p99/.test(game.perfLine || '') && /cpu update/.test(game.perfLine || ''),
+        (game.perfLine || 'nothing printed').replace(/\s+/g, ' '));
+      game.perfOn = false;
+    }
+
     if (!game.placeholderArt) {
       const wasDepth = game.depth;
       // The harness warms the whole library at boot, which would let this check pass whether or
