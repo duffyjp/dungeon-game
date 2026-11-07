@@ -6,6 +6,7 @@
   "description": "STRATA: Descent - first-person procedural dungeon crawler in a painted key (three.js, static build)",
   "scripts": {
     "dev": "vite",
+    "dev:restart": "node tools/devserver.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "check:build": "node tools/checkBuild.mjs",

@@ -6,7 +6,7 @@
 //
 // Why offline rather than a model: a normal map is geometry, not imagery. Deriving it from
 // the tile's own shading means the relief agrees with the albedo, it is reproducible from the
-// source, and it carries no third-party licence question at all — the only generated thing in
+// source, and it carries no third-party licence question at all â€” the only generated thing in
 // the chain is the albedo. It also costs milliseconds instead of GPU minutes.
 //
 // Method: luminance -> box blur (a raw albedo is too high-frequency: per-grain noise turns
@@ -39,8 +39,10 @@ const keys = process.argv.includes('--all-tiles')
   ? fs.readdirSync(path.join(ROOT, 'assets/images/textures')).filter(f => f.endsWith('.png')).map(f => f.replace(/\.png$/, ''))
   : (arg('keys') || '').split(',').map(s => s.trim()).filter(Boolean);
 // Where the albedo lives. A candidate restyle is measured in experiments/ before anything in
-// assets/ is touched, so the tool has to be able to read a tile from somewhere else.
-const SRC_DIR = arg('src-dir', 'assets/images/textures');
+// assets/ is touched, so the tool has to be able to read a tile from somewhere else â€” and
+// resolve() rather than join(), because a caller may pass an absolute temp directory.
+const SRC_DIR = path.resolve(ROOT, arg('src-dir', 'assets/images/textures'));
+const OUT_DIR = path.resolve(ROOT, OUT);
 
 if (!keys.length) {
   console.error('usage: node tools/normalFromAlbedo.mjs --keys wall_crypt[,floor_crypt] | --all-tiles [--size 512] [--strength 1.8] [--blur 2] [--invertY]');
@@ -130,11 +132,11 @@ function sobelNormals(H, w, h, strength, invertY) {
   return { rgb: out, meanDev: devSum / (w * h), busyPct: 100 * busy / (w * h) };
 }
 
-fs.mkdirSync(path.join(ROOT, OUT), { recursive: true });
+fs.mkdirSync(OUT_DIR, { recursive: true });
 let total = 0;
 console.log(`normal maps: ${keys.length} tile(s) at ${SIZE} px, strength ${STRENGTH}, blur ${BLUR}, green ${INVERT_Y ? 'down' : 'up'}`);
 for (const key of keys) {
-  const src = path.join(ROOT, SRC_DIR, `${key}.png`);
+  const src = path.join(SRC_DIR, `${key}.png`);
   if (!fs.existsSync(src)) { console.log(`  skip ${key}: no such texture`); continue; }
   const dec = decodePng(fs.readFileSync(src));
   const rgb = dec.channels === 3 ? dec.px : (() => {
@@ -151,7 +153,7 @@ for (const key of keys) {
   // Shipping format: a normal map is a smooth directional field, and lossy WebP at q92
   // stores it for 79 KB where the PNG needs 608 KB. The deviation statistics are measured
   // from the same pixels either way, and the render check is what decides whether the loss
-  // is visible — so the format is a flag, not a guess.
+  // is visible â€” so the format is a flag, not a guess.
   let final = buf, finalName = `${key}.png`;
   if (FORMAT === 'webp') {
     const tmpPng = path.join(os.tmpdir(), `strata-normal-${key}.png`);
@@ -159,18 +161,18 @@ for (const key of keys) {
     execFileSync(FFMPEG, ['-y', '-loglevel', 'error', '-i', tmpPng,
       '-c:v', 'libwebp', '-pix_fmt', 'yuva444p', '-lossless', '0',
       '-quality', String(WEBP_Q), '-compression_level', '6',
-      path.join(ROOT, OUT, `${key}.webp`)], { stdio: ['ignore', 'pipe', 'pipe'] });
+      path.join(OUT_DIR, `${key}.webp`)], { stdio: ['ignore', 'pipe', 'pipe'] });
     fs.unlinkSync(tmpPng);
-    final = fs.readFileSync(path.join(ROOT, OUT, `${key}.webp`));
+    final = fs.readFileSync(path.join(OUT_DIR, `${key}.webp`));
     finalName = `${key}.webp`;
     // Keep a PNG copy out of the shipped folder so the registry cannot see both.
-    const stale = path.join(ROOT, OUT, `${key}.png`);
+    const stale = path.join(OUT_DIR, `${key}.png`);
     if (fs.existsSync(stale)) fs.unlinkSync(stale);
   } else {
-    const stale = path.join(ROOT, OUT, `${key}.webp`);
+    const stale = path.join(OUT_DIR, `${key}.webp`);
     if (fs.existsSync(stale)) fs.unlinkSync(stale);
   }
-  const to = path.join(ROOT, OUT, finalName);
+  const to = path.join(OUT_DIR, finalName);
   fs.writeFileSync(to, final);
   total += final.length;
   console.log(`  ${key.padEnd(18)} ${SIZE}x${SIZE}  ${(final.length / 1024).toFixed(0)} KB  ` +

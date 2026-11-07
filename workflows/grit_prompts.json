@@ -2,6 +2,7 @@
   "note": "Per-tile restyle instructions for the gritty environment pass. Sent to Qwen-Image-2.1 in edit mode (the graph conditions on the existing tile, so the composition is preserved) with the prompt enhancer switched off, so these strings reach the image model verbatim. Kept next to the other reviewed graphs rather than embedded in a script, because the wording is the thing that has to be reviewable.",
   "common": "Repaint this game texture as a gritty, weathered, photoreal dungeon surface with high micro-detail, physically plausible wear concentrated where a creature or the player would contact it, cold diffuse torch light, desaturated palette, fine grain and micro-contrast throughout",
   "tiles": {
+    "wall_crypt": "uneven hand-cut granite blocks with deep rough recessed mortar joints, chipped and abraded edges, pitting and pockmarks, damp water staining, dark grime and traces of moss in the crevices, fine stone grain and strong micro-contrast, cold diffuse light, desaturated grey-brown palette, high surface detail",
     "wall_vault": "smooth fitted ashlar blocks with crisp tooling marks, faint veins through pale grey marble, powder in the joints, dark iron clamps and pin holes, chipped arrises",
     "wall_foundry": "soot-blackened brick against riveted iron plate, heat-blistered and scaled surfaces, rust bloom at the seams, oil staining, ember-darkened mortar",
     "wall_cavern": "rough hewn cavern rock face with wet mineral streaks, calcite crust in the cracks, coarse chisel cuts, loose gravel lodged in the crevices",
@@ -17,5 +18,26 @@
     "cobweb": "dusty cobweb sagging across a corner, strands heavy with trapped grit, breaks and gaps where it has been brushed through",
     "blood_splatter": "dark dried blood on stone, brown-black and matte where thick, translucent at the edges, spatter droplets and a smear where it was dragged",
     "scorch": "blackened scorch mark on stone, cracked soot flaking away, an ember-darkened rim and heat-discoloured grain radiating outward"
+  },
+  "verbatim": {
+    "wall_crypt": "Repaint this stone masonry texture as a gritty, weathered, photoreal dungeon wall surface: uneven hand-cut granite blocks with deep rough recessed mortar joints, chipped and abraded edges, pitting and pockmarks, damp water staining, dark grime and traces of moss in the crevices, fine stone grain and strong micro-contrast, cold diffuse light, desaturated grey-brown palette, high surface detail"
+  },
+  "seeds": {
+    "wall_crypt": 45001,
+    "wall_vault": 45010,
+    "wall_foundry": 45011,
+    "wall_cavern": 45012,
+    "floor_crypt": 45013,
+    "floor_cavern": 45014,
+    "floor_foundry": 45015,
+    "floor_vault": 45016,
+    "ceiling_crypt": 45017,
+    "ceiling_cavern": 45018,
+    "pillar": 45019,
+    "door_oak": 45020,
+    "rubble": 45021,
+    "cobweb": 45022,
+    "blood_splatter": 45023,
+    "scorch": 45024
   }
 }

@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { CFG } from './config.js';
 import enemiesData from '../data/enemies.json';
+import biomeData from '../data/biomes.json';
 import { makeProp } from './world/propMeshes.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
 import { hasAsset, hasRealAlpha, hasNormalFor, getMirroredNormalTexture } from './render/assets.js';
@@ -377,13 +378,13 @@ export async function runSelfTest(game) {
     // map must negate the direction channels, or the relief points the wrong way at every
     // seam and the wall appears to change shape as the player walks past it. So the composite
     // is sampled and the sign flip is asserted.
-    // The roster of surfaces is rolled out tile by tile, so the meaningful assertions are
-    // "the tile that has a normal is wired correctly" and "a tile that has none still
-    // renders, exactly as before" — not "every biome has one", which would fail mid-rollout.
-    const NORMAL_KEYS = ['textures/wall_crypt'];
-    const missingNormals = NORMAL_KEYS.filter(k => !hasNormalFor(k));
-    ok('expected wall tiles ship a normal map', missingNormals.length === 0,
-      NORMAL_KEYS.join(', ') + (missingNormals.length ? ` — missing: ${missingNormals.join(', ')}` : ''));
+    // Every surface the biomes reference ships a normal map, so a missing one is a shipping
+    // mistake rather than a rollout in progress. The keys come from the biome data, not a
+    // hand-written list, so adding a biome cannot slip past this check.
+    const surfaceKeys = [...new Set(Object.values(biomeData).flatMap(b => [b.wall, b.floor, b.ceiling].filter(Boolean)).map(k => `textures/${k}`))];
+    const missingNormals = surfaceKeys.filter(k => !hasNormalFor(k));
+    ok('every biome surface ships a normal map', missingNormals.length === 0,
+      `${surfaceKeys.length - missingNormals.length}/${surfaceKeys.length} surfaces paired${missingNormals.length ? ` — missing: ${missingNormals.join(', ')}` : ''}`);
     if (hasNormalFor('textures/wall_crypt')) {
       const cv = getMirroredNormalTexture('textures/wall_crypt').image;
       const g2 = cv.getContext('2d', { willReadFrequently: true });
