@@ -1,0 +1,42 @@
+{
+  "name": "alpha_cutout",
+  "model": "no diffusion model — mask maths on an existing image (ComfyUI core nodes)",
+  "licence": "Nothing but the input image and ComfyUI's own nodes (GPL/foss, no model weights involved), so the output carries no third-party model terms beyond the image it started from.",
+  "server": "http://10.1.1.1:8188 (5070 Ti) or http://10.0.0.99:8000 (2060) — either has these core nodes",
+  "purpose": "Turn an existing chroma-field sprite into a real RGBA PNG on the server side: build a mask from the key colour, invert it so the subject is opaque, join it as an alpha channel, save with alpha. This is the same idea the engine's runtime keyer implements in JavaScript; running it here instead means the shipped file carries transparency and the game stops keying at load.",
+  "patch_only": {
+    "1": "LoadImage.image — upload the sprite first, then set the returned name (tools/comfyRun.mjs --image-node 1 does this)",
+    "2": "ColorToMask red/green/blue = the key field colour; invert=true so the SUBJECT is opaque; threshold widens or narrows the colour match",
+    "5": "SaveImageWithAlpha.filename_prefix"
+  },
+  "graph": {
+    "1": {
+      "inputs": { "image": "placeholder.png" },
+      "class_type": "LoadImage",
+      "_meta": { "title": "Sprite to cut out" }
+    },
+    "2": {
+      "inputs": {
+        "images": ["1", 0],
+        "invert": true,
+        "red": 255,
+        "green": 0,
+        "blue": 255,
+        "threshold": 60,
+        "per_batch": 16
+      },
+      "class_type": "ColorToMask",
+      "_meta": { "title": "Mask from the magenta field" }
+    },
+    "3": {
+      "inputs": { "image": ["1", 0], "alpha": ["2", 0] },
+      "class_type": "JoinImageWithAlpha",
+      "_meta": { "title": "Attach the mask as alpha" }
+    },
+    "5": {
+      "inputs": { "images": ["3", 0], "mask": ["2", 0], "filename_prefix": "strata-alpha" },
+      "class_type": "SaveImageWithAlpha",
+      "_meta": { "title": "Save with alpha" }
+    }
+  }
+}

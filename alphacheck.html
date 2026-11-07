@@ -15,7 +15,7 @@
 </style></head>
 <body>
 <h1>EXPERIMENTS: alpha output vs the chroma-key pipeline</h1>
-<p class="note">Left: the shipped sprite through the engine's keyer. Middle: the Qwen-Image-2.1 output over a checkerboard, so the alpha is visible. Right: the same file drawn over crypt floor with additive blending, which is how a luminous effect wants to be drawn. Numbers below count the alpha itself — a soft edge is the point, and colour left in the semi-transparent band is what used to give ghosts a pink halo.</p>
+<p class="note">Column 1 is the shipped sprite through the engine's runtime chroma keyer. Column 2 is what the Qwen-Image-2.1 edit pass returned. Column 3 is the same source image cut out on the server with a colour mask, and column 4 is that cutout drawn over crypt floor the way the engine would draw it. The table measures the FILES — transparent share, soft-edge share, and the colour left inside the soft band, which is where a pink halo used to live.</p>
 <div id="rows"></div>
 <table id="stats"><tr><th>file</th><th>fully clear</th><th>soft edge (alpha 1–254)</th><th>mean colour in the soft band</th><th>magenta cast</th></tr></table>
 <div id="done">working…</div>
@@ -23,9 +23,10 @@
 import { chromaKeyCanvas } from './src/render/chromaKey.js';
 
 const CASES = [
-  ['vfx/ghost_trail', 'experiments/qwen/strata-qwen-ghost_trail_00001.png'],
-  ['vfx/magic_orb', 'experiments/qwen/strata-qwen-magic_orb_00001.png'],
-  ['vfx/slime_splat', 'experiments/qwen/strata-qwen-slime_splat_00001.png']
+  ['vfx/ghost_trail', 'experiments/qwen/strata-qwen-ghost_trail_00001.png', 'experiments/cutouts/strata-cut-ghost_trail_00001.png'],
+  ['vfx/magic_orb', 'experiments/qwen/strata-qwen-magic_orb_00001.png', 'experiments/cutouts/strata-cut-magic_orb_00001.png'],
+  ['vfx/slime_splat', 'experiments/qwen/strata-qwen-slime_splat_00001.png', 'experiments/cutouts/strata-cut-slime_splat_00001.png'],
+  ['enemies/t1/goblin_archer', null, 'experiments/cutouts/strata-cut-goblin_archer_00001.png']
 ];
 const SIZE = 260;
 
@@ -47,6 +48,16 @@ async function floorBackdrop() {
   const c = canvas(); const g = c.getContext('2d');
   if (f) g.drawImage(f, 0, 0, SIZE, SIZE); else { g.fillStyle = '#4a4038'; g.fillRect(0, 0, SIZE, SIZE); }
   g.fillStyle = 'rgba(6,8,10,0.35)'; g.fillRect(0, 0, SIZE, SIZE);   // the game's light level, roughly
+  return c;
+}
+
+// Measure the FILE, not the composite: on the checker canvas every transparent pixel reads
+// as opaque because the checker is underneath. That is exactly how a fully opaque "alpha"
+// output hides in plain sight.
+function alphaOnly(image) {
+  const c = canvas(); const g = c.getContext('2d');
+  g.clearRect(0, 0, SIZE, SIZE);
+  g.drawImage(image, 0, 0, SIZE, SIZE);
   return c;
 }
 
@@ -76,45 +87,52 @@ function statsOf(source) {
   const stats = document.getElementById('stats');
   let built = 0;
 
-  for (const [key, expUrl] of CASES) {
-    const shippedUrl = `assets/images/${key}.png`;
-    const [a, b, c] = [await img(shippedUrl), await img(expUrl), null];
-    if (!b) { console.warn('missing experiment output', expUrl); continue; }
+  for (const [key, qwenUrl, cutUrl] of CASES) {
+    const shipped = await img(`assets/images/${key}.png`);
+    const qwen = qwenUrl ? await img(qwenUrl) : null;
+    const cut = cutUrl ? await img(cutUrl) : null;
+    if (!cut && !qwen) { console.warn('nothing to compare for', key); continue; }
 
-    // column 1: the shipped asset through the engine's keyer, over floor
+    // column 1: the shipped asset through the engine's runtime keyer, over crypt floor
     const c1 = canvas(); const g1 = c1.getContext('2d');
     g1.drawImage(floor, 0, 0);
-    if (a) {
+    if (shipped) {
       const work = canvas(); const wg = work.getContext('2d');
-      wg.drawImage(a, 0, 0, SIZE, SIZE);
+      wg.drawImage(shipped, 0, 0, SIZE, SIZE);
       chromaKeyCanvas(work);
       g1.drawImage(work, 0, 0);
     }
 
-    // column 2: the alpha result over a checkerboard
+    // column 2: the model's alpha output over a checkerboard
     const c2 = canvas(); const g2 = c2.getContext('2d');
-    checker(g2); g2.drawImage(b, 0, 0, SIZE, SIZE);
+    if (qwen) { checker(g2); g2.drawImage(qwen, 0, 0, SIZE, SIZE); }
 
-    // column 3: the alpha result over floor, normal then additive
+    // column 3: the server-side cutout over a checkerboard
     const c3 = canvas(); const g3 = c3.getContext('2d');
-    g3.drawImage(floor, 0, 0);
-    g3.globalCompositeOperation = 'lighter';
-    g3.drawImage(b, 0, 0, SIZE, SIZE);
-    g3.globalCompositeOperation = 'source-over';
+    if (cut) { checker(g3); g3.drawImage(cut, 0, 0, SIZE, SIZE); }
+
+    // column 4: the cutout over floor, normal blending — what the engine would draw
+    const c4 = canvas(); const g4 = c4.getContext('2d');
+    g4.drawImage(floor, 0, 0);
+    if (cut) g4.drawImage(cut, 0, 0, SIZE, SIZE);
 
     const row = document.createElement('div');
     row.className = 'row';
-    row.innerHTML = `<div class="cell"><div class="lab"><b>${key}</b><br>shipped, chroma-keyed</div></div>
-                     <div class="cell"><div class="lab">Qwen output, alpha over checker</div></div>
-                     <div class="cell"><div class="lab">Qwen output, additive over floor</div></div>`;
+    row.innerHTML = `<div class="cell"><div class="lab"><b>${key}</b><br>shipped, runtime chroma key</div></div>
+                     <div class="cell"><div class="lab">Qwen edit output over checker${qwen ? '' : ' (n/a)'}</div></div>
+                     <div class="cell"><div class="lab">ComfyUI cutout over checker</div></div>
+                     <div class="cell"><div class="lab">ComfyUI cutout over floor</div></div>`;
     const cellNodes = [...row.querySelectorAll('.cell')];
-    [c1, c2, c3].forEach((cv, i) => cellNodes[i].prepend(cv));
+    [c1, c2, c3, c4].forEach((cv, i) => cellNodes[i].prepend(cv));
     rows.appendChild(row);
 
-    const s = statsOf(c2);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${expUrl.split('/').pop()}</td><td>${s.clear}</td><td>${s.soft}</td><td>${s.mean}</td><td>${s.cast}</td>`;
-    stats.appendChild(tr);
+    for (const [label, src] of [[qwenUrl, qwen && alphaOnly(qwen)], [cutUrl, cut && alphaOnly(cut)]]) {
+      if (!label || !src) continue;
+      const s = statsOf(src);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${label.split('/').pop()}</td><td>${s.clear}</td><td>${s.soft}</td><td>${s.mean}</td><td>${s.cast}</td>`;
+      stats.appendChild(tr);
+    }
     built++;
   }
 
