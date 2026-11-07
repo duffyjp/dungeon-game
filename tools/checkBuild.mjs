@@ -75,6 +75,16 @@ const html = readFileSync(join(ROOT, 'index.html'), 'utf8');
 if (/(src|href)="\//.test(html)) problems.push('index.html references an absolute path (src="/..." or href="/...")');
 if (!existsSync(join(ROOT, '.nojekyll'))) problems.push('dist/.nojekyll missing — Jekyll would process the site');
 if (!existsSync(join(ROOT, 'music/manifest.json'))) problems.push('dist/music/manifest.json missing — music pinning would 404 when hosted');
+// Sprite animation is addressed by path, so a hosted build must actually contain the files
+// the manifest names — a missing clip would show up as a motionless monster, not an error.
+if (existsSync(join(ROOT, 'anim/manifest.json'))) {
+  const am = JSON.parse(readFileSync(join(ROOT, 'anim/manifest.json'), 'utf8'));
+  const missing = (am.entries || []).filter(e => !existsSync(join(ROOT, 'anim', e.file)));
+  if (missing.length) problems.push(`dist/anim is missing ${missing.length} of ${am.entries.length} clips, e.g. ${missing.slice(0, 3).map(m => m.file).join(', ')}`);
+  else console.log(`anim clips in dist: ${am.entries.length}/${am.entries.length}`);
+} else {
+  problems.push('dist/anim/manifest.json missing — sprite animation would 404 when hosted');
+}
 
 const files = walk(ROOT);
 const total = files.reduce((s, f) => s + statSync(f).size, 0);

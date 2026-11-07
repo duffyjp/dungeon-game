@@ -9,13 +9,20 @@
 //
 // If ImageDecoder is unavailable the whole feature switches off and every billboard keeps
 // the static sprite it has today. Animation is a garnish; it must never be a dependency.
+// The clip roster is a JSON manifest rather than a build-time glob. A glob is expanded when
+// the module is transformed, so a clip added after the dev server started is invisible to it
+// — that is exactly the failure that made only the spider animate while 48 finished clips sat
+// on disk. dist/anim/ is copied verbatim by a Vite plugin (see vite.config.js), the same way
+// the music manifest is, and the manifest timestamp busts the cache when the roster changes.
 import * as THREE from 'three';
 import manifest from '../../assets/anim/manifest.json';
 
-// Vite emits the .webp files and hands back their served URLs, the same arrangement the
-// sprite registry uses for PNGs — so a dev server and the GitHub Pages build both work
-// without a hand-maintained path list.
-const URLS = import.meta.glob('../../assets/anim/*.webp', { eager: true, query: '?url', import: 'default' });
+function clipUrl(file) {
+  if (import.meta.env.DEV) return `assets/anim/${file}`;
+  const base = (import.meta.env.BASE_URL || './').replace(/\/?$/, '/');
+  const v = manifest.generatedAt ? `?v=${encodeURIComponent(manifest.generatedAt)}` : '';
+  return `${base}anim/${file}${v}`;
+}
 
 const byKey = new Map();
 for (const e of manifest.entries || []) byKey.set(`${e.sprite}|${e.action}`, e);
@@ -56,8 +63,7 @@ export function loadFrames(entry) {
   if (cache.has(entry.file)) return cache.get(entry.file);
   const work = (async () => {
     if (!animationSupported()) { lastDiag = 'no ImageDecoder in this browser'; return null; }
-    const url = URLS[`../../assets/anim/${entry.file}`];
-    if (!url) { lastDiag = `no emitted URL for ${entry.file} (glob saw ${Object.keys(URLS).length} file(s))`; return null; }
+    const url = clipUrl(entry.file);
     const res = await fetch(url);
     if (!res.ok) { lastDiag = `fetch ${url} -> HTTP ${res.status}`; return null; }
     const buf = await res.arrayBuffer();

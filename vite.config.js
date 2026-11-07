@@ -25,6 +25,20 @@ export default defineConfig({
         fs.mkdirSync(to, { recursive: true });
         fs.copyFileSync(from, path.join(to, 'manifest.json'));
       }
+    },
+    {
+      // Animated sprite clips: copied as themselves rather than pulled through the asset
+      // pipeline, so the path the engine asks for is the path that exists, and a clip built
+      // after the dev server started is still reachable. See src/render/animation.js.
+      name: 'copy-anim-clips',
+      writeBundle(options) {
+        const from = path.join(HERE, 'assets/anim');
+        if (!fs.existsSync(from)) return;
+        const outDir = options.dir || path.join(HERE, 'dist');
+        const to = path.join(outDir, 'anim');
+        fs.mkdirSync(to, { recursive: true });
+        for (const f of fs.readdirSync(from)) fs.copyFileSync(path.join(from, f), path.join(to, f));
+      }
     }
   ],
 
