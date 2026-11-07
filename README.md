@@ -232,6 +232,14 @@ npm run qa:alpha
 - **Engine side:** `render/assets.js` detects a real alpha channel from the pixels and skips
   chroma keying for that asset, so keyed and transparent art can share a folder. Asserted both
   ways by the integration suite (42/42).
+- **The full pass, run 2026-11-06:** 49 billboards (23 enemies, 18 items, 8 effects) through
+  `tools/alphaBatch.mjs`, all 49 measured, accepted on three numbers — background removed,
+  subject present, and silhouette overlap against the approved art. Overlap came back 0.596 to
+  0.995, median 0.96: the model holds a silhouette far better than it looked in the first
+  single-asset test. `npm run review:alpha` renders only the ones under 0.9, which is the list
+  a human has to look at, and `npm run promote:alpha` promotes the rest — with a `--min-iou`
+  gate (default 0.9), a resize to 512 px because a billboard never draws bigger and the raw
+  files are 1024², and a backup of every replaced file under `assets/images/_chroma_v1/`.
 - **Still broken:** the server-side colour-mask cutout (`workflows/alpha_cutout.json`).
   `ColorToMask` returns a uniform mask whatever threshold and polarity I give it, so the output
   is either all clear or all opaque. The box has SAM3 nodes, which is the better tool for

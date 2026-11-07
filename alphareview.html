@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>alpha conversion review</title>
+<style>
+  body { margin: 0; background: #0b0d10; color: #e6e8ea; font: 12px/1.4 system-ui; }
+  h1 { font-size: 15px; margin: 14px 16px 4px; letter-spacing: .06em; }
+  p.note { margin: 0 16px 10px; color: #9aa0a6; max-width: 1100px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 12px; padding: 0 16px 24px; }
+  .card { width: 372px; background: rgba(10,12,15,.7); border: 1px solid rgba(255,255,255,.1); }
+  .pair { display: flex; }
+  .pair canvas { width: 186px; height: 186px; }
+  .cap { padding: 5px 8px; color: #9aa0a6; }
+  .cap b { color: #e6e8ea; }
+  .cap .bad { color: #e0a030; font-weight: 700; }
+</style></head>
+<body>
+<h1 id="title">alpha conversion review</h1>
+<p class="note">Left tile: the shipped sprite as the game draws it now, through the runtime chroma keyer. Right tile: the Qwen alpha conversion, edge band despilled, drawn over the same crypt floor. The number is how much the new silhouette overlaps the one we approved — overlap is measured, not judged, so this sheet is for the thing numbers cannot see: whether the model quietly changed the creature's character while removing its background.</p>
+<div class="grid" id="grid"></div>
+<div id="done" style="position:fixed;right:14px;top:12px;background:rgba(10,12,15,.86);border:1px solid rgba(255,255,255,.12);padding:6px 10px">working…</div>
+<script type="module">
+import { chromaKeyCanvas } from './src/render/chromaKey.js';
+
+const SIZE = 186;
+const params = new URLSearchParams(location.search);
+const maxIou = Number(params.get('maxiou') || '0.9');
+const minIou = Number(params.get('miniou') || '0');
+
+function img(url) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = url; }); }
+function canvas() { const c = document.createElement('canvas'); c.width = c.height = SIZE; return c; }
+
+(async () => {
+  const list = (await (await fetch('experiments/alpha/list.json')).json()).filter(e => e.iou >= minIou && e.iou <= maxIou);
+  const floorImg = await img('assets/images/textures/floor_crypt.png');
+  const floor = canvas(); const fg = floor.getContext('2d');
+  if (floorImg) fg.drawImage(floorImg, 0, 0, SIZE, SIZE);
+  fg.fillStyle = 'rgba(6,8,10,0.35)'; fg.fillRect(0, 0, SIZE, SIZE);
+
+  const grid = document.getElementById('grid');
+  let n = 0;
+  for (const e of list) {
+    const [oldImg, newImg] = [await img(`assets/images/${e.key}.png`), await img(e.file)];
+    const a = canvas(), g1 = a.getContext('2d');
+    g1.drawImage(floor, 0, 0);
+    if (oldImg) {
+      const w = canvas(); const wg = w.getContext('2d');
+      wg.drawImage(oldImg, 0, 0, SIZE, SIZE);
+      chromaKeyCanvas(w);
+      g1.drawImage(w, 0, 0);
+    }
+    const b = canvas(), g2 = b.getContext('2d');
+    g2.drawImage(floor, 0, 0);
+    if (newImg) g2.drawImage(newImg, 0, 0, SIZE, SIZE);
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<div class="pair"></div><div class="cap"><b>${e.key}</b><br>silhouette overlap ${e.iou} · background removed ${e.clear}%${e.iou < 0.9 ? ' <span class="bad">needs a look</span>' : ''}</div>`;
+    const pair = card.querySelector('.pair');
+    pair.appendChild(a); pair.appendChild(b);
+    grid.appendChild(card);
+    n++;
+  }
+  document.getElementById('title').textContent = `alpha conversion review — ${n} asset${n === 1 ? '' : 's'} (overlap ${minIou}–${maxIou})`;
+  document.getElementById('done').textContent = `${n} shown`;
+  window.__alphareviewDone = true;
+})();
+</script>
+</body>
+</html>

@@ -24,6 +24,7 @@
     "qa:fx": "node tools/pageShot.mjs fxcheck.html fxcheck.png 1300 720",
     "qa:alpha": "node tools/pageShot.mjs alphacheck.html alphacheck.png 1150 1500",
     "alpha:batch": "node tools/alphaBatch.mjs --groups enemies,items,vfx",
+    "review:alpha": "node tools/pageShot.mjs alphareview.html alphareview.png 1200 1250 \"?maxiou=0.9\"",
     "promote:alpha": "node tools/promoteAlpha.mjs",
     "qa:arrow": "node tools/pageShot.mjs index.html arrowcheck.png 900 560 \"?demo=1&seed=bravo&depth=2&preview=archer&tier=2&previewshoot=1&freeze=1\"",
     "qa:bow": "node tools/pageShot.mjs index.html bowcheck.png 900 560 \"?demo=1&seed=bravo&depth=2&arrows=6&shoot=1&freeze=1&mark=1\"",

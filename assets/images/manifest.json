@@ -1429,7 +1429,25 @@
     "generatedAt": "2026-11-06T01:05:15.337Z",
     "previousSeed": 42033,
     "previousPrompt": "soft elliptical black contact shadow, feathered edges, solid white background, photorealistic AAA game asset, PBR material detail, crisp studio key light from upper left with cool rim light, centered composition, subtle film grain, sharp focus, high dynamic range, on flat solid white background, no text, no letters, no numbers, no logos, no watermark, no signature, no blur, no jpeg artifacts",
-    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-contact_shadow_00001_.png&subfolder=&type=output"
+    "previousSourceUrl": "http://10.0.0.99:8000/view?filename=strata-vfx-contact_shadow_00001_.png&subfolder=&type=output",
+    "alphaConverted": {
+      "model": "Qwen/Qwen-Image-2.1 (qwen_image_2.1_int8_convrot.safetensors)",
+      "licence": "Qwen Research License (owner reviewed 2026-11-06 and accepts shipping its outputs)",
+      "seed": 44348,
+      "at": "2026-11-07",
+      "from": {
+        "model": "z_image_turbo",
+        "seed": 44149
+      },
+      "measurements": {
+        "clear": 29.8,
+        "soft": 40.2,
+        "opaque": 30,
+        "edge": "rgb(161, 58, 203)",
+        "silhouetteIoU": 0.992
+      },
+      "backup": "assets/images/_chroma_v1/vfx/contact_shadow.png"
+    }
   },
   {
     "path": "assets/images/ui/bar_frame_health.png",

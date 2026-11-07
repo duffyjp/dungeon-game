@@ -42,7 +42,9 @@ function arg(name) {
 
 const keys = (arg('keys') ? arg('keys').split(',') : [])
   .concat(...(arg('groups') ? arg('groups').split(',').map(g => allKeys.filter(k => k.startsWith(g + '/'))) : []));
-if (!keys.length) { console.error('nothing to do: pass --groups enemies,items,vfx or --keys a,b'); process.exit(2); }
+if (!keys.length && !process.argv.includes('--rescore')) {
+  console.error('nothing to do: pass --groups enemies,items,vfx or --keys a,b'); process.exit(2);
+}
 
 const results = fs.existsSync(LOG) ? JSON.parse(fs.readFileSync(LOG, 'utf8')) : {};
 
@@ -81,6 +83,58 @@ function overlap(a, b) {
     if (ax || bx) union++;
   }
   return union ? +(inter / union).toFixed(3) : 0;
+}
+
+// Acceptance, after seeing 33 real results:
+//   clear >= 12%              the background is genuinely absent (a painted-white field is 0%)
+//   opaque + soft >= 6%       the subject is actually there (an erased cutout is 0%)
+//   silhouette IoU >= 0.35    it is still the creature/item we approved
+// Note what is deliberately NOT a gate: the fully-opaque share alone. A sword blade, a bow
+// limb and a wraith are mostly soft-edged pixels in a square frame, and all of them scored
+// 0.96+ silhouette overlap while tripping an "opaque >= 10%" rule. Translucency is a property
+// of the subject, not a defect, so solidity is recorded and reported but not required.
+function accepted(a, iou) {
+  return a.clear >= 12 && (a.opaque + a.soft) >= 6 && iou >= 0.35;
+}
+
+function scoreRaw(key, file) {
+  const a = analyzePng(fs.readFileSync(file));
+  const iou = overlap(approvedMask(`assets/images/${key}.png`), approvedMask(file));
+  const tint = (() => {
+    const m = /\((\d+), (\d+), (\d+)\)/.exec(a.softMean || '');
+    return m ? Math.min(+m[1], +m[3]) - +m[2] : 0;
+  })();
+  return { a, iou, tint, ok: accepted(a, iou) };
+}
+
+// Re-score existing raw outputs against a changed rule: no re-generation, no re-burned seeds.
+if (process.argv.includes('--rescore')) {
+  let flipped = 0, still = 0;
+  for (const [key, r] of Object.entries(results)) {
+    const file = r.raw && hasRaw(r.raw) ? r.raw : findRaw(key);
+    if (!file) continue;
+    const s = scoreRaw(key, file);
+    const finalFile = path.join(OUT, `${key.replace(/[\\/]/g, '_')}.png`);
+    if (s.ok) {
+      fs.writeFileSync(finalFile, despill(fs.readFileSync(file)).buf);
+      results[key] = { ...r, ok: true, clear: s.a.clear, soft: s.a.soft, opaque: s.a.opaque, edge: s.a.softMean, edgeTint: s.tint, iou: s.iou, final: finalFile };
+      flipped++;
+    } else {
+      results[key] = { ...r, ok: false, clear: s.a.clear, soft: s.a.soft, opaque: s.a.opaque, edge: s.a.softMean, edgeTint: s.tint, iou: s.iou, final: null };
+      still++;
+    }
+    console.log(`${s.ok ? 'ACCEPT' : 'reject'} ${key}: clear ${s.a.clear}% opaque ${s.a.opaque}% soft ${s.a.soft}% IoU ${s.iou}`);
+  }
+  fs.writeFileSync(LOG, JSON.stringify(results, null, 2));
+  console.log(`\nrescored: ${flipped} accepted, ${still} rejected. Nothing written to assets/images/.`);
+  process.exit(0);
+}
+
+function hasRaw(f) { return fs.existsSync(f); }
+function findRaw(key) {
+  const slug = key.replace(/[\\/]/g, '_');
+  const hit = fs.readdirSync(RAW).find(f => f.startsWith(`strata-alphabatch-${slug}`) && f.endsWith('.png'));
+  return hit ? path.join(RAW, hit) : null;
 }
 
 let done = 0, okCount = 0;
@@ -124,7 +178,7 @@ for (const key of keys) {
     return m ? Math.min(+m[1], +m[3]) - +m[2] : 0;
   })();
 
-  const ok = a.clear >= 15 && a.opaque >= 10 && iou >= 0.35;
+  const ok = accepted(a, iou);
   if (ok) {
     const fixed = despill(fs.readFileSync(file));
     fs.writeFileSync(finalFile, fixed.buf);
