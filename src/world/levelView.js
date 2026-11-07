@@ -4,7 +4,7 @@
 
 import * as THREE from 'three';
 import { CFG } from '../config.js';
-import { getTexture, getMirroredTexture, hasAsset, hasNormalFor, getMirroredNormalTexture, hasRoughnessFor, getMirroredRoughnessTexture } from '../render/assets.js';
+import { getTexture, getMirroredTexture, hasAsset, hasNormalFor, getMirroredNormalTexture, hasRoughnessFor, getMirroredRoughnessTexture, hasHeightFor, getMirroredHeightTexture } from '../render/assets.js';
 import { makeProp, makePillar, makeStaircase, makeTorch } from './propMeshes.js';
 import { isOpen } from '../util/grid.js';
 
@@ -52,6 +52,18 @@ function tileNormal(key, repeat) {
 function tileRough(key, repeat) {
   if (!hasRoughnessFor(key)) return null;
   const t = getMirroredRoughnessTexture(key);
+  t.repeat.set(repeat[0] / 2, repeat[1] / 2);
+  return t;
+}
+
+// Displacement, paired by the same naming rule (textures/wall_crypt -> heights/wall_crypt).
+// Only walls and props use it: the floor and ceiling are each one quad spanning the whole
+// level, so per-tile relief there would need a vertex every few centimetres across the map —
+// that is a different, much more expensive piece of geometry, not a material option.
+const dispWanted = () => CFG.displacementSegments > 1 && CFG.displacementScale !== 0;
+function tileHeight(key, repeat) {
+  if (!dispWanted() || !hasHeightFor(key)) return null;
+  const t = getMirroredHeightTexture(key);
   t.repeat.set(repeat[0] / 2, repeat[1] / 2);
   return t;
 }
@@ -139,15 +151,24 @@ export function buildLevelView(level, biome) {
       if (visible) instances.push({ x, y });
     }
   }
-  const wallTex = tileTex(`textures/${biome.wall}`, [1, CFG.wallH / CFG.cell]);
+  const wallKey = `textures/${biome.wall}`;
+  const wallRepeat = [1, CFG.wallH / CFG.cell];
+  const wallHeight = tileHeight(wallKey, wallRepeat);
+  // Segments only when there is something to displace: a level whose tile has no height map
+  // keeps the 24-vertex box it has always used, so this cannot cost anything by accident.
+  const wallSeg = wallHeight ? CFG.displacementSegments : 1;
+  const wallTex = tileTex(wallKey, wallRepeat);
   const wallMesh = new THREE.InstancedMesh(
-    new THREE.BoxGeometry(CFG.cell, CFG.wallH, CFG.cell),
+    new THREE.BoxGeometry(CFG.cell, CFG.wallH, CFG.cell, wallSeg, wallSeg, wallSeg),
     new THREE.MeshStandardMaterial({
       map: wallTex,
-      normalMap: tileNormal(`textures/${biome.wall}`, [1, CFG.wallH / CFG.cell]),
+      normalMap: tileNormal(wallKey, wallRepeat),
       normalScale: bumpVec(),
-      roughnessMap: tileRough(`textures/${biome.wall}`, [1, CFG.wallH / CFG.cell]),
-      roughness: 0.88, metalness: 0.08
+      roughnessMap: tileRough(wallKey, wallRepeat),
+      roughness: 0.88, metalness: 0.08,
+      displacementMap: wallHeight,
+      displacementScale: wallHeight ? CFG.displacementScale : 1,
+      displacementBias: wallHeight ? CFG.displacementBias : 0
     }),
     instances.length
   );

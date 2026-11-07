@@ -41,7 +41,7 @@
 <script type="module">
 import * as THREE from 'three';
 import biomes from './data/biomes.json';
-import { loadMirroredTexture, loadMirroredNormalTexture, loadMirroredRoughnessTexture } from './src/render/assets.js';
+import { loadMirroredTexture, loadMirroredNormalTexture, loadMirroredRoughnessTexture, loadMirroredHeightTexture } from './src/render/assets.js';
 
 const W = 260, H = 164;
 const biome = biomes.crypt || Object.values(biomes)[0];
@@ -75,7 +75,7 @@ function makeScene(headlampOffset, torch) {
   }
   scene.add(camera);
 
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3), new THREE.MeshStandardMaterial());
+  const wall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3, 48, 24), new THREE.MeshStandardMaterial());
   wall.position.set(0, 1.5, -3);
   scene.add(wall);
   return { scene, camera, wall };
@@ -84,7 +84,8 @@ function makeScene(headlampOffset, torch) {
 const albedo = await loadMirroredTexture('textures/wall_crypt');
 const normal = await loadMirroredNormalTexture('textures/wall_crypt');
 const rough = await loadMirroredRoughnessTexture('textures/wall_crypt');
-for (const t of [albedo, normal, rough]) if (t) t.repeat.set(1, 0.85);
+const height = await loadMirroredHeightTexture('textures/wall_crypt');
+for (const t of [albedo, normal, rough, height]) if (t) t.repeat.set(1, 0.85);
 
 // The alternative albedo: the same wall re-rendered by the image model as a flat, evenly lit
 // diffuse surface, because these tiles have their shading baked in and a baked-in shadow is
@@ -103,7 +104,7 @@ const setups = [
 const mats = [
   { label: 'baked albedo, no sheen', roughness: 0.88, metalness: 0.08, roughnessMap: null, albedo: albedo },
   { label: 'baked albedo + sheen', roughness: 0.88, metalness: 0.08, roughnessMap: rough, albedo: albedo },
-  { label: 'FLAT albedo + sheen', roughness: 0.88, metalness: 0.08, roughnessMap: rough, albedo: flatAlb }
+  { label: 'displaced 6 cm + sheen', roughness: 0.88, metalness: 0.08, roughnessMap: rough, albedo: albedo, disp: 0.06 }
 ];
 const scales = [0, 1.4, 8.0];
 
@@ -126,6 +127,9 @@ for (const s of setups) {
     m.roughness = mt.roughness;
     m.metalness = mt.metalness;
     m.roughnessMap = mt.roughnessMap;
+    m.displacementMap = mt.disp ? height : null;
+    m.displacementScale = mt.disp || 1;
+    m.displacementBias = mt.disp ? -mt.disp / 2 : 0;
     m.normalMap = normal;
     m.needsUpdate = true;
 

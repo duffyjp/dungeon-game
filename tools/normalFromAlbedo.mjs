@@ -35,6 +35,7 @@ const INVERT_Y = process.argv.includes('--invertY');
 const OUT = arg('out', 'assets/images/normals');
 const FORMAT = arg('format', 'webp');
 const ROUGHNESS = process.argv.includes('--roughness');
+const HEIGHT = process.argv.includes('--height');
 const WEBP_Q = Number(arg('webp-quality', 92));
 const SRC_DIR_ARG = arg('src-dir', 'assets/images/textures');
 const keys = process.argv.includes('--all-tiles')
@@ -157,6 +158,26 @@ for (const key of keys) {
   // moving across the high points as the torch swings, and that is a roughness effect, not
   // a diffuse one. Joints stay rough (they are occluded and damp); the worn faces get wetter
   // and catch the light.
+  // Optional companion height map: the blurred luminance field itself, which is what a
+  // displacement map consumes. Unlike the normal map this is real geometry, so it needs
+  // tessellated meshes and is paid for in vertices rather than texels.
+  if (HEIGHT) {
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < H.length; i++) { if (H[i] < lo) lo = H[i]; if (H[i] > hi) hi = H[i]; }
+    const hg = Buffer.alloc(SIZE * SIZE * 3);
+    for (let i = 0; i < H.length; i++) {
+      const v = Math.round(255 * (H[i] - lo) / Math.max(1e-6, hi - lo));
+      hg[i * 3] = hg[i * 3 + 1] = hg[i * 3 + 2] = v;
+    }
+    const hpath = path.join(path.resolve(ROOT, arg('height-out', 'assets/images/heights')), `${key}.png`);
+    fs.mkdirSync(path.dirname(hpath), { recursive: true });
+    fs.writeFileSync(hpath, encodePng(SIZE, SIZE, 3, hg));
+    if (FORMAT === 'webp') {
+      execFileSync(FFMPEG, ['-y', '-loglevel', 'error', '-i', hpath, '-c:v', 'libwebp', '-pix_fmt', 'yuva444p',
+        '-lossless', '0', '-quality', '92', '-compression_level', '6', hpath.replace(/\.png$/, '.webp')], { stdio: ['ignore', 'pipe', 'pipe'] });
+      fs.unlinkSync(hpath);
+    }
+  }
   if (ROUGHNESS) {
     let lo = Infinity, hi = -Infinity;
     for (let i = 0; i < H.length; i++) { if (H[i] < lo) lo = H[i]; if (H[i] > hi) hi = H[i]; }

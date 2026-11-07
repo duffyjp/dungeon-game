@@ -344,6 +344,54 @@ export async function loadMirroredRoughnessTexture(key) {
   return getMirroredRoughnessTexture(key);
 }
 
+// Height companion for displacement. Same shape as the roughness composite — a scalar field,
+// mirrored geometrically, linear colour space — and consumed by the vertex shader, which is
+// why the mesh has to be subdivided: displacement moves vertices, and a wall box with one
+// quad per face has four corners to move.
+const scalarMirrorCache = new Map();
+
+function mirroredScalar(folder, key) {
+  const skey = `${folder}/${key.split('/').pop()}`;
+  if (scalarMirrorCache.has(skey)) return scalarMirrorCache.get(skey);
+  const src = getTexture(skey);
+  const img = src.image;
+  if (!img || !img.width) return src;
+  const s = Math.min(img.width, 512);
+  const c = document.createElement('canvas');
+  c.width = c.height = s * 2;
+  const g = c.getContext('2d');
+  for (let ty = 0; ty < 2; ty++) {
+    for (let tx = 0; tx < 2; tx++) {
+      g.save();
+      g.translate(tx * s, ty * s);
+      g.scale(tx ? -1 : 1, ty ? -1 : 1);
+      g.drawImage(img, tx ? -s : 0, ty ? -s : 0, s, s);
+      g.restore();
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.NoColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.needsUpdate = true;
+  scalarMirrorCache.set(skey, tex);
+  return tex;
+}
+
+export function hasHeightFor(key) {
+  return hasAsset(`heights/${key.split('/').pop()}`);
+}
+
+export function getMirroredHeightTexture(key) {
+  return mirroredScalar('heights', key);
+}
+
+export async function loadMirroredHeightTexture(key) {
+  const hkey = `heights/${key.split('/').pop()}`;
+  if (!hasAsset(hkey)) return null;
+  await loadTexture(hkey, { keyed: false });
+  return getMirroredHeightTexture(key);
+}
+
 export async function preloadAll(keys) {
   const results = await Promise.allSettled(keys.map(k => loadTexture(k)));
   const failed = results

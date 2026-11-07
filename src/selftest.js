@@ -9,7 +9,7 @@ import enemiesData from '../data/enemies.json';
 import biomeData from '../data/biomes.json';
 import { makeProp } from './world/propMeshes.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
-import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, getMirroredNormalTexture } from './render/assets.js';
+import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, hasHeightFor, getMirroredNormalTexture } from './render/assets.js';
 import { animationFor, loadFrames, animationSupported, animationDiagnostic } from './render/animation.js';
 
 export async function runSelfTest(game) {
@@ -388,6 +388,19 @@ export async function runSelfTest(game) {
     const missingRough = surfaceKeys.filter(k => !hasRoughnessFor(k));
     ok('every biome surface ships a roughness map', missingRough.length === 0,
       `${surfaceKeys.length - missingRough.length}/${surfaceKeys.length} paired${missingRough.length ? ` — missing: ${missingRough.join(', ')}` : ''}`);
+    const missingHeights = surfaceKeys.filter(k => !hasHeightFor(k));
+    ok('every biome wall surface ships a height map for displacement', missingHeights.length === 0,
+      `${surfaceKeys.length - missingHeights.length}/${surfaceKeys.length} paired${missingHeights.length ? ` — missing: ${missingHeights.join(', ')}` : ''}`);
+
+    // Displacement is geometry, so the honest guard is the vertex/triangle cost of the real
+    // scene, read from the renderer rather than estimated in a comment.
+    if (game.renderer) {
+      game.renderer.render(game.scene, game.camera);
+      const info = game.renderer.info.render;
+      ok('displacement keeps the live scene inside a sane triangle budget',
+        info.triangles < 1500000,
+        `${info.triangles.toLocaleString()} triangles, ${info.calls} draw calls, ${CFG.displacementSegments} subdivisions per wall face`);
+    }
     const wm2 = game.levelView && game.levelView.wallMesh && game.levelView.wallMesh.material;
     ok('the wall material carries both a normal map and a roughness map',
       Boolean(wm2 && wm2.normalMap && wm2.roughnessMap),

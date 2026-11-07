@@ -4,11 +4,19 @@
 export const CFG = {
   // art
   // Bump strength for every surface that ships a normal map, overridable with ?bump=N so a
-  // scene can be compared against itself. Measured in the live game, not by eye: at 1.4 the
-  // framebuffer barely moves (0.03% of pixels) and the effect is invisible; by 4 the relief is
-  // unmistakable and returns are already flattening (3.5% of the frame at 4 against 3.9% at
-  // 8), so 3.0 sits at the point where it reads clearly without the masonry looking embossed.
-  bumpScale: 3.0,
+  // scene can be compared against itself. Measured in the live game: the effect saturates
+  // past 4 (3.5% of the frame at 4, 3.9% at 8) and the owner judged anything that loud to be
+  // too heavy, so this sits lower and displacement below carries the physical depth instead.
+  bumpScale: 1.8,
+
+  // Displacement is real geometry, so it is paid for in vertices rather than texels.
+  // tools/dispCost.mjs measures it: 8 subdivisions per wall face puts the deepest level at
+  // 268k triangles against 4.2k today, which a GPU shrugs off. What it cannot do is express
+  // relief finer than cell/displacementSegments ≈ 0.25 m, so it moves the blocks while the
+  // normal map keeps carrying the joint lines and grain.
+  displacementSegments: 8,
+  displacementScale: 0.055,   // metres of travel across the height range
+  displacementBias: -0.028,   // centred, so blocks neither all bulge nor all recede
 
   // world
   cell: 2.0,                 // metres per grid cell

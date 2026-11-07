@@ -42,6 +42,10 @@ const params = new URLSearchParams(location.search);
 {
   const b = Number(params.get('bump'));
   if (params.has('bump') && Number.isFinite(b)) CFG.bumpScale = b;
+  // ?disp=N sets subdivisions per wall face; 0 turns displacement off entirely and returns
+  // the walls to a 24-vertex box.
+  const d = Number(params.get('disp'));
+  if (params.has('disp') && Number.isFinite(d)) CFG.displacementSegments = Math.max(1, Math.round(d));
 }
 
 export class Game {
