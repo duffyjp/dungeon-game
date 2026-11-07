@@ -174,52 +174,72 @@ node tools/probeHost.mjs 10.1.1.1         # which port a given machine actually 
   1 GB free while the Z-Image pipeline is resident. No upscaler, ControlNet or IP-Adapter
   models installed. Everything in `assets/images/` came from **Z-Image Turbo, which is Apache
   2.0**, so every shipped pixel has a clean chain of title.
-- **`10.1.1.1`** — a second machine holding **Qwen-Image-2.1** (int8 conversion, and an
-  image-*editing* graph rather than text-to-image). As of 2026-11-06 it is **not reachable
-  from here**: a sweep of 21,001 ports found only Windows services (135, 445, 3389, 7680),
-  which is what a box looks like when ComfyUI is either not running or bound to `127.0.0.1`
-  — its default — or blocked by the Windows Firewall. Reaching it needs
-  `--listen 0.0.0.0` on that machine plus an inbound rule for its port.
-- **The licence is the reason to be careful about that second box, not the network.**
-  Qwen-Image-2.1 ships under the **Qwen Research License**: "Non-Commercial shall mean for
-  research or evaluation purposes only", commercial use requires a separate agreement with
-  Alibaba, and a quantised conversion of the weights inherits those terms. The model does
-  generate RGBA natively — the capability Z-Image lacks — which is exactly why it is worth
-  writing down: **nothing produced by that box may enter `assets/images/` for this game
-  unless a commercial licence is in hand.** Record the model and licence in the manifest for
-  every asset so that rule is auditable rather than remembered.
+- **`http://10.1.1.1:8188`** — the second machine: **RTX 5070 Ti, 16 GB with ~14.7 GB free**,
+  ComfyUI 0.44, reachable since ComfyUI there was started with `--listen 0.0.0.0`. It holds
+  **Qwen-Image-2.1** (int8) plus an image-*editing* graph, and also `z_image_turbo` in bf16 and
+  int8, so the Apache-licensed house model can run on the faster card too. Upscalers and
+  ControlNets are still not installed on either box.
+- **Licensing, and the decision recorded against it.** Qwen-Image-2.1 ships under the **Qwen
+  Research License**: "Non-Commercial shall mean for research or evaluation purposes only",
+  with commercial use requiring a separate agreement, and a quantised conversion inherits
+  that. The repository owner reviewed the terms on 2026-11-06 and is comfortable shipping
+  images from it. That decision is only safe if it is auditable: every asset made with a
+  non-Apache model must record the model and licence in `assets/images/manifest.json` (and
+  `workflows/*.json` carries the note next to the graph), so "which pixels came from where"
+  is a lookup rather than a memory.
 
 ## Trying the second box: real transparency instead of a magenta field
 
 The chroma-key pipeline is a workaround for a generator that cannot emit alpha. The Qwen box
-can, so the experiment was worth running — and it works, with one caveat that changes how it
-should be used.
+can, but only if you ask in a specific way and then check what came back.
 
 ```
+# 1. Ask with the alpha framing, enhancer switched off so the wording reaches the image model
 node tools/comfyRun.mjs --graph workflows/qwen_image_edit.json \
-  --upload assets/images/vfx/magic_orb.png --image-node 470 \
-  --set "459:500.prompt=Remove the flat background around the subject so it sits on full transparency, keeping the subject itself unchanged" \
-  --set "459:484.on_false=the same instruction" \
-  --set "459:458.seed=44201" --set "461.filename_prefix=strata-qwen" --out experiments/qwen
-npm run qa:alpha        # alphacheck.png: shipped-and-keyed vs the alpha result, with measurements
+  --upload assets/images/vfx/ghost_trail.png --image-node 470 \
+  --set "459:484.switch=false" \
+  --set "459:484.on_false=the image contains an alpha channel. Remove the background so the subject floats on nothing, keeping the subject itself unchanged: same shape, same colours, same soft feathered edges transparent background" \
+  --set "459:458.seed=44210" --set "461.filename_prefix=strata-alphaframed" --out experiments/qwen
+
+# 2. Validate it. Never trust "it saved a PNG".
+node tools/pngAlpha.mjs experiments/qwen/strata-alphaframed-44210_00001.png
+
+# 3. Repair the edge band, then look at it in context
+node tools/alphaDespill.mjs experiments/qwen/strata-alphaframed-44210_00001.png experiments/qwen/vapour.png
+npm run qa:alpha
 ```
 
-- **All three test sprites came back as genuine RGBA** (colour type 6), with soft feathered
-  edges that carry no colour cast — the glow halo the magic orb wanted but the keyer kept
-  eating is simply there now, and the vapour has real depth instead of a matte outline.
-- **It is a generator, not a cutout tool.** Given "remove the background, keep the subject
-  unchanged", it removed the background and *repainted the subject*: the vapour came back
-  bigger and billowier, the orb gained detail. Useful for commissioning soft effects; useless
-  as a lossless conversion of art you already approved.
-- **Engine side:** `render/assets.js` now detects a real alpha channel from the pixels and
-  skips chroma keying for that asset, so keyed and alpha art can sit in the same folder. The
-  integration suite asserts the detection both ways (42/42).
-- **Nothing from `experiments/` ships.** That folder is gitignored and outside the asset glob;
+- **Without the framing it does not work.** Asked plainly to remove the background, the model
+  paints the field **white** and writes alpha 255 across the whole frame: colour type 6,
+  measured 0.0% clear pixels. A checker or an eyeball at thumbnail size both read that as
+  "transparent". The framing that does work starts the instruction with
+  *"the image contains an alpha channel."* and ends it with *"transparent background"*, with
+  the graph's prompt enhancer switched off so nothing paraphrases it away: measured 29–30%
+  clear, 15–18% opaque subject, across three seeds.
+- **The soft edge comes back violet, and it is the model's doing, not the input's.** Feeding a
+  magenta field gave an edge band of `rgb(166, 89, 200)`; feeding a white field gave
+  `rgb(179, 113, 207)`. Over stone floor that is a purple halo — the pink-fringe complaint
+  wearing a different hat. `tools/alphaDespill.mjs` pulls only the semi-transparent band toward
+  the subject's own core colour and leaves every opaque pixel untouched: `rgb(216, 80, 220)`
+  (magenta 0.53) became `rgb(218, 217, 221)` (magenta 0.00) with the alpha distribution
+  unchanged.
+- **It is a generator, not a cutout tool.** It repaints the subject while removing the
+  background — the vapour came back bigger and billowier — so it can't convert approved art
+  losslessly. Judge every attempt: the run prints clear/soft/opaque shares and a verdict, and
+  flags a coloured fringe; `tools/testPngAlpha.mjs` keeps the measurer itself honest (8 unit
+  tests, part of `npm test`), including the exact false positive of an RGBA file whose alpha is
+  opaque everywhere.
+- **Engine side:** `render/assets.js` detects a real alpha channel from the pixels and skips
+  chroma keying for that asset, so keyed and transparent art can share a folder. Asserted both
+  ways by the integration suite (42/42).
+- **Still broken:** the server-side colour-mask cutout (`workflows/alpha_cutout.json`).
+  `ColorToMask` returns a uniform mask whatever threshold and polarity I give it, so the output
+  is either all clear or all opaque. The box has SAM3 nodes, which is the better tool for
+  hard-edged sprites; that path is untried.
+- **Nothing from `experiments/` ships.** The folder is gitignored and outside the asset glob;
   promoting an experiment means moving it into `assets/images/` and recording the model and
-  licence in `assets/images/manifest.json` at the same time.
-- The graph itself lives at `workflows/qwen_image_edit.json` with its patch rules written next
-  to it: only the edit instruction, the input image, the seed, the step count and the filename
-  prefix may be touched — same discipline as the `z_image_turbo` template, different model.
+  licence in the manifest in the same change. Graphs live in `workflows/` with their patch
+  rules written beside them — same discipline as `z_image_turbo`, different model.
 
 ## Adding music
 

@@ -16,6 +16,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'node:crypto';
+import { analyzePng } from './pngAlpha.mjs';
 
 const HOSTS = (process.env.COMFY_HOSTS || 'http://10.1.1.1:8188,http://10.0.0.99:8000').split(',');
 const TIMEOUT_MS = Number(process.env.COMFY_RUN_TIMEOUT || 20 * 60 * 1000);
@@ -135,11 +136,13 @@ const outDir = arg('out') || 'experiments/comfy';
 fs.mkdirSync(outDir, { recursive: true });
 
 function pngInfo(buf) {
-  // IHDR: width, height, bit depth, colour type. 6 = RGBA, 4 = gray+alpha, 2 = RGB.
-  if (buf.length < 29 || buf.readUInt32BE(12) !== 0x49484452) return { note: 'not a PNG IHDR' };
-  const colorType = buf[25];
-  const names = { 0: 'grayscale', 2: 'RGB, opaque', 3: 'palette', 4: 'gray + alpha', 6: 'RGBA — real alpha channel' };
-  return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20), colorType, kind: names[colorType] || `type ${colorType}` };
+  // Colour type alone is not evidence of transparency, so measure the pixels instead.
+  try {
+    const r = analyzePng(buf);
+    return { w: r.w, h: r.h, kind: `colour type ${r.colorType}`, clear: r.clear, soft: r.soft, opaque: r.opaque, softMean: r.softMean, verdict: r.verdict || r.unsupported };
+  } catch (e) {
+    return { note: `could not analyse (${e.message})` };
+  }
 }
 
 const produced = [];
@@ -156,6 +159,22 @@ for (const out of Object.values(entry.outputs || {})) {
 
 if (!produced.length) { console.log('the run finished but produced no images'); process.exit(1); }
 for (const p of produced) {
-  console.log(`${p.file}  ${p.w}x${p.h}  ${(p.bytes / 1024).toFixed(1)} KB  ${p.kind}${p.kind.includes('alpha') ? '' : '  <-- no transparency'}`);
+  const line = p.verdict
+    ? `${p.w}x${p.h}  clear ${p.clear}%  soft ${p.soft}% (${p.softMean})  opaque ${p.opaque}%  — ${p.verdict}`
+    : `${p.w}x${p.h}  ${p.kind || ''} ${p.note || ''}`;
+  console.log(`${p.file}\n  ${(p.bytes / 1024).toFixed(1)} KB  ${line}`);
 }
+// An all-clear image is not a successful cutout, it is a deleted subject, so the pass
+// condition needs both halves of the frame present.
+const anyReal = produced.some(p => (p.clear || 0) >= 15 && (p.opaque || 0) >= 12);
+const castOf = mean => {
+  const m = /\((\d+), (\d+), (\d+)\)/.exec(mean || '');
+  if (!m) return null;
+  const [r, g, b] = [+m[1], +m[2], +m[3]];
+  return Math.min(r, b) - g;            // positive means magenta/violet in the edge band
+};
+const castTint = produced.find(p => (p.soft || 0) > 10 && castOf(p.softMean) > 20);
+console.log(anyReal ? 'RESULT: at least one output has a genuinely transparent background'
+  : 'RESULT: no output has both a clear background and an opaque subject, whatever the colour type says');
+if (castTint) console.log(`NOTE: the soft edge band of ${castTint.file.split(/[\\/]/).pop()} carries a coloured fringe (${castTint.softMean}) — check it against the background of the image you fed in`);
 console.log(`\nmodel: ${wrapped.model || 'unknown'}\nlicence: ${wrapped.licence || 'RECORD IT before this asset goes anywhere near assets/images/'}`);

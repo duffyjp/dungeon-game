@@ -15,18 +15,19 @@
 </style></head>
 <body>
 <h1>EXPERIMENTS: alpha output vs the chroma-key pipeline</h1>
-<p class="note">Column 1 is the shipped sprite through the engine's runtime chroma keyer. Column 2 is what the Qwen-Image-2.1 edit pass returned. Column 3 is the same source image cut out on the server with a colour mask, and column 4 is that cutout drawn over crypt floor the way the engine would draw it. The table measures the FILES — transparent share, soft-edge share, and the colour left inside the soft band, which is where a pink halo used to live.</p>
+<p class="note">Column 1 is the shipped sprite through the engine's runtime chroma keyer. Column 2 is the edit pass that merely painted the background white — an alpha channel, no transparency, which is why it is shown over a checkerboard. Column 3 is the same model with the alpha framing in the prompt ("the image contains an alpha channel." at the start, "transparent background" at the end, enhancer switched off), drawn over crypt floor the way the engine draws it. Column 4 is that file after the violet edge band was despilled. The table measures the FILES.</p>
 <div id="rows"></div>
 <table id="stats"><tr><th>file</th><th>fully clear</th><th>soft edge (alpha 1–254)</th><th>mean colour in the soft band</th><th>magenta cast</th></tr></table>
 <div id="done">working…</div>
 <script type="module">
 import { chromaKeyCanvas } from './src/render/chromaKey.js';
 
+// [key, painted-background output, framed-prompt alpha output, that file after despilling]
 const CASES = [
-  ['vfx/ghost_trail', 'experiments/qwen/strata-qwen-ghost_trail_00001.png', 'experiments/cutouts/strata-cut-ghost_trail_00001.png'],
-  ['vfx/magic_orb', 'experiments/qwen/strata-qwen-magic_orb_00001.png', 'experiments/cutouts/strata-cut-magic_orb_00001.png'],
-  ['vfx/slime_splat', 'experiments/qwen/strata-qwen-slime_splat_00001.png', 'experiments/cutouts/strata-cut-slime_splat_00001.png'],
-  ['enemies/t1/goblin_archer', null, 'experiments/cutouts/strata-cut-goblin_archer_00001.png']
+  ['vfx/ghost_trail',
+    'experiments/qwen/strata-qwen-ghost_trail_00001.png',
+    'experiments/qwen/strata-alphaframed-44210_00001.png',
+    'experiments/qwen/ghost_trail_alpha_despilled.png']
 ];
 const SIZE = 260;
 
@@ -87,11 +88,12 @@ function statsOf(source) {
   const stats = document.getElementById('stats');
   let built = 0;
 
-  for (const [key, qwenUrl, cutUrl] of CASES) {
+  for (const [key, paintedUrl, framedUrl, despilledUrl] of CASES) {
     const shipped = await img(`assets/images/${key}.png`);
-    const qwen = qwenUrl ? await img(qwenUrl) : null;
-    const cut = cutUrl ? await img(cutUrl) : null;
-    if (!cut && !qwen) { console.warn('nothing to compare for', key); continue; }
+    const painted = paintedUrl ? await img(paintedUrl) : null;
+    const framed = framedUrl ? await img(framedUrl) : null;
+    const fixed = despilledUrl ? await img(despilledUrl) : null;
+    if (!framed) { console.warn('nothing to compare for', key); continue; }
 
     // column 1: the shipped asset through the engine's runtime keyer, over crypt floor
     const c1 = canvas(); const g1 = c1.getContext('2d');
@@ -103,30 +105,31 @@ function statsOf(source) {
       g1.drawImage(work, 0, 0);
     }
 
-    // column 2: the model's alpha output over a checkerboard
+    // column 2: the pass that only looks transparent — over a checkerboard so the fake shows
     const c2 = canvas(); const g2 = c2.getContext('2d');
-    if (qwen) { checker(g2); g2.drawImage(qwen, 0, 0, SIZE, SIZE); }
+    if (painted) { checker(g2); g2.drawImage(painted, 0, 0, SIZE, SIZE); }
 
-    // column 3: the server-side cutout over a checkerboard
+    // column 3: the framed prompt, real alpha, drawn over floor as the engine would
     const c3 = canvas(); const g3 = c3.getContext('2d');
-    if (cut) { checker(g3); g3.drawImage(cut, 0, 0, SIZE, SIZE); }
+    g3.drawImage(floor, 0, 0);
+    g3.drawImage(framed, 0, 0, SIZE, SIZE);
 
-    // column 4: the cutout over floor, normal blending — what the engine would draw
+    // column 4: the same file after the edge band was despilled
     const c4 = canvas(); const g4 = c4.getContext('2d');
     g4.drawImage(floor, 0, 0);
-    if (cut) g4.drawImage(cut, 0, 0, SIZE, SIZE);
+    if (fixed) g4.drawImage(fixed, 0, 0, SIZE, SIZE);
 
     const row = document.createElement('div');
     row.className = 'row';
     row.innerHTML = `<div class="cell"><div class="lab"><b>${key}</b><br>shipped, runtime chroma key</div></div>
-                     <div class="cell"><div class="lab">Qwen edit output over checker${qwen ? '' : ' (n/a)'}</div></div>
-                     <div class="cell"><div class="lab">ComfyUI cutout over checker</div></div>
-                     <div class="cell"><div class="lab">ComfyUI cutout over floor</div></div>`;
+                     <div class="cell"><div class="lab">edit pass: alpha channel, painted background (checker)</div></div>
+                     <div class="cell"><div class="lab">framed prompt: real alpha over floor</div></div>
+                     <div class="cell"><div class="lab">same file, edge band despilled</div></div>`;
     const cellNodes = [...row.querySelectorAll('.cell')];
     [c1, c2, c3, c4].forEach((cv, i) => cellNodes[i].prepend(cv));
     rows.appendChild(row);
 
-    for (const [label, src] of [[qwenUrl, qwen && alphaOnly(qwen)], [cutUrl, cut && alphaOnly(cut)]]) {
+    for (const [label, src] of [[framedUrl, alphaOnly(framed)], [despilledUrl, fixed && alphaOnly(fixed)]]) {
       if (!label || !src) continue;
       const s = statsOf(src);
       const tr = document.createElement('tr');
