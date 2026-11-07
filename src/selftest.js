@@ -8,6 +8,7 @@ import enemiesData from '../data/enemies.json';
 import { makeProp } from './world/propMeshes.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
 import { hasAsset, hasRealAlpha } from './render/assets.js';
+import { animationFor, loadFrames, animationSupported, animationDiagnostic } from './render/animation.js';
 
 export async function runSelfTest(game) {
   const results = [];
@@ -341,6 +342,55 @@ export async function runSelfTest(game) {
     const a = game.buildSeedSnapshot('repro');
     const b = game.buildSeedSnapshot('repro');
     ok('same seed reproduces the same layout', a === b, a === b ? a : 'mismatch');
+
+    // ---- sprite animation (spec 13.8) ------------------------------------
+    // A clip that exists on disk proves nothing about the game; what matters is that the
+    // frames can be named, that they still have transparency once decoded, and that a
+    // walking creature actually changes frame while a standing one does not.
+    const animKey = 'enemies/t1/cellar_spider';
+    const entry = animationFor(animKey, 'walk');
+    ok('an animated clip is registered for a tier-1 enemy', Boolean(entry),
+      entry ? `${entry.frames} frames (boomerang of ${entry.uniqueFrames}), ${Math.round(entry.bytes / 1024)} KB` : 'none found');
+    if (entry) {
+      ok('this browser can decode animated frames', animationSupported(),
+        animationSupported() ? 'ImageDecoder present' : 'no WebCodecs: billboards stay static by design');
+      const tex = await loadFrames(entry);
+      ok('the animated WebP decodes into the expected frames', Array.isArray(tex) && tex.length === entry.frames,
+        tex ? `${tex.length} frames` : `no frames — ${animationDiagnostic()}`);
+      if (tex && tex.length) {
+        const grab = (t) => {
+          const c = document.createElement('canvas'); c.width = t.userData.w; c.height = t.userData.h;
+          c.getContext('2d', { willReadFrequently: true }).drawImage(t.image, 0, 0);
+          return c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+        };
+        const d0 = grab(tex[0]), dn = grab(tex[Math.min(8, tex.length - 1)]);
+        let clear = 0, solid = 0, diff = 0;
+        for (let i = 0; i < d0.length; i += 4) {
+          const a = d0[i + 3];
+          if (a < 40) clear++; else if (a >= 216) solid++;
+          if (Math.abs(a - dn[i + 3]) + Math.abs(d0[i] - dn[i]) > 24) diff++;
+        }
+        const n = d0.length / 4;
+        ok('decoded frames keep real transparency',
+          (100 * clear / n) > 5 && (100 * solid / n) > 5,
+          `${(100 * clear / n).toFixed(1)}% clear, ${(100 * solid / n).toFixed(1)}% opaque`);
+        ok('frame 0 and frame 8 are different pictures', (100 * diff / n) > 1,
+          `${(100 * diff / n).toFixed(1)}% of pixels differ`);
+
+        const spider = game.enemies.find(e => e.spriteKey === animKey) || game.enemies[0];
+        if (spider) {
+          spider.anim.requested = true; spider.anim.frames = tex; spider.anim.entry = entry; spider.anim.idx = -1;
+          spider.tickAnimation(0.09, 0.6);
+          const first = spider.anim.idx;
+          spider.tickAnimation(0.09, 0.6);
+          ok('a creature covering ground advances frames', spider.anim.idx !== first,
+            `frame ${first} -> ${spider.anim.idx}`);
+          spider.tickAnimation(0.016, 0);
+          ok('a creature standing still goes back to the still sprite',
+            spider.body.material.map === spider.baseMap);
+        }
+      }
+    }
   } catch (err) {
     results.push(`FAIL :: self-test threw :: ${err.message}`);
     results.push(`      ${String(err.stack).split('\n').slice(1, 4).join(' | ')}`);

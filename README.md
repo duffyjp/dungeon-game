@@ -309,6 +309,37 @@ What the measurements taught us, in the order they arrived:
   clip, per-frame keyed PNGs, a contact sheet and measured `results.json`; moving animation into
   the game is a separate, deliberate step.
 
+### Shipping the animation: animated WebP, boomeranged, frames named at runtime
+
+```bash
+npm run anim:webp -- --only cellar_spider__walk        # build one, verify the container
+npm run anim:webp -- --yes                             # publish into assets/anim/
+npm run qa:animprobe                                   # what the browser can and cannot do
+```
+
+- **Boomerang lives in the file:** frames go 1…*N* then *N*−1…2, endpoints not duplicated, loop
+  forever. A model-rendered clip starts at the still and drifts; it does not come back
+  seamlessly, and reversing it costs no pixels.
+- **The file does not play itself.** An `<img>` of an animated WebP gives the canvas one frozen
+  frame — verified, not assumed — and the game has to name a frame because every creature sits
+  at a different moment, the player can pause, and an idle monster should show its still sprite.
+  So frames are decoded by index with WebCodecs `ImageDecoder` and shared per clip; if that API
+  is missing the whole feature switches off and the game behaves exactly as before.
+- **Two API traps, both cost an hour:** `ImageDecoder` wants an ArrayBuffer (a Blob throws a
+  type error that reads like the API is missing), and this build reports a null `selectedTrack`
+  and `complete: true` on the first frame — so the frame count comes from the container, which
+  `tools/webpParse.mjs` reads from the RIFF chunks because ffmpeg cannot re-read its own
+  animated WebP and `webpmux` is not installed.
+- **Verified before kept:** animation flag, loop-forever count, frame count, canvas size and a
+  per-frame alpha plane. A file that fails any of those is deleted, not shipped.
+- **Cost:** one enemy's walk cycle, 32 frames at 192×147 = **326 KB**, payload 37.6 → 38.0 MB.
+  A static WebP frame is 7.5 KB where the PNG is 51.8 KB with identical alpha measurements, so
+  the format is worth ~7×; 18 clips project near 2 MB. GIF is excluded on quality grounds —
+  one bit of transparency against sprites whose edges are deliberately soft.
+- The build check's browser budget had to rise (220 s → 420 s): decoding 32 frames is real work
+  that virtual time does not fast-forward, and the failure mode was a misleading "page did not
+  boot".
+
 ## Adding music
 
 Drop `.mp3`/`.ogg`/`.wav` files into `assets/music/`. Each new depth plays one at

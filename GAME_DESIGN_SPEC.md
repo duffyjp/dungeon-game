@@ -694,6 +694,34 @@ Promotion is a separate deliberate step, as with the alpha pass: clips land in
 `experiments/anim/<sprite>__<action>/` with `start.png`, the raw clip, per-frame keyed PNGs,
 `sheet.png` and measured `results.json`, indexed by `list.json` for `animreview.html`.
 
+**Shipping format: one animated WebP per clip, boomeranged, frames named at runtime.** The
+animation is baked forward-then-reverse (1…*N*…*N*−1…2, endpoints not duplicated) so the loop
+has no seam, and the file loops forever. But the file containing the animation is not what
+plays it: measured in the browser the game runs in, an `<img>` of an animated WebP hands the
+canvas **one frozen frame** no matter how long you wait, and this game must name a frame —
+two creatures of the same kind never stand at the same moment, the player can pause, and an
+idle monster should show its still sprite. The frames are therefore pulled out by index with
+WebCodecs `ImageDecoder` (`src/render/animation.js`), decoded once per clip and shared. If
+`ImageDecoder` is missing, the feature switches off and every billboard keeps today's static
+sprite: animation is a garnish, never a dependency.
+
+Two browser details cost time and are recorded so nobody relearns them: `ImageDecoder` needs
+an **ArrayBuffer**, and a Blob throws a type error that looks like the API is absent; and this
+build reports `selectedTrack === null` and `complete === true` on the *first* frame, so frame
+count comes from the container the build tool verified, not from decoder metadata. The build
+tool verifies the container by walking RIFF chunks (`tools/webpParse.mjs`) because ffmpeg
+here cannot re-read the animated WebP it writes and `webpmux` is not installed: animation
+flag, loop count, frame count, canvas size and a per-frame alpha plane are all asserted before
+a file is kept. GIF is ruled out on quality grounds rather than support — its transparency is
+one bit per pixel, and every sprite here has soft feathered edges.
+
+Measured cost, one tier-1 enemy (cellar spider, walk): 32 frames at 192×147, **326 KB**,
+site payload 37.6 → 38.0 MB. A static WebP of the same frame is 7.5 KB against 51.8 KB as PNG
+with byte-identical alpha measurements, so the format choice is worth roughly 7× at any frame
+count; the whole 18-clip phase is projected near 2 MB. Colour depth is not a constraint yet —
+the 8-bit-indexed fallback the brief allowed has not been needed.
+
+
 ---
 
 ## 14. Project structure

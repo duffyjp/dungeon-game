@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { CFG } from '../config.js';
 import { getTexture, getSoftShadowTexture } from '../render/assets.js';
 import { makeBillboard } from '../world/levelView.js';
+import { animationFor, loadFrames, frameIndex } from '../render/animation.js';
 import { moveCircle, hasLineOfSight, findOpenSpot } from '../world/collision.js';
 import { isOpen } from '../util/grid.js';
 import * as sfx from '../audio/sfx.js';
@@ -59,7 +60,12 @@ export class Enemy {
 
     this.group = new THREE.Group();
     const spriteKey = fam.sprites[String(tier)] || fam.sprites['1'];
+    this.spriteKey = spriteKey;
     this.body = makeBillboard(spriteKey, [this.height * 0.75, this.height], this.x, this.z, this.height / 2);
+    this.baseMap = this.body.material.map;
+    // Frame animation state. The offset is random per creature so a room of the same species
+    // does not step in lockstep, which is the detail that makes a crowd read as alive.
+    this.anim = { entry: null, frames: null, requested: false, t: 0, offset: Math.random() * 8, idx: -1, action: null };
     this.group.add(this.body);
 
     // Contact shadow follows the same tier ramp as the silhouette, so a knee-high wisp
@@ -117,6 +123,7 @@ export class Enemy {
     // through a wall should still mark the corridor behind it.
     const moved = Math.hypot(this.x - this.lastX, this.z - this.lastZ);
     this.lastX = this.x; this.lastZ = this.z;
+    this.tickAnimation(dt, moved);
     if (this.fam.trail) {
       this.trailT -= dt;
       if (this.trailT <= 0 && moved > 0.004) {
@@ -159,6 +166,41 @@ export class Enemy {
     if (this.tell > 0) this.tell -= dt;
     if (this.tell > 0 && this.tell - dt <= 0) this.landAttack();
     return true;
+  }
+
+  // ---- sprite animation ----
+  // Walk frames play while the body is actually covering ground — measured from the position
+  // change, not from the AI's state, for the same reason the ghost trail is: a creature that
+  // shuffled while "hunting" and a creature that stood still in the same state should not
+  // look the same. Anything else falls back to the still sprite, so a species with no clip,
+  // or a browser without WebCodecs, behaves exactly as it did before this existed.
+  tickAnimation(dt, moved) {
+    const a = this.anim;
+    const action = moved > 0.004 ? 'walk' : null;
+    if (!action) {
+      if (a.action !== null) {
+        a.action = null; a.idx = -1;
+        if (a.frames) { this.body.material.map = this.baseMap; this.body.material.needsUpdate = true; }
+      }
+      return;
+    }
+    if (!a.requested) {
+      a.requested = true;
+      const entry = animationFor(this.spriteKey, 'walk');
+      if (entry) loadFrames(entry).then(tex => { a.frames = tex; a.entry = entry; });
+    }
+    if (!a.frames || !a.entry) return;
+    a.action = action;
+    a.t += dt;
+    const i = frameIndex(a.entry, a.t, a.offset);
+    if (i !== a.idx) {
+      const prev = a.idx;
+      a.idx = i;
+      this.body.material.map = a.frames[i];
+      // needsUpdate forces a shader rebuild; only needed when a map appears or disappears,
+      // not when one texture replaces another.
+      if (prev < 0) this.body.material.needsUpdate = true;
+    }
   }
 
   // ---- movement helpers ----

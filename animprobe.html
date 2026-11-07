@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>animated webp playback probe</title>
+<style>
+  body { margin: 0; background: #0b0d10; color: #e6e8ea; font: 14px/1.6 ui-monospace, monospace; padding: 16px; }
+  h1 { font-size: 16px; margin: 0 0 6px; }
+  h2 { font-size: 14px; margin: 16px 0 4px; color: #cfd3d7; }
+  .ok { color: #7fd08a; } .bad { color: #e08040; } .dim { color: #9aa0a6; }
+  canvas { border: 1px solid #333; image-rendering: pixelated; margin: 4px 6px 4px 0; vertical-align: top; }
+  #strip { margin-top: 6px; }
+</style></head>
+<body>
+<h1>can the game drive an animated WebP billboard?</h1>
+<p class="dim">One file, thirty-two frames, boomeranged so the loop has no seam. The engine has to be able to name a frame — two monsters of the same kind never stand at the same moment of their walk, and the game can pause. Both routes are measured: WebCodecs' ImageDecoder, which is built for exactly this, and the plain &lt;img&gt; element three.js uses for static textures.</p>
+<div id="out">working…</div>
+<div id="strip"></div>
+<script>
+const FILE = 'experiments/anim/webp/enemies_t1_cellar_spider__walk.webp';
+const lines = [];
+const say = (ok, text) => lines.push(`<div class="${ok === true ? 'ok' : ok === false ? 'bad' : 'dim'}">${ok === true ? 'yes ' : ok === false ? 'no  ' : '    '} ${text}</div>`);
+
+function alphaOf(src, w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(src, 0, 0);
+  const d = g.getImageData(0, 0, w, h).data;
+  let clear = 0, soft = 0, opaque = 0, sig = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const a = d[i + 3];
+    if (a < 40) clear++; else if (a < 216) soft++; else opaque++;
+    if ((i & 1023) === 0) sig = (sig * 33 + d[i] * 3 + d[i + 1] * 2 + a) | 0;
+  }
+  const n = (w * h) || 1;
+  return { clear: +(100 * clear / n).toFixed(1), soft: +(100 * soft / n).toFixed(1), opaque: +(100 * opaque / n).toFixed(1), sig, canvas: c };
+}
+
+(async () => {
+  const buf = await (await fetch(FILE)).arrayBuffer();
+  say(true, `file downloads: ${buf.byteLength.toLocaleString()} bytes, magic ${[...new Uint8Array(buf, 12, 16)].map(b => String.fromCharCode(b)).join('')}`);
+
+  // Route 1: WebCodecs. This is the API designed for pulling numbered frames out of an
+  // animated container, and it does not depend on the page's clock.
+  if (typeof ImageDecoder === 'undefined') {
+    say(false, 'ImageDecoder (WebCodecs) is not available in this browser');
+  } else {
+    try {
+      // ImageDecoder wants the bytes themselves: an ArrayBuffer, not a Blob. Passing a Blob
+      // throws a type error that looks like the API is missing when it is not.
+      const dec = new ImageDecoder({ data: buf.slice(0), type: 'image/webp' });
+      await dec.tracks.ready;
+      const track = dec.selectedTrack;
+      say(track && track.isAnimated, `track reports isAnimated=${track && track.isAnimated}, frameCount=${track && track.frameCount}, encoded=${track && track.frameEncoding}`);
+      const sigs = [];
+      let clear0 = null, alphaSeen = false;
+      for (const k of [0, 5, 11, 16, 17, 24, 31]) {
+        const { image } = await dec.decode({ frameIndex: k });
+        const m = alphaOf(image, image.displayWidth, image.displayHeight);
+        sigs.push(`${k}:${m.sig}`);
+        if (k === 0) { clear0 = m; }
+        if (m.clear > 5 && m.soft + m.opaque > 5) alphaSeen = true;
+        const el = document.createElement('div');
+        el.style.display = 'inline-block';
+        const cap = document.createElement('div');
+        cap.className = 'dim'; cap.textContent = `frame ${k} ${m.clear}% clear`;
+        const show = document.createElement('canvas');
+        const sc = Math.min(1, 130 / m.canvas.width);
+        show.width = Math.round(m.canvas.width * sc); show.height = Math.round(m.canvas.height * sc);
+        show.getContext('2d').drawImage(m.canvas, 0, 0, show.width, show.height);
+        el.append(show, cap);
+        document.getElementById('strip').appendChild(el);
+        image.close();
+      }
+      const distinct = new Set(sigs.map(s => s.split(':')[1])).size;
+      say(distinct >= 5, `decoding seven named frames gave ${distinct} distinct pictures`);
+      say(alphaSeen, `named frames carry transparency (frame 0: ${clear0 ? clear0.clear : '?'}% clear, ${clear0 ? clear0.soft : '?'}% soft, ${clear0 ? clear0.opaque : '?'}% opaque)`);
+      dec.reset && dec.reset();
+    } catch (e) {
+      say(false, `ImageDecoder threw: ${e.message}`);
+    }
+  }
+
+  // Route 2: the plain <img> path three.js uses today. Fine for a texture, but does it move?
+  const img = new Image();
+  img.src = URL.createObjectURL(new Blob([buf], { type: 'image/webp' }));
+  try { await img.decode(); } catch (e) { say(false, `<img> refused to decode the file: ${e.message}`); }
+  const m1 = alphaOf(img, img.naturalWidth, img.naturalHeight);
+  say(m1.clear > 5, `<img> first frame: ${m1.clear}% clear, ${m1.soft}% soft, ${m1.opaque}% opaque`);
+  await new Promise(r => setTimeout(r, 900));
+  const m2 = alphaOf(img, img.naturalWidth, img.naturalHeight);
+  say(m1.sig !== m2.sig, `same <img> 900 ms later: ${m1.sig === m2.sig ? 'identical pixels — it does not advance on its own, so an <img> texture would be frozen on frame 0' : 'different frame — the browser is animating it'}`);
+
+  document.getElementById('out').innerHTML = lines.join('');
+  document.title = 'probe complete';
+})();
+</script>
+</body>
+</html>

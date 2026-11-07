@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-11-07T03:21:48.511Z",
+  "cell": 192,
+  "quality": 80,
+  "fps": 16,
+  "loop": "boomerang-baked",
+  "note": "animated WebP, forward then reverse inside the file so the loop has no seam",
+  "entries": [
+    {
+      "sprite": "enemies/t1/cellar_spider",
+      "action": "walk",
+      "file": "enemies_t1_cellar_spider__walk.webp",
+      "frames": 32,
+      "uniqueFrames": 17,
+      "fps": 16,
+      "durationMs": 63,
+      "cellW": 192,
+      "cellH": 147,
+      "crop": [
+        106,
+        184,
+        432,
+        331
+      ],
+      "loop": "boomerang-baked",
+      "bytes": 334332,
+      "clip": "cellar_spider__walk",
+      "seed": 44511,
+      "model": "wan2.2_i2v (Apache 2.0)",
+      "licence": "Wan 2.2 Apache 2.0"
+    }
+  ]
+}

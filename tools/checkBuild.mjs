@@ -99,7 +99,11 @@ if (!browser) {
 }
 
 const profile = mkdtempSync(join(tmpdir(), 'strata-buildcheck-'));
-const budget = Number(process.env.BUILDCHECK_BUDGET || 220000);
+// The self-test now decodes an animated WebP frame by frame, and that is real work the
+// virtual-time clock does not fast-forward through. At the old 220 s the page never reached
+// its report and the failure read "the page did not boot", which is the wrong diagnosis and
+// costs an hour to guess at.
+const budget = Number(process.env.BUILDCHECK_BUDGET || 420000);
 const child = spawn(browser, [
   `--user-data-dir=${profile}`, '--headless', '--disable-gpu', '--no-first-run',
   '--no-default-browser-check', '--window-size=1100,900', `--virtual-time-budget=${budget}`,
