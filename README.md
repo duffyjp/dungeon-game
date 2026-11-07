@@ -353,10 +353,29 @@ tracks. With no files the game runs silent.
 
 ## Sound effects
 
-There are no SFX files in the repo. All ~30 sounds are synthesised at runtime with
-WebAudio, following the recipes in spec §12. If you ever want real files instead,
-drop them in `assets/audio/sfx/` named after the recipe (for example
-`swing_01.mp3`) and the loader prefers them over the synth.
+35 events — swings, hits, bow, spells, creature vocalisation, pickups, stairs, UI and the
+distant ambience stings — are generated with **Stable Audio 3 medium** on the 5070 Ti box and
+live in `assets/audio/sfx/<event>.mp3`. The synthesised WebAudio recipes in spec §12.2 are
+still in the file as a fallback: a missing clip plays the placeholder rather than silence,
+which is why the self-test asserts that every event has a generated file.
+
+```
+node tools/graphCheck.mjs workflows/stable_audio_sfx.json http://10.1.1.1:8188   # validate the graph
+npm run sfx:batch -- --all                    # generate the whole bank, one at a time
+npm run sfx:batch -- --only hit_metal,bow_draw --seeds-from 46100    # re-roll rejects
+```
+
+Edit wording in `workflows/sfx_prompts.json`, not in the graph: the graph's reprompt chain was
+removed so descriptions reach the model verbatim, which is what makes a prompt replayable.
+`tools/sfxBatch.mjs` measures each clip from decoded samples and rejects defects you would
+otherwise notice late — a clip that clips at 0 dBFS, dead air before the attack, a hard cut
+instead of a decay, a length that disagrees with the request — then level-matches survivors to
+a −6 dBFS peak so a water drip doesn't land as loudly as a boss roar. Levels, seeds and
+measurements for every accepted clip are in `experiments/sfx/results.json`.
+
+Licence: the model is tagged `stable-audio-community` on Hugging Face and the upstream repos
+are gated behind Stability's terms. Ask before shipping more of its output; the answer belongs
+in the manifest, not in a guess.
 
 ## Art pipeline
 

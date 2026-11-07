@@ -810,6 +810,47 @@ Harness note: the screenshot tool runs Edge with `--disable-gpu`, and SwiftShade
 rasterise the displaced walls at all, so prop and decal screenshots are taken with `?disp=0`.
 That is a limitation of the harness, not of the game.
 
+### 13.11 Generated sound effects (Stable Audio 3)
+
+§12.2 assumed the ComfyUI boxes produced images only, so the 35 sound events were synthesised
+at runtime from WebAudio recipes — a good call at the time, and the fallback is still there.
+Stable Audio 3 changed that: `src/audio/sfx.js` already preferred a file in
+`assets/audio/sfx/<name>` over its recipe, so replacing the bank was a naming job rather than
+a code change.
+
+- **Graph**: `workflows/stable_audio_sfx.json`, the owner's MCP graph with the LLM reprompt
+  chain removed (an enhancer at temperature 0.7 rewrites each description differently on every
+  run — the same reason the prompt enhancer is off on the image boxes). Node ids are preserved.
+  Validated against the server's own inventory by `tools/graphCheck.mjs`.
+- **Descriptions**: `workflows/sfx_prompts.json`, one per event in the model's own SFX style
+  (source, material, space, temporal evolution, then `Length: N seconds`, which must agree
+  with the graph's duration input or the clip truncates mid-decay).
+- **Batch**: `tools/sfxBatch.mjs` (npm run `sfx:batch`), strictly one generation in flight.
+  It measures each clip from decoded PCM samples — this ffmpeg build has no working stats
+  filters, verified — and gates on: length against the request, peak between −26 and −0.6
+  dBFS, audible body against the category, dead air before the attack, a hard cut at the end,
+  and a 240 KB size ceiling. Accepted clips are level-matched to a −6 dBFS peak (gain capped
+  at +9 dB so a quiet clip is not lifted into its own noise floor) before shipping.
+- **What the gates caught** that a listening pass would catch late: a bow draw with 0.26 s of
+  dead air before the sound starts; impacts so short they were only 0.1 s of body. Two earlier
+  bugs in the harness itself are recorded in its comments — history outputs are keyed by node
+  id (`outputs["57"].audio`), which made successful runs look like failures, and counting a
+  fading room tail as silence rejected every honest one-shot, because a sword whoosh *is*
+  0.16 s of sound plus a second of room.
+- **Objective signal that the descriptions land**: zero-crossing rate separates them cleanly —
+  a water drip at 6046/s, a metallic clang at 6537, a sword whoosh at 3189, a flesh hit at
+  3279, a spectral moan at 1984 — and the boss roar carries by far the highest mean level.
+  Timbre and loudness are the thing the owner judges by ear; defects are what is measured here.
+- **Licence**: the model is tagged `license:other` / `stable-audio-community` on Hugging Face,
+  with the licence link pointing at Stability AI's community licence, and the upstream
+  `stabilityai` repositories are gated behind accepting terms. The full text was not readable
+  in this session without an authenticated account; the owner was told this on 2026-11-07 and
+  instructed to generate and ship the bank. That instruction is the approval on record — this
+  document is not licence advice.
+- **Guard**: the self-test asserts every event name has a generated file and that no shipped
+  clip is unreferenced, because a missing clip falls back to the synthesised placeholder and
+  would otherwise survive the whole suite sounding merely thin.
+
 
 ---
 

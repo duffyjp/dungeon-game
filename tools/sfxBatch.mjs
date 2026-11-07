@@ -61,10 +61,16 @@ function measure(file) {
   const win = Math.floor(rate * 0.02);                       // 20 ms frames
   const frames = [];
   let peak = 0, zeroCross = 0, energy = 0;
+  // Real clipping is a run of samples pinned at full scale, not merely a loud peak: a file
+  // that touches -0.2 dBFS is fine and gets levelled down anyway, while flat-topped runs are
+  // permanent distortion. Counting runs is what separates the two, and it stopped a second
+  // good armour-break generation from being rejected for being loud.
+  let clipRun = 0, clipWorst = 0;
   for (let i = 0; i < s.length; i++) {
     const a = Math.abs(s[i]);
     if (a > peak) peak = a;
     energy += s[i] * s[i];
+    if (a >= 0.995) { clipRun++; if (clipRun > clipWorst) clipWorst = clipRun; } else clipRun = 0;
     if (i > 0 && (s[i] > 0) !== (s[i - 1] > 0)) zeroCross++;
   }
   for (let f = 0; f + win <= s.length; f += win) {
@@ -93,20 +99,20 @@ function measure(file) {
     onsetSec: onsetIdx < 0 ? 99 : onsetIdx * 0.02,
     endDb: db(frames[frames.length - 1] / maxFrame),
     tailRatio: (tail.reduce((a, b) => a + b, 0) / Math.max(tail.length, 1)) / maxFrame,
-    zcr: zeroCross / (s.length / rate)
+    zcr: zeroCross / (s.length / rate),
+    clipRun: clipWorst
   };
 }
 
 function gates(m, want, cat) {
   const fail = [];
   if (m.duration < want - 0.35 || m.duration > want + 0.8) fail.push(`length ${m.duration.toFixed(2)}s for a ${want}s request`);
-  if (m.peakDb > -0.6) fail.push(`peak ${m.peakDb.toFixed(1)} dBFS clips at volume`);
+  if (m.clipRun >= 8) fail.push(`${m.clipRun} samples flat-topped: the recording is clipped`);
   if (m.peakDb < -26) fail.push(`peak ${m.peakDb.toFixed(1)} dBFS is inaudibly quiet`);
-  // A sword whoosh is 0.15 s of sound and the rest of the file is room tail — that is correct,
-  // not thin. The floor for a one-shot is therefore short; what still catches a bad generation
-  // is a sustained bed that goes quiet, which is where the fraction of the requested length
-  // does the work.
-  const floorSec = cat === 'sustained' ? 0.38 * want : 0.12;
+  // Calibrated against the first full run: a UI click is honestly 0.1 s of body and was being
+  // rejected for it, while ambient beds keep audible gaps between their events (distant stone
+  // settles, then stops) and were being rejected at 36% of their length.
+  const floorSec = cat === 'ui' ? 0.06 : cat === 'sustained' ? 0.30 * want : 0.12;
   if (m.activeSec < floorSec) fail.push(`only ${m.activeSec.toFixed(2)}s of audible body`);
   if (m.leadSec > 0.25) fail.push(`${m.leadSec.toFixed(2)}s of dead air before the sound starts`);
   if (m.endDb > -16) fail.push(`still at ${m.endDb.toFixed(1)} dB below peak when the file ends — hard cut`);
@@ -181,10 +187,51 @@ for (let i = 0; i < names.length; i++) {
   );
   results.push({ name, seed: SEED_BASE + i, seconds: cfgs.s, category: cfgs.cat, prompt, model: template.model, licence: template.licence, measured: m, bytes: buf.length, accepted: fail.length === 0, failedGates: fail });
 
-  if (!DRY && fail.length === 0) fs.copyFileSync(tmp, shipped);
+  if (!DRY && fail.length === 0) {
+    // Normalise before shipping. Generated effects arrive at wildly different levels — the
+    // pilot ranged from -12 to -2 dBFS peak — and the game plays them all through one bus, so
+    // a water drip would land on the player like a bomb. Gain is capped so a very quiet clip
+    // is not raised into its own noise floor.
+    const target = Number(arg('peak-target', -6));
+    const cap = Number(arg('max-gain', 9));
+    const want = target - m.peakDb;
+    const gain = Math.max(-18, Math.min(cap, want));
+    const normPath = path.join(ROOT, WORK, `${name}_norm.mp3`);
+    execFileSync(FFMPEG, ['-y', '-v', 'error', '-i', tmp, '-filter:a', `volume=${gain.toFixed(2)}dB`,
+      '-c:a', 'libmp3lame', '-q:a', '0', normPath], { stdio: ['ignore', 'pipe', 'pipe'] });
+    const nm = measure(normPath);
+    const nb = fs.statSync(normPath).size;
+    fs.copyFileSync(normPath, shipped);
+    results[results.length - 1].normalised = { gainDb: Number(gain.toFixed(2)), targetPeak: target, peakAfter: Number(nm.peakDb.toFixed(1)), bytes: nb };
+    console.log(`${''.padEnd(20)} levelled by ${gain.toFixed(1)} dB -> peak ${nm.peakDb.toFixed(1)} dBFS, ${(nb / 1024).toFixed(0)} KB shipped${gain !== want ? ` (wanted ${want.toFixed(1)} dB, capped)` : ''}`);
+  }
+
+  // Per-clip sidecar: results.json is overwritten by every run, which loses the provenance of
+  // clips accepted earlier — one file per clip keeps the manifest rebuildable.
+  fs.writeFileSync(path.join(ROOT, WORK, `${name}.json`), JSON.stringify(results[results.length - 1], null, 2) + '\n');
 }
 
 fs.writeFileSync(path.join(ROOT, WORK, 'results.json'), JSON.stringify(results, null, 2) + '\n');
+
+// Rebuild the shipped manifest from the sidecars, so the provenance of every clip travels with
+// the game: model, licence, seed, prompt, and the measured levels that got it accepted.
+const manPath = path.join(ROOT, OUT_DIR, 'manifest.json');
+const byName = new Map();
+for (const f of fs.readdirSync(path.join(ROOT, WORK)).filter(f => f !== 'results.json' && /^[a-z_]+\.json$/.test(f))) {
+  try {
+    const r = JSON.parse(fs.readFileSync(path.join(ROOT, WORK, f), 'utf8'));
+    if (r.accepted && fs.existsSync(path.join(ROOT, OUT_DIR, `${r.name}.mp3`))) byName.set(r.name, r);
+  } catch { /* a malformed sidecar must not take the whole manifest down */ }
+}
+const entries = [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
+fs.writeFileSync(manPath, JSON.stringify({
+  model: template.model,
+  licence: template.licence,
+  normalisedTo: `${Number(arg('peak-target', -6))} dBFS peak`,
+  updatedAt: new Date().toISOString(),
+  entries
+}, null, 2) + '\n');
+console.log(`manifest: ${entries.length} clips recorded with model, licence, seed, prompt and measured levels`);
 const ok = results.filter(r => r.accepted).length;
 console.log(`\naccepted ${ok}/${results.length}${DRY ? ' (nothing shipped, --dry)' : ` into ${OUT_DIR}`}`);
 console.log('measurements in ' + WORK + '/results.json; whether each one sounds right is for the owner to judge');

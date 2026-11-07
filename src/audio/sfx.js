@@ -173,3 +173,9 @@ function synth(name, opts) {
 }
 
 export function hasRecipe(name) { return Boolean(RECIPES[name] || FILE_URLS[name]); }
+
+// What the test harness asks about: which events exist, and which of them are backed by a
+// generated file rather than the synthesised fallback. A sound that silently keeps the
+// placeholder is invisible in play and should fail a check instead.
+export function sfxEventNames() { return Object.keys(RECIPES).sort(); }
+export function sfxFileNames() { return Object.keys(FILE_URLS).sort(); }

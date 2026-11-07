@@ -14,6 +14,7 @@ import { isOpen } from './util/grid.js';
 import { rollDrops, spawnLevelLoot } from './world/spawner.js';
 import { hasAsset, hasRealAlpha, hasNormalFor, hasRoughnessFor, hasHeightFor, getMirroredNormalTexture, getTexture } from './render/assets.js';
 import { animationFor, loadFrames, animationSupported, animationDiagnostic } from './render/animation.js';
+import { sfxEventNames, sfxFileNames } from './audio/sfx.js';
 
 export async function runSelfTest(game) {
   const results = [];
@@ -456,6 +457,20 @@ export async function runSelfTest(game) {
     ok('a hanging chain ends in a skull, not a bare rod',
       chains.length === 0 || boneParts >= chains.length,
       `${chains.length} chains in this level, ${boneParts} bone-coloured parts on them`);
+
+    // ---- sound bank -------------------------------------------------------
+    // The synthesised recipes stay as a fallback, which is exactly why this needs a check:
+    // a missing generated clip plays the placeholder and sounds merely thin rather than
+    // broken, so it would survive every other test in the suite.
+    const sfxEvents = sfxEventNames();
+    const sfxFiles = new Set(sfxFileNames());
+    const stillSynth = sfxEvents.filter(n => !sfxFiles.has(n));
+    ok('every sound event has a generated clip', stillSynth.length === 0,
+      `${sfxEvents.length - stillSynth.length}/${sfxEvents.length} events have a file` +
+      (stillSynth.length ? ` — still synthesised: ${stillSynth.join(', ')}` : ''));
+    const strays = [...sfxFiles].filter(f => !sfxEvents.includes(f));
+    ok('no shipped sound file is unreferenced by an event', strays.length === 0,
+      strays.length ? strays.join(', ') : `${sfxFiles.size} files, every one named by an event`);
 
     // "Is bump mapping active?" has two parts, and only the second is interesting. The
     // texture has to be bound to the live material — not a placeholder that happens to be
